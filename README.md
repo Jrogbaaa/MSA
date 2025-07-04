@@ -9,7 +9,8 @@ A modern, mobile-first real estate website built with Next.js 15 and React 19, s
 - **Gold Street Property Enhanced**: Updated to £825/month with floor plan as final photo
 - **Urgency Messaging**: Added "Only 2 left!" badges to encourage quick action
 - **Browse Properties Button**: Now smoothly scrolls to properties section
-- **EmailJS Integration**: Professional email system with graceful fallbacks
+- **EmailJS Complete Setup**: Fully configured with Service ID, Template ID, and Public Key
+- **Direct Email Sending**: Forms now send emails directly to 11jellis@gmail.com without opening email client
 - **Hero Slideshow Enhancement**: Fixed gray image issue with fresh Unsplash URLs and improved error handling
 - **Property Gallery**: Complete 7-image gallery including floor plan for Gold Street
 
@@ -111,17 +112,21 @@ MSA Real Estate Website
 Add these to your Vercel environment variables:
 
 ```env
-NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
-NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
-NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_rujk3lq
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_0npfw6f
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 ```
+
+**✅ CONFIGURED**: These values are already set up for MSA Real Estate.
 
 ### Step 6: Deploy
 1. Push changes to GitHub
 2. Vercel will automatically redeploy
 3. EmailJS will now send emails directly without opening email client
 
-**Note**: Without EmailJS configuration, the system gracefully falls back to opening the user's email client with pre-filled information.
+**✅ READY TO DEPLOY**: EmailJS is configured and ready to send emails directly to 11jellis@gmail.com
+
+**Note**: The system gracefully falls back to opening the user's email client if EmailJS fails for any reason.
 
 ## 🚀 Quick Start
 
@@ -161,10 +166,10 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
-# EmailJS Configuration (Optional)
-NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
-NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
-NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
+# EmailJS Configuration (✅ CONFIGURED)
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_rujk3lq
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_0npfw6f
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 ```
 
 ## 📱 Pages & Features

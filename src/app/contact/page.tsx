@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import Image from 'next/image';
 import { sendContactEmail, initEmailJS } from '@/lib/emailjs';
+import { checkEnvironmentVariables } from '@/lib/emailjs-test';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -25,6 +26,7 @@ export default function ContactPage() {
   // Initialize EmailJS on component mount
   useEffect(() => {
     initEmailJS();
+    checkEnvironmentVariables();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
