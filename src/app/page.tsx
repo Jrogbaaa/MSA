@@ -129,9 +129,9 @@ export default function HomePage() {
                 <Image 
                   src="/logo.svg" 
                   alt="MSA Real Estate" 
-                  width={200}
-                  height={60}
-                  className="h-10 w-auto"
+                  width={300}
+                  height={80}
+                  className="h-12 w-auto"
                   priority
                 />
               </Link>
@@ -199,45 +199,42 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
+      <div 
+        className="relative bg-cover bg-center bg-no-repeat text-white py-24"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80")'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h2 
-            className="text-4xl md:text-6xl font-bold mb-6"
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
           >
-            Find Your Perfect Home
-          </motion.h2>
-          <motion.p 
-            className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto"
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              Find Your Perfect Property
+            </h1>
+          </motion.div>
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Modern apartments in prime locations with seamless application process
-          </motion.p>
-          
-          {/* Search Bar */}
-          <motion.div 
-            className="max-w-2xl mx-auto"
+            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+              Discover premium properties across England with our modern, mobile-first platform
+            </p>
+          </motion.div>
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search by location, property name..."
-                className="pl-10 h-12 text-gray-900"
-                value={searchFilters.searchTerm}
-                onChange={(e) => setSearchFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
-              />
-            </div>
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-3">
+              Browse Properties
+            </Button>
           </motion.div>
         </div>
-      </section>
+      </div>
 
       {/* Filters */}
       <section className="bg-white py-6 border-b">
@@ -402,12 +399,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="md:flex md:items-center md:justify-between">
             <div className="flex justify-center md:justify-start">
-              <Image
+              <Image 
                 src="/logo.svg" 
                 alt="MSA Real Estate" 
-                className="h-8 w-auto"
-                width={100}
-                height={100}
+                width={300}
+                height={80}
+                className="h-10 w-auto"
               />
             </div>
             <div className="mt-4 md:mt-0 md:ml-4">
