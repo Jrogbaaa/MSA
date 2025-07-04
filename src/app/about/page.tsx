@@ -22,6 +22,10 @@ export default function AboutPage() {
     e.preventDefault();
     setIsSubmitting(true);
     
+    // TODO: In production, this would send to 11jellis@gmail.com
+    // For now, simulating form submission
+    console.log('Form data would be sent to 11jellis@gmail.com:', formData);
+    
     // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 2000));
     
@@ -48,8 +52,12 @@ export default function AboutPage() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="text-2xl font-bold text-gray-900">
-              MSA Real Estate
+            <Link href="/" className="flex items-center">
+              <img 
+                src="/logo.svg" 
+                alt="MSA Real Estate" 
+                className="h-10 w-auto"
+              />
             </Link>
             
             <nav className="hidden md:flex space-x-8">
@@ -94,7 +102,7 @@ export default function AboutPage() {
           <CardHeader>
             <CardTitle className="text-2xl">Contact Us</CardTitle>
             <p className="text-gray-600">
-              Have a question? We'd love to hear from you.
+              Have a question? We'd love to hear from you. Messages will be sent to 11jellis@gmail.com
             </p>
           </CardHeader>
           <CardContent>

@@ -125,7 +125,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">MSA Real Estate</h1>
+              <Link href="/" className="flex items-center">
+                <img 
+                  src="/logo.svg" 
+                  alt="MSA Real Estate" 
+                  className="h-10 w-auto"
+                />
+              </Link>
             </div>
             
             {/* Desktop Navigation */}
@@ -391,36 +397,32 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">MSA Real Estate</h3>
-              <p className="text-gray-400">
-                Your trusted partner in finding the perfect home.
-              </p>
+          <div className="md:flex md:items-center md:justify-between">
+            <div className="flex justify-center md:justify-start">
+              <img 
+                src="/logo.svg" 
+                alt="MSA Real Estate" 
+                className="h-8 w-auto"
+              />
             </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/" className="hover:text-white">Properties</Link></li>
-                <li><Link href="/about" className="hover:text-white">About</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/help" className="hover:text-white">Help Center</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
-                <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Contact Info</h4>
-              <div className="space-y-2 text-gray-400">
-                <p>123 Business Ave</p>
-                <p>City, State 12345</p>
-                <p>(555) 123-4567</p>
-                <p>info@msarealestate.com</p>
+            <div className="mt-4 md:mt-0 md:ml-4">
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Quick Links</h4>
+                  <ul className="text-sm text-gray-600 space-y-2">
+                    <li><Link href="/" className="hover:text-gray-900">Properties</Link></li>
+                    <li><Link href="/about" className="hover:text-gray-900">About</Link></li>
+                    <li><Link href="/dashboard" className="hover:text-gray-900">Dashboard</Link></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Contact</h4>
+                  <ul className="text-sm text-gray-600 space-y-2">
+                    <li>Email: 11jellis@gmail.com</li>
+                    <li>Phone: +44 20 7123 4567</li>
+                    <li>Address: London, UK</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
