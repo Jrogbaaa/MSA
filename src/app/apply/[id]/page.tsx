@@ -96,6 +96,9 @@ export default function ApplicationPage() {
       console.log('Submitting application:', applicationData);
       console.log('Application notification will be sent to: 11jellis@gmail.com');
       
+      // Simulate processing time to show professional experience
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       // Create email for application submission
       const emailSubject = `New Property Application: ${property?.title}`;
       const emailBody = `
@@ -122,13 +125,11 @@ Best regards,
 MSA Real Estate Website
       `;
       
-      const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Open email client
-      window.open(mailtoUrl, '_blank');
+      // Open email client after a short delay
+      setTimeout(() => {
+        const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoUrl, '_blank');
+      }, 1000);
       
       router.push('/dashboard?applicationSubmitted=true');
     } catch (error) {

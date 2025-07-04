@@ -200,6 +200,14 @@ export default function PropertyDetailPage() {
                   <MapPin size={18} className="mr-2" />
                   {property.address}
                 </div>
+                {/* Urgency Message */}
+                {property.id === '1' && (
+                  <div className="mt-3">
+                    <span className="inline-flex items-center bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                      🔥 Only 2 left! Act fast
+                    </span>
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

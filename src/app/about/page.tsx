@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, CheckCircle, Users, Award, Shield, Heart } from 'lucide-react';
+import { CheckCircle, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,8 +24,6 @@ export default function AboutPage() {
     setIsSubmitting(true);
     
     // Create email for contact form submission
-    console.log('About page contact form data being sent to 11jellis@gmail.com:', formData);
-    
     const emailSubject = `MSA About Page Contact: ${formData.subject}`;
     const emailBody = `
 CONTACT FORM SUBMISSION - ABOUT PAGE
@@ -73,14 +71,14 @@ Submitted: ${new Date().toLocaleString('en-GB')}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-28">
             <Link href="/" className="flex items-center">
-                              <Image 
-                  src="/logo.png" 
-                  alt="MSA Real Estate" 
-                  width={600}
-                  height={180}
-                  className="h-40 w-auto"
-                  priority
-                />
+              <Image 
+                src="/logo.png" 
+                alt="MSA Real Estate" 
+                width={600}
+                height={180}
+                className="h-40 w-auto"
+                priority
+              />
             </Link>
             
             <nav className="hidden md:flex space-x-8">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, Clock, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import Image from 'next/image';
+import { sendContactEmail, initEmailJS } from '@/lib/emailjs';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -19,39 +20,92 @@ export default function ContactPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Initialize EmailJS on component mount
+  useEffect(() => {
+    initEmailJS();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
     
-    // Email will be sent to 11jellis@gmail.com
-    console.log('Contact form data being sent to 11jellis@gmail.com:', formData);
-    
-    // Create mailto URL for immediate email sending
-    const emailSubject = `MSA Contact: ${formData.subject}`;
-    const emailBody = `
+    try {
+      // Try to send email directly via EmailJS
+      const emailResult = await sendContactEmail({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        source: 'Contact Page'
+      });
+
+      if (emailResult.success) {
+        // Email sent successfully via EmailJS
+        setIsSubmitted(true);
+        console.log('Email sent successfully via EmailJS');
+      } else {
+        // EmailJS failed, use mailto fallback
+        console.log('EmailJS failed, using mailto fallback:', emailResult.error);
+        
+        const emailSubject = `MSA Contact: ${formData.subject}`;
+        const emailBody = `
 Name: ${formData.name}
 Email: ${formData.email}
 Phone: ${formData.phone}
 
 Message:
 ${formData.message}
-    `;
+
+Submitted: ${new Date().toLocaleString('en-GB')}
+        `;
+        
+        const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoUrl, '_blank');
+        
+        setIsSubmitted(true);
+        
+        // Set appropriate message based on failure reason
+        if (emailResult.fallbackReason === 'missing_config') {
+          setSubmitError('Opening your email client to send the message. Please ensure it opens properly.');
+        } else {
+          setSubmitError('Email service temporarily unavailable. Opened your email client as backup.');
+        }
+      }
+    } catch (error) {
+      console.error('Contact form submission error:', error);
+      
+      // Fallback to mailto even on catch
+      const emailSubject = `MSA Contact: ${formData.subject}`;
+      const emailBody = `
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+
+Message:
+${formData.message}
+
+Submitted: ${new Date().toLocaleString('en-GB')}
+      `;
+      
+      const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      window.open(mailtoUrl, '_blank');
+      
+      setIsSubmitted(true);
+      setSubmitError('There was an issue with the email service. Your email client should have opened as a backup.');
+    } finally {
+      setIsSubmitting(false);
+    }
     
-    const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    window.open(mailtoUrl, '_blank');
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitted(true);
-    setIsSubmitting(false);
-    
-    // Reset form after 3 seconds
+    // Reset form after 5 seconds
     setTimeout(() => {
       setIsSubmitted(false);
+      setSubmitError(null);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    }, 3000);
+    }, 5000);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -186,7 +240,7 @@ ${formData.message}
                         Message Sent Successfully!
                       </h3>
                       <p className="text-gray-600">
-                        Your email client should have opened. We'll get back to you soon!
+                        {submitError || 'Thank you for your message. We will get back to you soon!'}
                       </p>
                     </div>
                   </motion.div>

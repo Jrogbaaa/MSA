@@ -34,15 +34,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          setUser({
-            id: firebaseUser.uid,
-            ...userDoc.data(),
-          } as User);
-        } else {
-          // Create new user document
-          const newUser: User = {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            setUser({
+              id: firebaseUser.uid,
+              ...userDoc.data(),
+            } as User);
+          } else {
+            // Create new user document
+            const newUser: User = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email!,
+              firstName: firebaseUser.displayName?.split(' ')[0] || '',
+              lastName: firebaseUser.displayName?.split(' ')[1] || '',
+              photoURL: firebaseUser.photoURL || undefined,
+              role: 'tenant',
+              savedProperties: [],
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+            await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+            setUser(newUser);
+          }
+        } catch (error: any) {
+          console.warn('Firestore access failed, using basic user data:', error.message);
+          // If offline or other Firestore error, create a basic user object from Firebase Auth
+          const basicUser: User = {
             id: firebaseUser.uid,
             email: firebaseUser.email!,
             firstName: firebaseUser.displayName?.split(' ')[0] || '',
@@ -53,8 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             createdAt: new Date(),
             updatedAt: new Date(),
           };
-          await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-          setUser(newUser);
+          setUser(basicUser);
         }
       } else {
         setUser(null);

@@ -2,142 +2,199 @@
 
 A modern, mobile-first real estate website built with Next.js 15 and React 19, specifically designed for the UK property market. Features Firebase authentication, comprehensive tenant dashboard, document management, and a responsive design optimised for English property seekers.
 
-## 🚀 Latest Updates (January 2025)
+## 🌟 Latest Features (January 2025)
 
-### ✨ Major Improvements
-- **🎨 Enhanced Branding**: Dramatically enlarged MSA logo across all pages for better visibility
-- **🎬 Hero Slideshow**: Dynamic luxury London property backgrounds with smooth transitions
-- **📧 Complete Contact System**: Dedicated contact page with professional forms sending to 11jellis@gmail.com
-- **🏠 Gold Street Property**: Complete listing with 6 high-quality photos and real property details
-- **🇬🇧 UK Localization**: Complete localization for British market including:
-  - GBP currency formatting (£850-£3,500/month)
-  - British date format (DD/MM/YYYY) 
-  - UK phone number formatting (+44, 07/01/02 prefixes)
-  - English property addresses (Northampton, Manchester, Birmingham, London)
-  - British terminology ("properties" vs "apartments", "personalised" vs "personalized")
-  - Studio display ("Studio" instead of "0 bedrooms")
-- **📄 Tenant Document Portal**: Comprehensive document management system
-- **🔐 Enhanced Authentication**: "Tenant Sign In" for clear user identification
-- **⚡ Next.js 15 + React 19**: Latest framework versions with improved performance
+### ✅ Recently Completed Updates
+- **Hero Section Optimization**: Reduced height from full-screen to mobile-friendly proportions (`h-96 md:h-[500px]`)
+- **Gold Street Property Enhanced**: Updated to £950/month with floor plan as final photo
+- **Urgency Messaging**: Added "Only 2 left!" badges to encourage quick action
+- **Browse Properties Button**: Now smoothly scrolls to properties section
+- **EmailJS Integration**: Professional email system with graceful fallbacks
+- **Image Error Handling**: Fixed hero slideshow preloading errors
+- **Property Gallery**: Complete 7-image gallery including floor plan for Gold Street
 
-### 📧 Contact & Communication Features
-- **Dedicated Contact Page**: Professional contact form at `/contact`
-- **Multi-Channel Communication**: Email, phone, and form submissions
-- **Email Integration**: All forms send structured emails to 11jellis@gmail.com
-- **Application Notifications**: Detailed application emails with property and tenant information
-- **Response Time Tracking**: 24-hour response commitment display
-- **Service Area Display**: Northampton & surrounding areas coverage
+### 🏠 Gold Street Property Specifications
+- **Address**: Gold Street, Northampton, NN1 1RS
+- **Type**: Studio Flat
+- **Rent**: £950/month
+- **Bedrooms**: Studio (0 bedrooms)
+- **Bathrooms**: 1
+- **Size**: 450 sq ft
+- **Features**: Modern open-plan living, kitchen with appliances, bathroom with shower
+- **Location**: Northampton Town Centre, close to amenities and transport
+- **Availability**: Available now - **Only 2 left!**
+- **Photos**: 7 high-quality images including floor plan
 
-### 📁 Document Management Features
-- **Lease Agreements**: View and download signed tenancy agreements
-- **Insurance Policies**: Access tenant insurance documents
-- **Maintenance Forms**: Submit and track maintenance requests
-- **Document Status**: Real-time status tracking (signed, pending, expired)
-- **Property Association**: Documents linked to specific properties
-- **One-Click Downloads**: Easy document access with download functionality
+## 🚀 Features
 
-### 🏠 Real Property Data - Gold Street, Northampton
-- **Complete Photo Gallery**: 6 high-quality property images
-- **Accurate Details**: Studio flat, 1 bathroom, £850/month
-- **Real Address**: Gold Street, Northampton, NN1 1RS
-- **Authentic Description**: Professional property description with local amenities
-- **Modern Amenities**: City centre location, transport links, modern kitchen
-- **Verified Specifications**: 450 sq ft, unfurnished, available now
+### Core Functionality
+- **🏠 Property Listings**: Browse premium properties across England
+- **🔍 Advanced Search**: Filter by price, bedrooms, bathrooms, and location
+- **📱 Responsive Design**: Mobile-first approach optimized for all devices
+- **🔒 Firebase Authentication**: Secure Google sign-in system
+- **💾 Property Saving**: Save favorite properties to your account
+- **📋 Application System**: Multi-step rental application process
+- **📧 Contact System**: EmailJS integration with mailto fallbacks
 
-## 🏠 Features
+### User Experience
+- **🎬 Hero Slideshow**: Dynamic luxury apartment backgrounds with smooth transitions
+- **⚡ Smooth Navigation**: Browse Properties button scrolls to listings
+- **🔥 Urgency Messaging**: "Only 2 left!" badges for high-demand properties
+- **📸 Property Galleries**: High-quality photos with floor plans
+- **👤 User Dashboard**: Manage applications, saved properties, and documents
+- **📞 Contact Forms**: Multiple contact options with professional email integration
 
-### Core Property Features
-- **Property Listings** - UK properties with GBP pricing and British addresses
-- **Property Details** - Full property information with 6-image photo galleries
-- **Multi-Step Application** - Mobile-optimised tenancy application forms
-- **Tenant Dashboard** - Application tracking, saved properties, and document access
-- **Document Portal** - Lease agreements, insurance, and maintenance documents
-- **Google Authentication** - Secure tenant login via Firebase Auth
-- **Hero Slideshow** - Dynamic luxury London property backgrounds with smooth transitions
-- **Contact System** - Dedicated contact page with email integration (11jellis@gmail.com)
-- **Image Management** - Organized property image system with high-quality photos
-
-### UK-Specific Features
-- **British Currency**: All pricing in GBP (£) with proper formatting
-- **UK Addresses**: Realistic English property locations across major cities
-- **British Date Format**: DD/MM/YYYY throughout the application
-- **UK Phone Numbers**: British telephone number formatting and validation
-- **Local Terminology**: British English throughout (flats, properties, personalised)
-- **UK Amenities**: British-specific amenities (roof terraces, underground parking)
-
-### Mobile-First Design
-- **Prominent Branding**: Large, visible MSA logo for professional presence
-- **Touch-Friendly**: Optimized for mobile property browsing
-- **Swipeable Galleries**: Touch-optimized photo navigation
-- **One-Handed Use**: Easy navigation with thumb-friendly controls
-- **Fast Loading**: Optimized images and performance
-- **Responsive**: Perfect across all devices and screen sizes
-
-### Technical Features
-- **Next.js 15** with App Router and latest optimizations
-- **React 19** with improved performance and features
-- **TypeScript** for complete type safety
-- **Tailwind CSS** for modern styling
-- **Firebase** for authentication and secure data storage
-- **Framer Motion** for smooth, professional animations
-- **React Hook Form** with comprehensive validation
+### UK Localization
+- **💷 British Currency**: All prices displayed in GBP (£)
+- **🏴󠁧󠁢󠁥󠁮󠁧󠁿 UK Addresses**: Proper UK postcode formatting
+- **📍 England Focus**: Properties across Manchester, Birmingham, London, and Northampton
+- **🏢 Studio Flats**: Proper "Studio" display instead of "0 bedrooms"
+- **📅 British Dates**: DD/MM/YYYY format throughout
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 15.3.5, React 19.1.0, TypeScript 5.x
-- **Styling**: Tailwind CSS 3.x, Radix UI components, ShadCN/UI
-- **Authentication**: Firebase Auth v10+ (Google provider)
-- **Database**: Firestore (Firebase) with UK data structure
-- **Storage**: Firebase Storage for document and image uploads
-- **Forms**: React Hook Form with Zod validation
-- **Animations**: Framer Motion for smooth interactions
-- **Icons**: Lucide React icon library
-- **Deployment**: Vercel with automatic deployments
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS, Shadcn/ui components
+- **Backend**: Firebase (Authentication, Firestore)
+- **Email**: EmailJS with mailto fallbacks
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Deployment**: Vercel with automatic GitHub integration
+- **Images**: Next.js Image optimization
 
-## 📦 Installation & Setup
+## 📧 EmailJS Configuration
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Jrogbaaa/MSA.git
-   cd MSA
-   ```
+### Step 1: Create EmailJS Account
+1. Visit [EmailJS.com](https://www.emailjs.com/)
+2. Sign up for a free account
+3. Verify your email address
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### Step 2: Setup Email Service
+1. Go to **Email Services** in your EmailJS dashboard
+2. Click **Add New Service**
+3. Choose your email provider (Gmail, Outlook, etc.)
+4. Follow the authentication process
+5. Note your **Service ID**
 
-3. **Environment Configuration**
-   Create a `.env.local` file with Firebase configuration:
-   ```env
-   # Firebase Client Configuration (Required)
-   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
+### Step 3: Create Email Template
+1. Go to **Email Templates**
+2. Click **Create New Template**
+3. Use this template structure:
 
-   # Firebase Service Account (For server-side operations)
-   FIREBASE_SERVICE_ACCOUNT_EMAIL=your_service_account@your_project.iam.gserviceaccount.com
-   FIREBASE_PRIVATE_KEY_ID=your_private_key_id
-   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour_private_key\n-----END PRIVATE KEY-----\n"
-   FIREBASE_CLIENT_EMAIL=your_service_account@your_project.iam.gserviceaccount.com
-   FIREBASE_CLIENT_ID=your_client_id
-   FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
-   FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
-   FIREBASE_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
-   FIREBASE_CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/your_service_account%40your_project.iam.gserviceaccount.com
-   ```
+```html
+Subject: {{subject}}
 
-4. **Start development server**
-   ```bash
-   npm run dev
-   ```
+New contact form submission from MSA Real Estate:
 
-5. **Access the application**
-   Open [http://localhost:3000](http://localhost:3000) in your browser
+Name: {{from_name}}
+Email: {{from_email}}
+Phone: {{phone}}
+Subject: {{subject}}
+Source: {{source}}
+
+Message:
+{{message}}
+
+Submission Date: {{submission_date}}
+
+Best regards,
+MSA Real Estate Website
+```
+
+4. Note your **Template ID**
+
+### Step 4: Get Public Key
+1. Go to **Integration** → **Browser**
+2. Copy your **Public Key**
+
+### Step 5: Configure Environment Variables
+Add these to your Vercel environment variables:
+
+```env
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
+```
+
+### Step 6: Deploy
+1. Push changes to GitHub
+2. Vercel will automatically redeploy
+3. EmailJS will now send emails directly without opening email client
+
+**Note**: Without EmailJS configuration, the system gracefully falls back to opening the user's email client with pre-filled information.
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ and npm
+- Firebase project
+- Vercel account (optional, for deployment)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Jrogbaaa/MSA.git
+cd MSA
+
+# Install dependencies
+npm install
+
+# Setup environment variables
+cp .env.example .env.local
+# Add your Firebase and EmailJS configuration
+
+# Run development server
+npm run dev
+```
+
+### Environment Variables
+
+Create a `.env.local` file:
+
+```env
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+
+# EmailJS Configuration (Optional)
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
+```
+
+## 📱 Pages & Features
+
+### Homepage (`/`)
+- **Dynamic Hero Slideshow**: Luxury apartment interiors with 6-second transitions
+- **Smart Filters**: Price range, bedrooms, bathrooms with UK-specific options
+- **Property Grid**: Responsive cards with save functionality and urgency badges
+- **Smooth Navigation**: Browse Properties button scrolls to listings
+
+### Property Details (`/property/[id]`)
+- **Photo Gallery**: High-quality images with navigation and thumbnails
+- **Property Information**: Detailed specs, description, and amenities
+- **Contact Options**: Schedule tours, phone, email integration
+- **Urgency Indicators**: "Only 2 left!" messaging for high-demand properties
+
+### Application System (`/apply/[id]`)
+- **Multi-Step Process**: Personal info, employment, references, documents
+- **Progress Tracking**: Visual step indicator
+- **Email Notifications**: Detailed application emails to business
+
+### User Dashboard (`/dashboard`)
+- **Application Management**: Track application status and history
+- **Saved Properties**: Manage favorite listings
+- **Document Center**: Download leases, applications, insurance docs
+
+### Contact & About (`/contact`, `/about`)
+- **Professional Contact Forms**: EmailJS integration with fallbacks
+- **Company Information**: About MSA Real Estate
+- **Multiple Contact Methods**: Email, phone, and form submissions
 
 ## 🏗️ Project Structure
 
@@ -169,6 +226,7 @@ MSA/
 │   │   └── useAuth.tsx     # Firebase authentication context
 │   ├── lib/
 │   │   ├── firebase.ts     # Firebase configuration
+│   │   ├── emailjs.ts      # EmailJS integration
 │   │   └── utils.ts        # Utility functions (UK formatting)
 │   └── types/
 │       └── index.ts        # TypeScript definitions
@@ -178,125 +236,111 @@ MSA/
 └── package.json           # Dependencies and scripts
 ```
 
-## 📱 Pages & Features
+## 🎨 Design System
 
-### Homepage (`/`)
-- **Hero Slideshow**: Dynamic luxury London property backgrounds with smooth transitions
-- **Property Grid**: UK properties with GBP pricing including real Gold Street listing
-- **Enhanced Logo**: Large, prominent MSA branding
-- **Filtering**: Bedroom, bathroom, and price filters (includes Studio option)
-- **British Addresses**: Northampton, Manchester, Birmingham, London properties
-- **Mobile Optimized**: Touch-friendly property cards
-- **Slideshow Controls**: Manual navigation with indicator dots
+### Color Palette
+- **Primary**: Blue (#3B82F6) - Trust and professionalism
+- **Secondary**: Gray (#6B7280) - Neutral and modern
+- **Accent**: Red (#EF4444) - Urgency and action
+- **Success**: Green (#10B981) - Positive actions
 
-### Property Details (`/property/[id]`)
-- **Photo Galleries**: High-quality property images
-- **UK Specifications**: British property details and amenities
-- **Contact Integration**: UK phone numbers and email
-- **Application CTAs**: Direct links to tenancy applications
-- **Responsive Design**: Perfect mobile and desktop viewing
+### Typography
+- **Font Family**: Inter (clean, professional, excellent readability)
+- **Headings**: Bold weights for hierarchy
+- **Body Text**: Regular weight, optimal line height
 
-### Tenant Dashboard (`/dashboard`)
-- **Document Portal**: Complete document management system
-  - Signed lease agreements
-  - Insurance policies
-  - Maintenance request forms
-  - Real-time status tracking
-- **Application Tracking**: Monitor tenancy application progress
-- **Saved Properties**: Bookmarked properties with quick access
-- **Statistics**: Personal dashboard with document counts
-- **Profile Management**: Tenant profile and preferences
+### Components
+- **Cards**: Hover effects with subtle shadows
+- **Buttons**: Touch-friendly sizing, clear CTAs
+- **Forms**: Clean inputs with focus states
+- **Navigation**: Large logo, clear menu structure
 
-### Application Form (`/apply/[id]`)
-- **Multi-Step Process**: Guided tenancy application
-- **UK Data Fields**: British-specific form fields
-- **Document Upload**: Secure file management
-- **Auto-Save**: Progress preservation
-- **Validation**: Comprehensive form validation
-
-### About Page (`/about`)
-- **Company Information**: MSA Real Estate details
-- **Contact Form**: Direct communication (sends to 11jellis@gmail.com)
-- **UK Contact Details**: British phone numbers and addresses
-- **Professional Design**: Clean, trustworthy presentation
-
-### Contact Page (`/contact`)
-- **Dedicated Contact Form**: Comprehensive contact form with full details
-- **Multi-Channel Contact**: Email, phone, and message options
-- **Email Integration**: All messages sent directly to 11jellis@gmail.com
-- **Response Time Display**: 24-hour response commitment
-- **Service Area Information**: Northampton & surrounding areas coverage
-- **Professional Layout**: Two-column layout with contact information and form
-
-## 🔐 Authentication & Security
-
-### Firebase Authentication
-- **Google Sign-In**: Secure OAuth integration
-- **Tenant Accounts**: User profile creation and management
-- **Protected Routes**: Secure access to dashboard and applications
-- **Session Management**: Automatic login persistence
-- **Role-Based Access**: Tenant and admin role support
-
-### Security Features
-- **Environment Variables**: Secure API key management
-- **Firebase Security Rules**: Restricted database access
-- **Protected Routes**: Authentication-required pages
-- **Email Integration**: Secure form submissions to 11jellis@gmail.com
-
-## 🚀 Deployment
+## 🚢 Deployment
 
 ### Automatic Deployment
-- **Vercel Integration**: Automatic deployment on every GitHub push
-- **GitHub Repository**: https://github.com/Jrogbaaa/MSA.git
-- **Environment Variables**: Configure in Vercel dashboard for production
-- **Build Optimization**: Automatic optimization for production deployment
-- **Custom Domain**: Ready for custom domain configuration
+The project is configured for automatic deployment:
 
-### Environment Variables for Production
-Ensure all Firebase environment variables are configured in your Vercel dashboard:
-1. Go to your Vercel project dashboard
-2. Navigate to Settings > Environment Variables
-3. Add all variables from `.env.local` file
-4. Redeploy for changes to take effect
+1. **GitHub Integration**: Push to `main` branch triggers deployment
+2. **Vercel Deployment**: Automatic builds and deployments
+3. **Environment Variables**: Configured in Vercel dashboard
+4. **Domain**: Custom domain configured if available
 
-### Build & Deploy Commands
+### Manual Deployment
+
 ```bash
-# Build for production
+# Build the project
 npm run build
 
 # Deploy to Vercel
-vercel --prod
-
-# Check deployment status
-vercel ls
+npx vercel --prod
 ```
 
-## 📧 Contact & Support
+## 📊 Performance Features
+
+- **Next.js Image Optimization**: Automatic image compression and sizing
+- **Code Splitting**: Lazy loading of components and pages
+- **Static Generation**: Pre-rendered pages for optimal performance
+- **Mobile Optimization**: Touch-friendly interfaces and gestures
+- **SEO Optimization**: Proper meta tags and structured data
+
+## 🔐 Security Features
+
+- **Firebase Authentication**: Secure Google sign-in
+- **Environment Variables**: Sensitive data protection
+- **Input Validation**: Form validation and sanitization
+- **Error Handling**: Graceful error states and fallbacks
+- **Offline Resilience**: Firebase offline error handling
+
+## 📞 Contact & Communication
 
 ### Email Integration
-- **Primary Contact**: 11jellis@gmail.com
-- **Form Submissions**: All contact forms send structured emails
-- **Application Notifications**: Detailed application emails with property information
-- **Response Time**: 24-hour response commitment
+- **Primary Email**: 11jellis@gmail.com
+- **Contact Forms**: All forms send to primary email
+- **EmailJS**: Direct email sending when configured
+- **Mailto Fallbacks**: Email client opening when EmailJS unavailable
 
-### Repository Information
-- **GitHub**: https://github.com/Jrogbaaa/MSA.git
-- **Live Site**: Deployed on Vercel with automatic updates
-- **Documentation**: Complete setup and deployment guide in README
+### Communication Features
+- **Application Notifications**: Detailed emails with property and applicant info
+- **Contact Form Submissions**: Professional formatted emails
+- **Tour Requests**: Scheduled viewing submissions
+- **Property Inquiries**: Direct contact for specific properties
 
-## 🔄 Recent Updates Log
+## 🐛 Error Handling
 
-### January 2025
-- ✅ Added 6-image photo gallery for Gold Street property
-- ✅ Created dedicated contact page with email integration
-- ✅ Implemented hero slideshow with London luxury properties
-- ✅ Fixed studio display to show "Studio" instead of "0 bedrooms"
-- ✅ Enhanced all contact forms with mailto integration
-- ✅ Updated navigation with contact page links
-- ✅ Improved mobile responsiveness and touch interactions
-- ✅ Added automatic Vercel deployment on GitHub push
-- ✅ Cleaned up image management system
-- ✅ Updated documentation with latest features
+### Image Loading
+- **Hero Slideshow**: Graceful fallbacks for missing images
+- **Property Photos**: Error states for broken images
+- **Loading States**: Smooth transitions and feedback
+
+### Email System
+- **EmailJS Fallbacks**: Automatic mailto when service unavailable
+- **User Feedback**: Clear messages about email status
+- **Error Recovery**: Multiple contact methods available
+
+### Offline Handling
+- **Firebase Offline**: Graceful degradation when Firestore unavailable
+- **User Creation**: Fallback user data when offline
+- **State Management**: Robust error boundaries
+
+## 📈 Recent Updates Log
+
+### January 2025 - Major Enhancements
+- ✅ **Hero Section Redesign**: Reduced height, improved mobile experience
+- ✅ **Gold Street Property**: Updated to £950, added floor plan, urgency messaging
+- ✅ **Navigation Enhancement**: Browse Properties button smooth scroll
+- ✅ **EmailJS Integration**: Professional email system with fallbacks
+- ✅ **Error Handling**: Fixed image preloading and Firebase offline issues
+- ✅ **Property Display**: Enhanced with urgency badges and better formatting
+- ✅ **Documentation**: Comprehensive updates with EmailJS setup guide
+
+### Previous Updates
+- ✅ **Contact System**: Dedicated contact page with professional forms
+- ✅ **Studio Display**: Proper "Studio" formatting instead of "0 bedrooms"
+- ✅ **Property Images**: 6-image gallery for Gold Street property
+- ✅ **Currency Localization**: Full GBP display throughout site
+- ✅ **Slideshow Enhancement**: Luxury apartment backgrounds with smooth transitions
+- ✅ **Firebase Integration**: User authentication and data management
+- ✅ **Application System**: Multi-step rental applications with email notifications
 
 ## 📝 License
 
