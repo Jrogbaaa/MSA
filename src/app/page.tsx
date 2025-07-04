@@ -17,9 +17,9 @@ import Image from 'next/image';
 const heroBackgrounds = [
   'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2558&q=80', // Luxury living room with city view
   'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Modern luxury apartment interior
-  'https://images.unsplash.com/photo-1574490681340-84d472743592?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Luxury kitchen with island and view
+  'https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Modern luxury kitchen with island
   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Luxury living room with modern furniture
-  'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Modern bedroom with city view
+  'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Modern bedroom with city view
 ];
 
 export default function HomePage() {
@@ -37,19 +37,21 @@ export default function HomePage() {
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-  // Preload hero images
+  // Preload hero images with fallback
   useEffect(() => {
     const preloadImages = () => {
       let loadedCount = 0;
       const totalImages = heroBackgrounds.length;
+      const loadedImages = new Set();
 
       heroBackgrounds.forEach((src, index) => {
         const img = document.createElement('img');
         img.onload = () => {
+          loadedImages.add(index);
           loadedCount++;
           if (loadedCount === totalImages) {
             setImagesLoaded(true);
-            console.log('All hero images preloaded successfully');
+            console.log(`Hero images preloaded: ${loadedImages.size}/${totalImages} successful`);
           }
         };
         img.onerror = (error) => {
@@ -57,7 +59,7 @@ export default function HomePage() {
           loadedCount++;
           if (loadedCount === totalImages) {
             setImagesLoaded(true);
-            console.log('Hero image preloading completed (some failed)');
+            console.log(`Hero image preloading completed: ${loadedImages.size}/${totalImages} successful`);
           }
         };
         img.src = src;
@@ -205,7 +207,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 md:h-[500px] overflow-hidden">
+      <section className="relative h-96 md:h-[500px] overflow-hidden bg-gray-600">
         {/* Background images */}
         {heroBackgrounds.map((bg, index) => (
           <div
@@ -220,6 +222,9 @@ export default function HomePage() {
               fill
               className="object-cover"
               priority={index === 0}
+              onError={() => {
+                console.warn(`Hero image ${index + 1} failed to load:`, bg);
+              }}
             />
           </div>
         ))}

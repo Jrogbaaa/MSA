@@ -10,7 +10,7 @@ A modern, mobile-first real estate website built with Next.js 15 and React 19, s
 - **Urgency Messaging**: Added "Only 2 left!" badges to encourage quick action
 - **Browse Properties Button**: Now smoothly scrolls to properties section
 - **EmailJS Integration**: Professional email system with graceful fallbacks
-- **Hero Slideshow Fix**: Fixed gray image issue by aligning preloading with background URLs
+- **Hero Slideshow Enhancement**: Fixed gray image issue with fresh Unsplash URLs and improved error handling
 - **Property Gallery**: Complete 7-image gallery including floor plan for Gold Street
 
 ### 🏠 Gold Street Property Specifications
@@ -329,7 +329,7 @@ npx vercel --prod
 - ✅ **Gold Street Property**: Updated to £825, added floor plan, urgency messaging
 - ✅ **Navigation Enhancement**: Browse Properties button smooth scroll
 - ✅ **EmailJS Integration**: Professional email system with fallbacks
-- ✅ **Hero Slideshow Fix**: Fixed gray image issue by aligning preloading with Unsplash URLs
+- ✅ **Hero Slideshow Enhancement**: Fixed gray image issue with fresh Unsplash URLs and robust error handling
 - ✅ **Error Handling**: Fixed image preloading and Firebase offline issues
 - ✅ **Property Display**: Enhanced with urgency badges and better formatting
 - ✅ **Documentation**: Comprehensive updates with EmailJS setup guide
