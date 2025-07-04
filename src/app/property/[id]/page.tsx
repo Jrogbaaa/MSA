@@ -18,71 +18,12 @@ import {
   Mail
 } from 'lucide-react';
 import { Property } from '@/types';
+import { properties } from '@/data/properties';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
-
-// Mock data - same as homepage
-const mockProperties: Property[] = [
-  {
-    id: '1',
-    title: 'Modern Downtown Loft',
-    address: '123 Main Street, Downtown',
-    rent: 2500,
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFootage: 1200,
-    description: 'Beautiful modern loft with city views, hardwood floors, and stainless steel appliances. This stunning property features floor-to-ceiling windows, an open-concept layout, and premium finishes throughout. The spacious living area flows seamlessly into the gourmet kitchen, which boasts granite countertops, custom cabinetry, and high-end appliances.',
-    amenities: ['Gym', 'Rooftop Deck', 'Parking', 'Pet Friendly', 'Laundry', 'Concierge'],
-    photos: [
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1484154218962-a197022b5858?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
-    ],
-    availability: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    title: 'Cozy Garden Apartment',
-    address: '456 Oak Avenue, Midtown',
-    rent: 1800,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFootage: 800,
-    description: 'Charming garden apartment with private patio and updated kitchen. Perfect for those seeking a peaceful retreat in the heart of the city.',
-    amenities: ['Garden', 'Parking', 'Laundry', 'Pet Friendly'],
-    photos: [
-      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
-    ],
-    availability: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    title: 'Luxury High-Rise Studio',
-    address: '789 Skyline Drive, Uptown',
-    rent: 3200,
-    bedrooms: 3,
-    bathrooms: 2,
-    squareFootage: 1500,
-    description: 'Stunning high-rise apartment with panoramic city views and premium amenities. This luxury residence offers the finest in urban living.',
-    amenities: ['Concierge', 'Pool', 'Gym', 'Parking', 'Rooftop Deck', 'Doorman'],
-    photos: [
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
-    ],
-    availability: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -96,7 +37,7 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     // Find property by ID
-    const foundProperty = mockProperties.find(p => p.id === propertyId);
+    const foundProperty = properties.find(p => p.id === propertyId);
     if (foundProperty) {
       setProperty(foundProperty);
     }

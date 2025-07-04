@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Search, Filter, MapPin, Bed, Bath, Square, Heart, User, Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Property, SearchFilters } from '@/types';
+import { properties } from '@/data/properties';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,66 +13,9 @@ import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// Mock data for properties
-const mockProperties: Property[] = [
-  {
-    id: '1',
-    title: 'Modern City Centre Flat',
-    address: '15 King Street, Manchester City Centre, M2 4LQ',
-    rent: 1800,
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFootage: 1200,
-    description: 'Stunning modern flat with city views, hardwood floors, and high-end appliances.',
-    amenities: ['Gym', 'Roof Terrace', 'Secure Parking', 'Pet Friendly'],
-    photos: [
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1484154218962-a197022b5858?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
-    ],
-    availability: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    title: 'Charming Garden Flat',
-    address: '78 Victoria Road, Birmingham, B16 9PA',
-    rent: 1200,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFootage: 800,
-    description: 'Lovely garden flat with private patio and newly refurbished kitchen.',
-    amenities: ['Private Garden', 'Off-Street Parking', 'Communal Laundry'],
-    photos: [
-      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
-    ],
-    availability: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    title: 'Luxury Penthouse Apartment',
-    address: '42 Canary Wharf, London, E14 5AB',
-    rent: 3500,
-    bedrooms: 3,
-    bathrooms: 2,
-    squareFootage: 1500,
-    description: 'Exceptional penthouse with panoramic Thames views and premium amenities.',
-    amenities: ['Concierge Service', 'Swimming Pool', 'Gym', 'Underground Parking', 'Roof Terrace'],
-    photos: [
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
-    ],
-    availability: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
 export default function HomePage() {
   const { user, signInWithGoogle, signOut } = useAuth();
-  const [properties, setProperties] = useState<Property[]>(mockProperties);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(mockProperties);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     priceRange: [0, 4000],
     bedrooms: null,
@@ -100,7 +44,7 @@ export default function HomePage() {
     });
 
     setFilteredProperties(filtered);
-  }, [properties, searchFilters]);
+  }, [searchFilters]);
 
   const handleSignIn = async () => {
     try {
