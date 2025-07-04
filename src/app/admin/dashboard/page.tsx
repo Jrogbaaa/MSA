@@ -1,16 +1,18 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, LogOut, Home, Users, Mail, Settings, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { useAdminAuth, logoutAdmin, getAdminSession } from '@/lib/adminAuth';
+import PropertyManager from '@/components/admin/PropertyManager';
 
 export default function AdminDashboardPage() {
   const { isAdmin, isLoading } = useAdminAuth();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'activity'>('overview');
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
@@ -67,107 +69,164 @@ export default function AdminDashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Total Properties</CardTitle>
-              <Home className="h-4 w-4 text-blue-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">1</div>
-              <p className="text-xs text-gray-400">Gold Street Studio</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Applications</CardTitle>
-              <Users className="h-4 w-4 text-green-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">0</div>
-              <p className="text-xs text-gray-400">Pending review</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Messages</CardTitle>
-              <Mail className="h-4 w-4 text-yellow-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">0</div>
-              <p className="text-xs text-gray-400">New inquiries</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Revenue</CardTitle>
-              <BarChart3 className="h-4 w-4 text-purple-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">£825</div>
-              <p className="text-xs text-gray-400">Monthly potential</p>
-            </CardContent>
-          </Card>
+        {/* Navigation Tabs */}
+        <div className="flex space-x-1 mb-8">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'overview'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('properties')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'properties'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Properties
+          </button>
+          <button
+            onClick={() => setActiveTab('activity')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'activity'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Activity
+          </button>
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Property Management */}
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center">
-                <Home className="mr-2 h-5 w-5" />
-                Property Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-gray-700 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-white">Gold Street Studio Flat</h3>
-                  <span className="text-green-400 text-sm">Available</span>
-                </div>
-                <p className="text-gray-400 text-sm">Gold Street, Northampton, NN1 1RS</p>
-                <p className="text-white font-bold">£825/month</p>
-                <div className="flex space-x-2 mt-3">
-                  <Button size="sm" variant="outline" className="border-gray-600 text-gray-300">
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="outline" className="border-gray-600 text-gray-300">
-                    View
-                  </Button>
-                </div>
-              </div>
-              
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                Add New Property
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Total Properties</CardTitle>
+                  <Home className="h-4 w-4 text-blue-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">4</div>
+                  <p className="text-xs text-gray-400">Including Gold Street Studio</p>
+                </CardContent>
+              </Card>
 
-          {/* Recent Activity */}
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Applications</CardTitle>
+                  <Users className="h-4 w-4 text-green-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">0</div>
+                  <p className="text-xs text-gray-400">Pending review</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Messages</CardTitle>
+                  <Mail className="h-4 w-4 text-yellow-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">0</div>
+                  <p className="text-xs text-gray-400">New inquiries</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-300">Revenue</CardTitle>
+                  <BarChart3 className="h-4 w-4 text-purple-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-white">£7,325</div>
+                  <p className="text-xs text-gray-400">Monthly potential</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Main Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Property Overview */}
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Home className="mr-2 h-5 w-5" />
+                    Property Overview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-gray-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium text-white">Gold Street Studio Flat</h3>
+                      <span className="text-green-400 text-sm">Available</span>
+                    </div>
+                    <p className="text-gray-400 text-sm">Gold Street, Northampton, NN1 1RS</p>
+                    <p className="text-white font-bold">£825/month</p>
+                  </div>
+                  
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    onClick={() => setActiveTab('properties')}
+                  >
+                    Manage Properties
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Recent Activity */}
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <BarChart3 className="mr-2 h-5 w-5" />
+                    Recent Activity
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="text-center py-8">
+                      <p className="text-gray-400">No recent activity</p>
+                      <p className="text-gray-500 text-sm mt-2">
+                        Activity will appear here as users interact with your properties
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'properties' && (
+          <PropertyManager />
+        )}
+
+        {activeTab === 'activity' && (
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
                 <BarChart3 className="mr-2 h-5 w-5" />
-                Recent Activity
+                Activity Log
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="text-center py-8">
-                  <p className="text-gray-400">No recent activity</p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    Activity will appear here as users interact with your properties
-                  </p>
-                </div>
+              <div className="text-center py-12">
+                <p className="text-gray-400 mb-2">No activity to display</p>
+                <p className="text-gray-500 text-sm">
+                  User interactions, property applications, and system events will appear here
+                </p>
               </div>
             </CardContent>
           </Card>
-        </div>
+        )}
 
         {/* Quick Actions */}
         <Card className="bg-gray-800 border-gray-700 mt-8">

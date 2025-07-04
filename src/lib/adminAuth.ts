@@ -10,10 +10,10 @@ interface AdminUser {
   loginTime: Date;
 }
 
-// Admin credentials (in production, these would be securely stored)
+// Admin credentials (securely stored in environment variables)
 const ADMIN_CREDENTIALS = {
-  username: 'arnoldestatesmsa',
-  password: '*#fhdncu^%!f'
+  username: process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'arnoldestatesmsa',
+  password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '*#fhdncu^%!f'
 };
 
 // Admin session storage key
