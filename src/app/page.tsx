@@ -40,18 +40,10 @@ export default function HomePage() {
   // Preload hero images
   useEffect(() => {
     const preloadImages = () => {
-      const heroImages = [
-        '/hero/luxury-living-room.jpg',
-        '/hero/modern-apartment-interior.jpg',
-        '/hero/luxury-kitchen.jpg',
-        '/hero/luxury-living-modern.jpg',
-        '/hero/modern-bedroom.jpg'
-      ];
-
       let loadedCount = 0;
-      const totalImages = heroImages.length;
+      const totalImages = heroBackgrounds.length;
 
-      heroImages.forEach((src, index) => {
+      heroBackgrounds.forEach((src, index) => {
         const img = document.createElement('img');
         img.onload = () => {
           loadedCount++;

@@ -5,7 +5,7 @@ export const properties: Property[] = [
     id: '1',
     title: 'Gold Street Studio Flat',
     address: 'Gold Street, Northampton, NN1 1RS',
-    rent: 950,
+    rent: 825,
     bedrooms: 0,
     bathrooms: 1,
     squareFootage: 450,

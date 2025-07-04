@@ -6,17 +6,17 @@ A modern, mobile-first real estate website built with Next.js 15 and React 19, s
 
 ### ✅ Recently Completed Updates
 - **Hero Section Optimization**: Reduced height from full-screen to mobile-friendly proportions (`h-96 md:h-[500px]`)
-- **Gold Street Property Enhanced**: Updated to £950/month with floor plan as final photo
+- **Gold Street Property Enhanced**: Updated to £825/month with floor plan as final photo
 - **Urgency Messaging**: Added "Only 2 left!" badges to encourage quick action
 - **Browse Properties Button**: Now smoothly scrolls to properties section
 - **EmailJS Integration**: Professional email system with graceful fallbacks
-- **Image Error Handling**: Fixed hero slideshow preloading errors
+- **Hero Slideshow Fix**: Fixed gray image issue by aligning preloading with background URLs
 - **Property Gallery**: Complete 7-image gallery including floor plan for Gold Street
 
 ### 🏠 Gold Street Property Specifications
 - **Address**: Gold Street, Northampton, NN1 1RS
 - **Type**: Studio Flat
-- **Rent**: £950/month
+- **Rent**: £825/month
 - **Bedrooms**: Studio (0 bedrooms)
 - **Bathrooms**: 1
 - **Size**: 450 sq ft
@@ -326,9 +326,10 @@ npx vercel --prod
 
 ### January 2025 - Major Enhancements
 - ✅ **Hero Section Redesign**: Reduced height, improved mobile experience
-- ✅ **Gold Street Property**: Updated to £950, added floor plan, urgency messaging
+- ✅ **Gold Street Property**: Updated to £825, added floor plan, urgency messaging
 - ✅ **Navigation Enhancement**: Browse Properties button smooth scroll
 - ✅ **EmailJS Integration**: Professional email system with fallbacks
+- ✅ **Hero Slideshow Fix**: Fixed gray image issue by aligning preloading with Unsplash URLs
 - ✅ **Error Handling**: Fixed image preloading and Firebase offline issues
 - ✅ **Property Display**: Enhanced with urgency badges and better formatting
 - ✅ **Documentation**: Comprehensive updates with EmailJS setup guide
