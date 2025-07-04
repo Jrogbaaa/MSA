@@ -81,6 +81,7 @@ export default function ApplicationPage() {
       };
       
       console.log('Submitting application:', applicationData);
+      console.log('Application notification would be sent to: 11jellis@gmail.com');
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
