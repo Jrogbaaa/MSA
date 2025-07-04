@@ -10,7 +10,7 @@ A modern, mobile-first real estate website built with Next.js 15 and React 19, s
 - **Urgency Messaging**: Added "Only 2 left!" badges to encourage quick action
 - **Browse Properties Button**: Now smoothly scrolls to properties section
 - **EmailJS Complete Setup**: Fully configured with Service ID, Template ID, and Public Key
-- **Direct Email Sending**: Forms now send emails directly to 11jellis@gmail.com without opening email client
+- **Direct Email Sending**: Forms now send emails directly to arnoldestates1@gmail.com without opening email client
 - **Hero Slideshow Enhancement**: Fixed gray image issue with fresh Unsplash URLs and improved error handling
 - **Property Gallery**: Complete 7-image gallery including floor plan for Gold Street
 
@@ -118,13 +118,14 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 ```
 
 **✅ CONFIGURED**: These values are already set up for MSA Real Estate.
+**📧 RECIPIENT**: All emails are sent to arnoldestates1@gmail.com
 
 ### Step 6: Deploy
 1. Push changes to GitHub
 2. Vercel will automatically redeploy
 3. EmailJS will now send emails directly without opening email client
 
-**✅ READY TO DEPLOY**: EmailJS is configured and ready to send emails directly to 11jellis@gmail.com
+**✅ READY TO DEPLOY**: EmailJS is configured and ready to send emails directly to arnoldestates1@gmail.com
 
 **Note**: The system gracefully falls back to opening the user's email client if EmailJS fails for any reason.
 
@@ -299,7 +300,7 @@ npx vercel --prod
 ## 📞 Contact & Communication
 
 ### Email Integration
-- **Primary Email**: 11jellis@gmail.com
+- **Primary Email**: arnoldestates1@gmail.com
 - **Contact Forms**: All forms send to primary email
 - **EmailJS**: Direct email sending when configured
 - **Mailto Fallbacks**: Email client opening when EmailJS unavailable
@@ -507,7 +508,7 @@ npm run type-check   # TypeScript type checking
 ### MSA Real Estate
 - **Website**: [Live Demo](https://msa-git-main-jrogbaaa.vercel.app)
 - **Repository**: [GitHub](https://github.com/Jrogbaaa/MSA.git)
-- **Contact**: 11jellis@gmail.com
+- **Contact**: arnoldestates1@gmail.com
 - **Phone**: +44 20 7123 4567
 
 ### Development Support

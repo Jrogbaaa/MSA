@@ -65,7 +65,7 @@ ${formData.message}
 Submitted: ${new Date().toLocaleString('en-GB')}
         `;
         
-        const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
         window.open(mailtoUrl, '_blank');
         
         setIsSubmitted(true);
@@ -93,7 +93,7 @@ ${formData.message}
 Submitted: ${new Date().toLocaleString('en-GB')}
       `;
       
-      const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       window.open(mailtoUrl, '_blank');
       
       setIsSubmitted(true);
@@ -188,7 +188,7 @@ Submitted: ${new Date().toLocaleString('en-GB')}
                   <Mail className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-gray-600">11jellis@gmail.com</p>
+                    <p className="text-gray-600">arnoldestates1@gmail.com</p>
                   </div>
                 </div>
                 
@@ -226,7 +226,7 @@ Submitted: ${new Date().toLocaleString('en-GB')}
                 <CardTitle className="text-2xl">Send us a Message</CardTitle>
                 <p className="text-gray-600">
                   Fill out the form below and we'll get back to you promptly. 
-                  Your message will be sent directly to 11jellis@gmail.com
+                  Your message will be sent directly to arnoldestates1@gmail.com
                 </p>
               </CardHeader>
               <CardContent>

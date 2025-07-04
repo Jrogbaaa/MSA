@@ -39,7 +39,7 @@ ${formData.message}
 Submitted: ${new Date().toLocaleString('en-GB')}
     `;
     
-    const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
     
     // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -125,7 +125,7 @@ Submitted: ${new Date().toLocaleString('en-GB')}
           <CardHeader>
             <CardTitle className="text-2xl">Contact Us</CardTitle>
             <p className="text-gray-600">
-              Have a question? We'd love to hear from you. Messages will be sent to 11jellis@gmail.com
+              Have a question? We'd love to hear from you. Messages will be sent to arnoldestates1@gmail.com
             </p>
           </CardHeader>
           <CardContent>

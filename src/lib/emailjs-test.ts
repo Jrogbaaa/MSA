@@ -25,7 +25,7 @@ export const testEmailJSConfig = async () => {
     
     if (result.success) {
       console.log('✅ EmailJS Configuration Test PASSED');
-      console.log('📧 Test email sent successfully to 11jellis@gmail.com');
+      console.log('📧 Test email sent successfully to arnoldestates1@gmail.com');
       return true;
     } else {
       console.log('❌ EmailJS Configuration Test FAILED');
@@ -44,7 +44,7 @@ export const EMAIL_CONFIG = {
   SERVICE_ID: 'service_rujk3lq',
   TEMPLATE_ID: 'template_0npfw6f',
   PUBLIC_KEY: 'BLj0_NFd1zPr-t0-E',
-  RECIPIENT: '11jellis@gmail.com'
+  RECIPIENT: 'arnoldestates1@gmail.com'
 };
 
 // Check if all required environment variables are present

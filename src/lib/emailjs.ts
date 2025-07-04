@@ -47,7 +47,7 @@ export const sendContactEmail = async (formData: {
     const templateParams = {
       from_name: formData.name,
       from_email: formData.email,
-      to_email: '11jellis@gmail.com',
+      to_email: 'arnoldestates1@gmail.com',
       subject: formData.subject,
       message: formData.message,
       phone: formData.phone || 'Not provided',
@@ -99,7 +99,7 @@ export const sendApplicationEmail = async (applicationData: {
     const templateParams = {
       from_name: 'MSA Real Estate Website',
       from_email: 'noreply@msa-realestate.com',
-      to_email: '11jellis@gmail.com',
+      to_email: 'arnoldestates1@gmail.com',
       subject: `New Property Application: ${applicationData.propertyTitle}`,
       message: `
 NEW PROPERTY APPLICATION RECEIVED

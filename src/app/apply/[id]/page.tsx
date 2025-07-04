@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { properties } from '@/data/properties';
 
 interface ApplicationFormData {
   firstName?: string;
@@ -29,21 +30,7 @@ const steps = [
   { id: 5, title: 'Review & Submit', icon: Check },
 ];
 
-const mockProperty: Property = {
-  id: '1',
-  title: 'Modern Downtown Loft',
-  address: '123 Main Street, Downtown',
-  rent: 2500,
-  bedrooms: 2,
-  bathrooms: 2,
-  squareFootage: 1200,
-  description: 'Beautiful modern loft with city views',
-  amenities: ['Gym', 'Rooftop Deck', 'Parking', 'Pet Friendly'],
-  photos: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'],
-  availability: 'available',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
+// Remove mock property - will fetch from actual data
 
 export default function ApplicationPage() {
   const params = useParams();
@@ -58,8 +45,16 @@ export default function ApplicationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    setProperty(mockProperty);
-  }, [propertyId]);
+    // Fetch the actual property by ID
+    const foundProperty = properties.find(p => p.id === propertyId);
+    if (foundProperty) {
+      setProperty(foundProperty);
+    } else {
+      console.error('Property not found:', propertyId);
+      // Redirect to home if property not found
+      router.push('/');
+    }
+  }, [propertyId, router]);
 
   useEffect(() => {
     if (!user) {
@@ -94,7 +89,7 @@ export default function ApplicationPage() {
       };
       
       console.log('Submitting application:', applicationData);
-      console.log('Application notification will be sent to: 11jellis@gmail.com');
+      console.log('Application notification will be sent to: arnoldestates1@gmail.com');
       
       // Simulate processing time to show professional experience
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -127,7 +122,7 @@ MSA Real Estate Website
       
       // Open email client after a short delay
       setTimeout(() => {
-        const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
         window.open(mailtoUrl, '_blank');
       }, 1000);
       
