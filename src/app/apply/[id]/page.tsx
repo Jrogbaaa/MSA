@@ -58,9 +58,10 @@ export default function ApplicationPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/');
+      // Redirect to sign-in instead of homepage, with return URL
+      router.push(`/auth/signin?returnUrl=/apply/${propertyId}`);
     }
-  }, [user, router]);
+  }, [user, router, propertyId]);
 
   const handleNextStep = () => {
     if (currentStep < steps.length) {

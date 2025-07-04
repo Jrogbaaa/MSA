@@ -13,6 +13,8 @@ A modern, mobile-first real estate website built with Next.js 15 and React 19, s
 - **Direct Email Sending**: Forms now send emails directly to arnoldestates1@gmail.com without opening email client
 - **Hero Slideshow Enhancement**: Fixed gray image issue with fresh Unsplash URLs and improved error handling
 - **Property Gallery**: Complete 7-image gallery including floor plan for Gold Street
+- **Application Page Fix**: Fixed "Apply Now" button redirecting to homepage - now shows proper sign-in flow
+- **Admin Authentication System**: Complete admin panel with login (username: arnoldestatesmsa)
 
 ### 🏠 Gold Street Property Specifications
 - **Address**: Gold Street, Northampton, NN1 1RS
@@ -191,6 +193,8 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 - **Multi-Step Process**: Personal info, employment, references, documents
 - **Progress Tracking**: Visual step indicator
 - **Email Notifications**: Detailed application emails to business
+- **Authentication Required**: Users must sign in before applying
+- **Proper Redirects**: Sign-in page with return URL for seamless experience
 
 ### User Dashboard (`/dashboard`)
 - **Application Management**: Track application status and history
@@ -201,6 +205,36 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 - **Professional Contact Forms**: EmailJS integration with fallbacks
 - **Company Information**: About MSA Real Estate
 - **Multiple Contact Methods**: Email, phone, and form submissions
+
+### Authentication (`/auth/signin`, `/admin/login`)
+- **User Sign-In**: Firebase authentication for regular users
+- **Google Sign-In**: OAuth integration (coming soon)
+- **Admin Access**: Separate secure login for administrators
+- **Session Management**: Persistent login with automatic expiration
+- **Return URL Support**: Seamless redirect after authentication
+
+## 🔐 Admin System
+
+### Admin Authentication
+- **Admin Login**: `/admin/login`
+- **Admin Dashboard**: `/admin/dashboard`
+- **Username**: `arnoldestatesmsa`
+- **Password**: `*#fhdncu^%!f`
+- **Session Duration**: 24 hours
+- **Security**: All admin access attempts are logged
+
+### Admin Features
+- **Property Management**: View and manage all property listings
+- **Application Monitoring**: Track rental applications and inquiries
+- **Email Management**: Quick access to business email
+- **Analytics**: Property statistics and revenue tracking
+- **Site Monitoring**: Live site access and data export capabilities
+
+### Admin Navigation
+- Access via `/admin/login` or through the user sign-in page
+- Secure session management with automatic expiration
+- Protected routes with authentication middleware
+- Professional dark theme with red accent colors
 
 ## 🏗️ Project Structure
 
@@ -339,6 +373,8 @@ npx vercel --prod
 - ✅ **Error Handling**: Fixed image preloading and Firebase offline issues
 - ✅ **Property Display**: Enhanced with urgency badges and better formatting
 - ✅ **Documentation**: Comprehensive updates with EmailJS setup guide
+- ✅ **Application Flow Fix**: Fixed "Apply Now" button redirect issue with proper authentication flow
+- ✅ **Admin Panel**: Complete admin authentication system with secure dashboard access
 
 ### Previous Updates
 - ✅ **Contact System**: Dedicated contact page with professional forms
