@@ -6,15 +6,27 @@ A modern, mobile-first real estate website built with Next.js 15 and React 19, s
 
 ### ✨ Major Improvements
 - **🎨 Enhanced Branding**: Dramatically enlarged MSA logo across all pages for better visibility
+- **🎬 Hero Slideshow**: Dynamic luxury London property backgrounds with smooth transitions
+- **📧 Complete Contact System**: Dedicated contact page with professional forms sending to 11jellis@gmail.com
+- **🏠 Gold Street Property**: Complete listing with 6 high-quality photos and real property details
 - **🇬🇧 UK Localization**: Complete localization for British market including:
-  - GBP currency formatting (£1,200-£3,500/month)
+  - GBP currency formatting (£850-£3,500/month)
   - British date format (DD/MM/YYYY) 
   - UK phone number formatting (+44, 07/01/02 prefixes)
-  - English property addresses (Manchester, Birmingham, London)
+  - English property addresses (Northampton, Manchester, Birmingham, London)
   - British terminology ("properties" vs "apartments", "personalised" vs "personalized")
+  - Studio display ("Studio" instead of "0 bedrooms")
 - **📄 Tenant Document Portal**: Comprehensive document management system
 - **🔐 Enhanced Authentication**: "Tenant Sign In" for clear user identification
 - **⚡ Next.js 15 + React 19**: Latest framework versions with improved performance
+
+### 📧 Contact & Communication Features
+- **Dedicated Contact Page**: Professional contact form at `/contact`
+- **Multi-Channel Communication**: Email, phone, and form submissions
+- **Email Integration**: All forms send structured emails to 11jellis@gmail.com
+- **Application Notifications**: Detailed application emails with property and tenant information
+- **Response Time Tracking**: 24-hour response commitment display
+- **Service Area Display**: Northampton & surrounding areas coverage
 
 ### 📁 Document Management Features
 - **Lease Agreements**: View and download signed tenancy agreements
@@ -24,15 +36,26 @@ A modern, mobile-first real estate website built with Next.js 15 and React 19, s
 - **Property Association**: Documents linked to specific properties
 - **One-Click Downloads**: Easy document access with download functionality
 
+### 🏠 Real Property Data - Gold Street, Northampton
+- **Complete Photo Gallery**: 6 high-quality property images
+- **Accurate Details**: Studio flat, 1 bathroom, £850/month
+- **Real Address**: Gold Street, Northampton, NN1 1RS
+- **Authentic Description**: Professional property description with local amenities
+- **Modern Amenities**: City centre location, transport links, modern kitchen
+- **Verified Specifications**: 450 sq ft, unfurnished, available now
+
 ## 🏠 Features
 
 ### Core Property Features
 - **Property Listings** - UK properties with GBP pricing and British addresses
-- **Property Details** - Full property information with photo galleries
+- **Property Details** - Full property information with 6-image photo galleries
 - **Multi-Step Application** - Mobile-optimised tenancy application forms
 - **Tenant Dashboard** - Application tracking, saved properties, and document access
 - **Document Portal** - Lease agreements, insurance, and maintenance documents
 - **Google Authentication** - Secure tenant login via Firebase Auth
+- **Hero Slideshow** - Dynamic luxury London property backgrounds with smooth transitions
+- **Contact System** - Dedicated contact page with email integration (11jellis@gmail.com)
+- **Image Management** - Organized property image system with high-quality photos
 
 ### UK-Specific Features
 - **British Currency**: All pricing in GBP (£) with proper formatting
@@ -122,13 +145,21 @@ A modern, mobile-first real estate website built with Next.js 15 and React 19, s
 MSA/
 ├── public/
 │   ├── logo.png              # MSA Real Estate logo (enlarged)
-│   └── hero-images/          # Property and hero images
+│   └── properties/           # Property images organized by property ID
+│       └── 1/               # Gold Street property images
+│           ├── main.jpg     # Primary property image
+│           ├── 1.jpg        # Interior view 1
+│           ├── 2.jpg        # Interior view 2
+│           ├── 3.jpg        # Interior view 3
+│           ├── 4.jpg        # Interior view 4
+│           └── 5.jpg        # Interior view 5
 ├── src/
 │   ├── app/                  # Next.js 15 App Router
 │   │   ├── apply/[id]/      # Tenancy application forms
 │   │   ├── property/[id]/   # Individual property pages
 │   │   ├── dashboard/       # Tenant dashboard with documents
-│   │   ├── about/          # About and contact information
+│   │   ├── about/          # About MSA Real Estate
+│   │   ├── contact/        # Dedicated contact page
 │   │   ├── layout.tsx      # Root layout with navigation
 │   │   ├── page.tsx        # Homepage with property listings
 │   │   └── globals.css     # Global styles and Tailwind
@@ -150,11 +181,13 @@ MSA/
 ## 📱 Pages & Features
 
 ### Homepage (`/`)
-- **Property Grid**: UK properties with GBP pricing
+- **Hero Slideshow**: Dynamic luxury London property backgrounds with smooth transitions
+- **Property Grid**: UK properties with GBP pricing including real Gold Street listing
 - **Enhanced Logo**: Large, prominent MSA branding
-- **Filtering**: Bedroom, bathroom, and price filters
-- **British Addresses**: Manchester, Birmingham, London properties
+- **Filtering**: Bedroom, bathroom, and price filters (includes Studio option)
+- **British Addresses**: Northampton, Manchester, Birmingham, London properties
 - **Mobile Optimized**: Touch-friendly property cards
+- **Slideshow Controls**: Manual navigation with indicator dots
 
 ### Property Details (`/property/[id]`)
 - **Photo Galleries**: High-quality property images
@@ -181,11 +214,19 @@ MSA/
 - **Auto-Save**: Progress preservation
 - **Validation**: Comprehensive form validation
 
-### About/Contact (`/about`)
+### About Page (`/about`)
 - **Company Information**: MSA Real Estate details
 - **Contact Form**: Direct communication (sends to 11jellis@gmail.com)
 - **UK Contact Details**: British phone numbers and addresses
 - **Professional Design**: Clean, trustworthy presentation
+
+### Contact Page (`/contact`)
+- **Dedicated Contact Form**: Comprehensive contact form with full details
+- **Multi-Channel Contact**: Email, phone, and message options
+- **Email Integration**: All messages sent directly to 11jellis@gmail.com
+- **Response Time Display**: 24-hour response commitment
+- **Service Area Information**: Northampton & surrounding areas coverage
+- **Professional Layout**: Two-column layout with contact information and form
 
 ## 🔐 Authentication & Security
 
@@ -198,9 +239,70 @@ MSA/
 
 ### Security Features
 - **Environment Variables**: Secure API key management
-- **Firebase Rules**: Database security rules
-- **HTTPS Only**: Secure connections
-- **Input Validation**: XSS and injection protection
+- **Firebase Security Rules**: Restricted database access
+- **Protected Routes**: Authentication-required pages
+- **Email Integration**: Secure form submissions to 11jellis@gmail.com
+
+## 🚀 Deployment
+
+### Automatic Deployment
+- **Vercel Integration**: Automatic deployment on every GitHub push
+- **GitHub Repository**: https://github.com/Jrogbaaa/MSA.git
+- **Environment Variables**: Configure in Vercel dashboard for production
+- **Build Optimization**: Automatic optimization for production deployment
+- **Custom Domain**: Ready for custom domain configuration
+
+### Environment Variables for Production
+Ensure all Firebase environment variables are configured in your Vercel dashboard:
+1. Go to your Vercel project dashboard
+2. Navigate to Settings > Environment Variables
+3. Add all variables from `.env.local` file
+4. Redeploy for changes to take effect
+
+### Build & Deploy Commands
+```bash
+# Build for production
+npm run build
+
+# Deploy to Vercel
+vercel --prod
+
+# Check deployment status
+vercel ls
+```
+
+## 📧 Contact & Support
+
+### Email Integration
+- **Primary Contact**: 11jellis@gmail.com
+- **Form Submissions**: All contact forms send structured emails
+- **Application Notifications**: Detailed application emails with property information
+- **Response Time**: 24-hour response commitment
+
+### Repository Information
+- **GitHub**: https://github.com/Jrogbaaa/MSA.git
+- **Live Site**: Deployed on Vercel with automatic updates
+- **Documentation**: Complete setup and deployment guide in README
+
+## 🔄 Recent Updates Log
+
+### January 2025
+- ✅ Added 6-image photo gallery for Gold Street property
+- ✅ Created dedicated contact page with email integration
+- ✅ Implemented hero slideshow with London luxury properties
+- ✅ Fixed studio display to show "Studio" instead of "0 bedrooms"
+- ✅ Enhanced all contact forms with mailto integration
+- ✅ Updated navigation with contact page links
+- ✅ Improved mobile responsiveness and touch interactions
+- ✅ Added automatic Vercel deployment on GitHub push
+- ✅ Cleaned up image management system
+- ✅ Updated documentation with latest features
+
+## 📝 License
+
+This project is private and proprietary to MSA Real Estate. All rights reserved.
+
+---
 
 ## 📊 Data Models
 
@@ -363,24 +465,13 @@ npm run type-check   # TypeScript type checking
 - **Contributions**: Fork and submit pull requests
 - **Documentation**: Comprehensive inline code documentation
 
-## 📄 License
+---
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🚀 Deployment
+## 🌐 Live Deployment
 
 **Live Site**: [https://msa-git-main-jrogbaaa.vercel.app](https://msa-git-main-jrogbaaa.vercel.app)
 
-Deployed on Vercel with:
-- Automatic GitHub integration
-- Environment variable management
-- Custom domain support
-- Performance monitoring
-- Analytics integration
-
----
-
 **Built with ❤️ for the UK property market**  
-*Next.js 15 • React 19 • TypeScript • Tailwind CSS • Firebase*
+*Next.js 15.3.5 • React 19.1.0 • TypeScript • Tailwind CSS • Firebase*
 
 *Professional property platform designed specifically for British tenants and property managers.* 

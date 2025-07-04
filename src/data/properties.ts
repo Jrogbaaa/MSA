@@ -15,7 +15,9 @@ export const properties: Property[] = [
       '/properties/1/main.jpg',
       '/properties/1/1.jpg',
       '/properties/1/2.jpg',
-      '/properties/1/3.jpg'
+      '/properties/1/3.jpg',
+      '/properties/1/4.jpg',
+      '/properties/1/5.jpg'
     ],
     availability: 'available',
     createdAt: new Date(),
