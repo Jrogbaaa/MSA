@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AboutPage() {
   const [formData, setFormData] = useState({
@@ -53,10 +54,13 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center">
-              <img 
+              <Image 
                 src="/logo.svg" 
                 alt="MSA Real Estate" 
+                width={200}
+                height={60}
                 className="h-10 w-auto"
+                priority
               />
             </Link>
             
@@ -78,23 +82,25 @@ export default function AboutPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <motion.h1 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
           >
-            About MSA Real Estate
-          </motion.h1>
-          <motion.p 
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              About MSA Real Estate
+            </h1>
+          </motion.div>
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-gray-600 max-w-3xl mx-auto"
           >
-            We're dedicated to making property hunting simple, transparent, and stress-free. 
-            With cutting-edge technology and personalised service, we help you find your perfect home in England.
-          </motion.p>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We're dedicated to making property hunting simple, transparent, and stress-free. 
+              With cutting-edge technology and personalised service, we help you find your perfect home in England.
+            </p>
+          </motion.div>
         </div>
 
         {/* Contact Form */}
@@ -111,15 +117,16 @@ export default function AboutPage() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="text-center py-8"
               >
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Message Sent Successfully!
-                </h3>
-                <p className="text-gray-600">
-                  Thank you for contacting us. We'll get back to you soon.
-                </p>
+                <div className="text-center py-8">
+                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Message Sent Successfully!
+                  </h3>
+                  <p className="text-gray-600">
+                    Thank you for contacting us. We'll get back to you soon.
+                  </p>
+                </div>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">

@@ -126,10 +126,13 @@ export default function HomePage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
-                <img 
+                <Image 
                   src="/logo.svg" 
                   alt="MSA Real Estate" 
+                  width={200}
+                  height={60}
                   className="h-10 w-auto"
+                  priority
                 />
               </Link>
             </div>
@@ -399,10 +402,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="md:flex md:items-center md:justify-between">
             <div className="flex justify-center md:justify-start">
-              <img 
+              <Image
                 src="/logo.svg" 
                 alt="MSA Real Estate" 
                 className="h-8 w-auto"
+                width={100}
+                height={100}
               />
             </div>
             <div className="mt-4 md:mt-0 md:ml-4">
