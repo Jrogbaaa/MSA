@@ -11,6 +11,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
+interface ApplicationFormData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  employment?: string;
+  references?: string;
+  documents?: string[];
+}
+
 const steps = [
   { id: 1, title: 'Personal Information', icon: User },
   { id: 2, title: 'Employment Details', icon: Briefcase },
@@ -43,7 +53,7 @@ export default function ApplicationPage() {
   
   const [currentStep, setCurrentStep] = useState(1);
   const [property, setProperty] = useState<Property | null>(null);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<ApplicationFormData>({});
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -254,46 +264,47 @@ export default function ApplicationPage() {
 
             {/* Submit Button for other steps */}
             {currentStep > 1 && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <p className="text-gray-600">
-                  Step {currentStep} content would go here...
-                </p>
-                
-                <div className="flex justify-between">
-                  <Button type="button" variant="outline" onClick={handlePreviousStep}>
-                    Previous
-                  </Button>
-                  {currentStep === steps.length ? (
-                    <Button 
-                      onClick={handleSubmitApplication} 
-                      disabled={isSubmitting}
-                      className="flex items-center space-x-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Submitting...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Submit Application</span>
-                          <Check size={16} />
-                        </>
-                      )}
+              <div className="space-y-6">
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <p className="text-gray-600">
+                    Step {currentStep} content would go here...
+                  </p>
+                  
+                  <div className="flex justify-between">
+                    <Button type="button" variant="outline" onClick={handlePreviousStep}>
+                      Previous
                     </Button>
-                  ) : (
-                    <Button onClick={handleNextStep} className="flex items-center space-x-2">
-                      <span>Next</span>
-                      <ArrowRight size={16} />
-                    </Button>
-                  )}
-                </div>
-              </motion.div>
+                    {currentStep === steps.length ? (
+                      <Button 
+                        onClick={handleSubmitApplication} 
+                        disabled={isSubmitting}
+                        className="flex items-center space-x-2"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Submitting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Submit Application</span>
+                            <Check size={16} />
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <Button onClick={handleNextStep} className="flex items-center space-x-2">
+                        <span>Next</span>
+                        <ArrowRight size={16} />
+                      </Button>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
             )}
           </CardContent>
         </Card>
