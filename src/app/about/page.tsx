@@ -52,16 +52,16 @@ export default function AboutPage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-28">
             <Link href="/" className="flex items-center">
-              <Image 
-                src="/logo.svg" 
-                alt="MSA Real Estate" 
-                width={300}
-                height={80}
-                className="h-12 w-auto"
-                priority
-              />
+                              <Image 
+                  src="/logo.png" 
+                  alt="MSA Real Estate" 
+                  width={600}
+                  height={180}
+                  className="h-40 w-auto"
+                  priority
+                />
             </Link>
             
             <nav className="hidden md:flex space-x-8">

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Heart, FileText, Settings, CheckCircle, User } from 'lucide-react';
+import { Heart, FileText, Settings, CheckCircle, User, Download, File } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Property, Application } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,45 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
+
+interface TenantDocument {
+  id: string;
+  title: string;
+  type: 'lease' | 'application' | 'insurance' | 'other';
+  dateUploaded: Date;
+  status: 'signed' | 'pending' | 'expired';
+  downloadUrl: string;
+  property?: string;
+}
+
+// Mock tenant documents
+const mockTenantDocuments: TenantDocument[] = [
+  {
+    id: '1',
+    title: 'Lease Agreement - Downtown Loft',
+    type: 'lease',
+    dateUploaded: new Date('2024-01-15'),
+    status: 'signed',
+    downloadUrl: '/documents/lease-downtown-loft.pdf',
+    property: 'Downtown Loft'
+  },
+  {
+    id: '2',
+    title: 'Tenant Insurance Policy',
+    type: 'insurance',
+    dateUploaded: new Date('2024-01-20'),
+    status: 'signed',
+    downloadUrl: '/documents/insurance-policy.pdf'
+  },
+  {
+    id: '3',
+    title: 'Maintenance Request Form',
+    type: 'other',
+    dateUploaded: new Date('2024-02-01'),
+    status: 'pending',
+    downloadUrl: '/documents/maintenance-request.pdf'
+  }
+];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -32,15 +71,15 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-28">
             <div className="flex items-center space-x-4">
               <Link href="/" className="flex items-center">
                 <Image 
-                  src="/logo.svg" 
+                  src="/logo.png" 
                   alt="MSA Real Estate" 
-                  width={300}
-                  height={80}
-                  className="h-12 w-auto"
+                  width={600}
+                  height={180}
+                  className="h-40 w-auto"
                   priority
                 />
               </Link>
@@ -107,6 +146,19 @@ export default function DashboardPage() {
                       <span>Saved Properties</span>
                     </div>
                   </button>
+                  <button
+                    onClick={() => setActiveTab('documents')}
+                    className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium ${
+                      activeTab === 'documents'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <File size={16} />
+                      <span>Documents</span>
+                    </div>
+                  </button>
                 </nav>
               </CardContent>
             </Card>
@@ -125,7 +177,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex items-center">
@@ -158,28 +210,127 @@ export default function DashboardPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
+                        <File className="h-8 w-8 text-purple-600" />
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-2xl font-bold text-gray-900">{mockTenantDocuments.length}</div>
+                        <div className="text-sm text-gray-500">Documents</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
                         <CheckCircle className="h-8 w-8 text-green-600" />
                       </div>
                       <div className="ml-4">
-                        <div className="text-2xl font-bold text-gray-900">0</div>
-                        <div className="text-sm text-gray-500">Approved</div>
+                        <div className="text-2xl font-bold text-gray-900">
+                          {mockTenantDocuments.filter(doc => doc.status === 'signed').length}
+                        </div>
+                        <div className="text-sm text-gray-500">Signed Documents</div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No recent activity to display.</p>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Tab Content */}
+              {activeTab === 'overview' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Activity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No recent activity to display.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {activeTab === 'documents' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Your Documents</CardTitle>
+                    <p className="text-sm text-gray-600">
+                      Access your lease agreements, insurance policies, and other tenant documents
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {mockTenantDocuments.map((document) => (
+                        <div key={document.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex-shrink-0">
+                              <FileText className="h-8 w-8 text-blue-600" />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-900">{document.title}</h3>
+                              <p className="text-sm text-gray-500">
+                                {document.type.charAt(0).toUpperCase() + document.type.slice(1)} • 
+                                Uploaded {document.dateUploaded.toLocaleDateString('en-GB')}
+                              </p>
+                              {document.property && (
+                                <p className="text-xs text-gray-400">{document.property}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              document.status === 'signed' ? 'bg-green-100 text-green-800' :
+                              document.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {document.status.charAt(0).toUpperCase() + document.status.slice(1)}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                // In production, this would download the actual document
+                                console.log(`Downloading document: ${document.title}`);
+                                alert(`Document "${document.title}" download started`);
+                              }}
+                            >
+                              <Download size={14} className="mr-1" />
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {activeTab === 'applications' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Your Applications</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No applications to display.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {activeTab === 'saved' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Saved Properties</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No saved properties to display.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

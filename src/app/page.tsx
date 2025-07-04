@@ -123,15 +123,15 @@ export default function HomePage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-28">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
                 <Image 
-                  src="/logo.svg" 
+                  src="/logo.png" 
                   alt="MSA Real Estate" 
-                  width={300}
-                  height={80}
-                  className="h-12 w-auto"
+                  width={600}
+                  height={180}
+                  className="h-40 w-auto"
                   priority
                 />
               </Link>
@@ -165,7 +165,7 @@ export default function HomePage() {
                 </div>
               ) : (
                 <Button onClick={handleSignIn} size="sm">
-                  Sign In
+                  Tenant Sign In
                 </Button>
               )}
               
@@ -202,7 +202,7 @@ export default function HomePage() {
       <div 
         className="relative bg-cover bg-center bg-no-repeat text-white py-24"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80")'
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80")'
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -399,13 +399,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="md:flex md:items-center md:justify-between">
             <div className="flex justify-center md:justify-start">
-              <Image 
-                src="/logo.svg" 
-                alt="MSA Real Estate" 
-                width={300}
-                height={80}
-                className="h-10 w-auto"
-              />
+                              <Image 
+                  src="/logo.png" 
+                  alt="MSA Real Estate" 
+                  width={500}
+                  height={150}
+                  className="h-24 w-auto"
+                />
             </div>
             <div className="mt-4 md:mt-0 md:ml-4">
               <div className="grid grid-cols-2 gap-8">
