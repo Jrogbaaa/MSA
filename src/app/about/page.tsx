@@ -23,12 +23,31 @@ export default function AboutPage() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // TODO: In production, this would send to 11jellis@gmail.com
-    // For now, simulating form submission
-    console.log('Form data would be sent to 11jellis@gmail.com:', formData);
+    // Create email for contact form submission
+    console.log('About page contact form data being sent to 11jellis@gmail.com:', formData);
+    
+    const emailSubject = `MSA About Page Contact: ${formData.subject}`;
+    const emailBody = `
+CONTACT FORM SUBMISSION - ABOUT PAGE
+
+Contact Details:
+- Name: ${formData.name}
+- Email: ${formData.email}
+- Subject: ${formData.subject}
+
+Message:
+${formData.message}
+
+Submitted: ${new Date().toLocaleString('en-GB')}
+    `;
+    
+    const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
     
     // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Open email client
+    window.open(mailtoUrl, '_blank');
     
     setIsSubmitted(true);
     setIsSubmitting(false);

@@ -104,4 +104,15 @@ export const calculateMonthlyPayment = (
     (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) /
     (Math.pow(1 + monthlyRate, numberOfPayments) - 1)
   );
-}; 
+};
+
+export function formatBedrooms(bedrooms: number): string {
+  if (bedrooms === 0) {
+    return 'Studio';
+  }
+  return `${bedrooms} bed${bedrooms !== 1 ? 's' : ''}`;
+}
+
+export function formatBathrooms(bathrooms: number): string {
+  return `${bathrooms} bath${bathrooms !== 1 ? 's' : ''}`;
+} 

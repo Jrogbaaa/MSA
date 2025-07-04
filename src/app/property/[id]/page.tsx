@@ -21,7 +21,7 @@ import { Property } from '@/types';
 import { properties } from '@/data/properties';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatBedrooms, formatBathrooms } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -212,16 +212,16 @@ export default function PropertyDetailPage() {
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-1">
                       <Bed size={20} className="mr-1" />
-                      <span className="font-semibold">{property.bedrooms}</span>
+                      <span className="font-semibold">{formatBedrooms(property.bedrooms)}</span>
                     </div>
                     <div className="text-sm text-gray-500">
-                      {property.bedrooms === 1 ? 'Bedroom' : 'Bedrooms'}
+                      {property.bedrooms === 0 ? 'Flat' : property.bedrooms === 1 ? 'Bedroom' : 'Bedrooms'}
                     </div>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-1">
                       <Bath size={20} className="mr-1" />
-                      <span className="font-semibold">{property.bathrooms}</span>
+                      <span className="font-semibold">{formatBathrooms(property.bathrooms)}</span>
                     </div>
                     <div className="text-sm text-gray-500">
                       {property.bathrooms === 1 ? 'Bathroom' : 'Bathrooms'}

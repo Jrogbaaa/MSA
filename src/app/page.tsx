@@ -9,7 +9,7 @@ import { properties } from '@/data/properties';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatBedrooms, formatBathrooms } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -233,6 +233,7 @@ export default function HomePage() {
                 }))}
               >
                 <option value="">Any Bedrooms</option>
+                <option value="0">Studio</option>
                 <option value="1">1 Bedroom</option>
                 <option value="2">2 Bedrooms</option>
                 <option value="3">3 Bedrooms</option>
@@ -262,10 +263,10 @@ export default function HomePage() {
                 }))}
               >
                 <option value="5000">Any Price</option>
-                <option value="1500">Under $1,500</option>
-                <option value="2500">Under $2,500</option>
-                <option value="3500">Under $3,500</option>
-                <option value="5000">Under $5,000</option>
+                <option value="1500">Under £1,500</option>
+                <option value="2500">Under £2,500</option>
+                <option value="3500">Under £3,500</option>
+                <option value="5000">Under £5,000</option>
               </select>
             </div>
           </div>
@@ -329,11 +330,11 @@ export default function HomePage() {
                     <div className="flex space-x-4 mb-4 text-sm text-gray-600">
                       <div className="flex items-center">
                         <Bed size={16} className="mr-1" />
-                        {property.bedrooms} bed
+                        {formatBedrooms(property.bedrooms)}
                       </div>
                       <div className="flex items-center">
                         <Bath size={16} className="mr-1" />
-                        {property.bathrooms} bath
+                        {formatBathrooms(property.bathrooms)}
                       </div>
                       <div className="flex items-center">
                         <Square size={16} className="mr-1" />
@@ -392,6 +393,7 @@ export default function HomePage() {
                   <ul className="text-sm text-gray-600 space-y-2">
                     <li><Link href="/" className="hover:text-gray-900">Properties</Link></li>
                     <li><Link href="/about" className="hover:text-gray-900">About</Link></li>
+                    <li><Link href="/contact" className="hover:text-gray-900">Contact</Link></li>
                     <li><Link href="/dashboard" className="hover:text-gray-900">Dashboard</Link></li>
                   </ul>
                 </div>

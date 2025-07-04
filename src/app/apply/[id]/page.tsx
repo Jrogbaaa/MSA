@@ -88,13 +88,47 @@ export default function ApplicationPage() {
         documents: uploadedFiles,
         propertyId,
         userId: user?.id,
+        propertyTitle: property?.title,
+        propertyAddress: property?.address,
+        propertyRent: property?.rent,
       };
       
       console.log('Submitting application:', applicationData);
-      console.log('Application notification would be sent to: 11jellis@gmail.com');
+      console.log('Application notification will be sent to: 11jellis@gmail.com');
       
-      // Simulate API call
+      // Create email for application submission
+      const emailSubject = `New Property Application: ${property?.title}`;
+      const emailBody = `
+NEW PROPERTY APPLICATION RECEIVED
+
+Property Details:
+- Title: ${property?.title}
+- Address: ${property?.address}
+- Rent: £${property?.rent}/month
+
+Applicant Information:
+- Name: ${formData.firstName || 'Not provided'} ${formData.lastName || 'Not provided'}
+- Email: ${formData.email || 'Not provided'}
+- Phone: ${formData.phone || 'Not provided'}
+
+Application Details:
+- User ID: ${user?.id}
+- Property ID: ${propertyId}
+- Submission Date: ${new Date().toLocaleString('en-GB')}
+
+Please review this application and contact the applicant to arrange next steps.
+
+Best regards,
+MSA Real Estate Website
+      `;
+      
+      const mailtoUrl = `mailto:11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      
+      // Simulate processing time
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Open email client
+      window.open(mailtoUrl, '_blank');
       
       router.push('/dashboard?applicationSubmitted=true');
     } catch (error) {
