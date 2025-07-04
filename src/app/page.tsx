@@ -13,6 +13,15 @@ import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Hero background images - luxury London apartments and skyline
+const heroBackgrounds = [
+  'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // London skyline
+  'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Luxury apartment interior
+  'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // London city view
+  'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Modern luxury apartment
+  'https://images.unsplash.com/photo-1484154218962-a197022b5858?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80', // Luxury kitchen
+];
+
 export default function HomePage() {
   const { user, signInWithGoogle, signOut } = useAuth();
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
@@ -25,6 +34,16 @@ export default function HomePage() {
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [savedProperties, setSavedProperties] = useState<string[]>([]);
+  const [currentHeroImage, setCurrentHeroImage] = useState(0);
+
+  // Hero slideshow effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroImage((prev) => (prev + 1) % heroBackgrounds.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Filter properties based on search criteria
   useEffect(() => {
@@ -144,9 +163,9 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <div 
-        className="relative bg-cover bg-center bg-no-repeat text-white py-24"
+        className="relative bg-cover bg-center bg-no-repeat text-white py-24 transition-all duration-1000 ease-in-out"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80")'
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${heroBackgrounds[currentHeroImage]})`
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -177,6 +196,21 @@ export default function HomePage() {
               Browse Properties
             </Button>
           </motion.div>
+        </div>
+        
+        {/* Slideshow Indicators */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {heroBackgrounds.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentHeroImage(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentHeroImage 
+                  ? 'bg-white' 
+                  : 'bg-white/50 hover:bg-white/75'
+              }`}
+            />
+          ))}
         </div>
       </div>
 

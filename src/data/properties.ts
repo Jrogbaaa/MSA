@@ -12,10 +12,10 @@ export const properties: Property[] = [
     description: 'Located in the vibrant centre of Northampton, this stylish studio flat offers contemporary living just moments from shops, cafes, and excellent transport links. Finished to a high standard throughout, the property features a modern open-plan living room and kitchen with appliances, a bathroom with sleek shower enclosure, and a welcoming hallway. Offered unfurnished, this studio is perfect for professionals or individuals seeking a low-maintenance home in a prime location.',
     amenities: ['Unfurnished', 'Modern Kitchen', 'Shower Enclosure', 'City Centre Location', 'Transport Links'],
     photos: [
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1484154218962-a197022b5858?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
+      '/properties/1/main.jpg',
+      '/properties/1/1.jpg',
+      '/properties/1/2.jpg',
+      '/properties/1/3.jpg'
     ],
     availability: 'available',
     createdAt: new Date(),
