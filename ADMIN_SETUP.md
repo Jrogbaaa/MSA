@@ -35,7 +35,7 @@ NEXT_PUBLIC_ADMIN_PASSWORD=*#fhdncu^%!f
 
 ## Admin Access
 
-1. **Login URL**: `/admin/login`
+1. **Login URL**: `https://msaproperties.co.uk/admin/login`
 2. **Username**: `arnoldestatesmsa`
 3. **Password**: `*#fhdncu^%!f`
 

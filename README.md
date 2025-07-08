@@ -135,8 +135,11 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 
 ### Prerequisites
 - Node.js 18+ and npm
-- Firebase project
+- Firebase project with authorized domains configured
 - Vercel account (optional, for deployment)
+
+### 🔥 Firebase Domain Setup (CRITICAL)
+**If using custom domains**: See [FIREBASE_DOMAIN_SETUP.md](./FIREBASE_DOMAIN_SETUP.md) for complete Firebase Authentication domain configuration instructions.
 
 ### Installation
 
@@ -216,8 +219,8 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 ## 🔐 Admin System
 
 ### Admin Authentication
-- **Admin Login**: `/admin/login`
-- **Admin Dashboard**: `/admin/dashboard`
+- **Admin Login**: `https://msaproperties.co.uk/admin/login`
+- **Admin Dashboard**: `https://msaproperties.co.uk/admin/dashboard`
 - **Username**: `arnoldestatesmsa`
 - **Password**: `*#fhdncu^%!f`
 - **Session Duration**: 24 hours
@@ -303,7 +306,8 @@ The project is configured for automatic deployment:
 1. **GitHub Integration**: Push to `main` branch triggers deployment
 2. **Vercel Deployment**: Automatic builds and deployments
 3. **Environment Variables**: Configured in Vercel dashboard
-4. **Domain**: Custom domain configured if available
+4. **Custom Domain**: `msaproperties.co.uk` and `www.msaproperties.co.uk`
+5. **Firebase Auth**: Domains must be added to Firebase authorized domains list
 
 ### Manual Deployment
 
@@ -542,7 +546,7 @@ npm run type-check   # TypeScript type checking
 ## 📞 Contact & Support
 
 ### MSA Real Estate
-- **Website**: [Live Demo](https://msa-git-main-jrogbaaa.vercel.app)
+- **Website**: [https://msaproperties.co.uk](https://msaproperties.co.uk)
 - **Repository**: [GitHub](https://github.com/Jrogbaaa/MSA.git)
 - **Contact**: arnoldestates1@gmail.com
 - **Phone**: +44 20 7123 4567
@@ -556,7 +560,7 @@ npm run type-check   # TypeScript type checking
 
 ## 🌐 Live Deployment
 
-**Live Site**: [https://msa-git-main-jrogbaaa.vercel.app](https://msa-git-main-jrogbaaa.vercel.app)
+**Live Site**: [https://msaproperties.co.uk](https://msaproperties.co.uk)
 
 **Built with ❤️ for the UK property market**  
 *Next.js 15.3.5 • React 19.1.0 • TypeScript • Tailwind CSS • Firebase*
