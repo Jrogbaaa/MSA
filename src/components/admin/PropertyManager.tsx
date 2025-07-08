@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,6 +44,7 @@ interface ImageUploadProps {
 const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChange }) => {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -74,6 +75,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
 
   const handleFiles = useCallback(async (files: FileList) => {
     setUploading(true);
+    setUploadSuccess(false);
     const newImages: string[] = [];
     
     for (let i = 0; i < files.length; i++) {
@@ -91,20 +93,40 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
         continue;
       }
 
-      // Create object URL for preview (in a real app, you'd upload to a server/cloud storage)
-      const imageUrl = URL.createObjectURL(file);
-      
-      // Simulate file upload delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // In a real app, this would be the URL returned from your file upload service
-      // For now, we'll use the object URL as a placeholder
-      const finalUrl = `/properties/uploaded/${Date.now()}-${file.name}`;
-      newImages.push(finalUrl);
+      try {
+        // Convert file to base64 data URL
+        const base64Url = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              resolve(e.target.result as string);
+            } else {
+              reject(new Error('Failed to read file'));
+            }
+          };
+          reader.onerror = () => reject(new Error('File reading error'));
+          reader.readAsDataURL(file);
+        });
+        
+        // Add the base64 URL to the images array
+        newImages.push(base64Url);
+        console.log(`Converted ${file.name} to base64 data URL`);
+        
+      } catch (error) {
+        console.error(`Error processing ${file.name}:`, error);
+        alert(`Failed to process ${file.name}. Please try again.`);
+      }
     }
     
     onImagesChange([...images, ...newImages]);
     setUploading(false);
+    
+    if (newImages.length > 0) {
+      console.log(`Successfully uploaded ${newImages.length} image(s) as base64 data URLs`);
+      setUploadSuccess(true);
+      // Hide success message after 3 seconds
+      setTimeout(() => setUploadSuccess(false), 3000);
+    }
   }, [images, onImagesChange]);
 
   const removeImage = (index: number) => {
@@ -143,9 +165,19 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
             Supports PNG, JPG, JPEG up to 5MB each
           </p>
           {uploading && (
-            <div className="mt-4">
+            <div className="mt-4 space-y-2">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400 mx-auto"></div>
-              <p className="text-sm text-blue-400 mt-2">Uploading images...</p>
+              <p className="text-sm text-blue-400">Converting images to secure format...</p>
+              <p className="text-xs text-gray-500">This may take a moment for larger images</p>
+            </div>
+          )}
+          {uploadSuccess && (
+            <div className="mt-4">
+              <div className="flex items-center justify-center space-x-2 text-green-400 text-sm">
+                <CheckCircle className="h-5 w-5" />
+                <span>Images successfully uploaded!</span>
+              </div>
+              <p className="text-xs text-green-300 mt-1">Ready to display on live website</p>
             </div>
           )}
         </div>
@@ -156,40 +188,85 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {images.map((image, index) => (
             <div key={index} className="relative group">
-              <div className="aspect-square bg-gray-700 rounded-lg overflow-hidden">
+              <div className="aspect-square bg-gray-700 rounded-lg overflow-hidden border border-gray-600">
                 <img
                   src={image}
                   alt={`Property image ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-opacity duration-200"
+                  onLoad={(e) => {
+                    // Image loaded successfully
+                    const target = e.target as HTMLImageElement;
+                    target.style.opacity = '1';
+                  }}
                   onError={(e) => {
                     // Fallback for broken images
                     const target = e.target as HTMLImageElement;
-                    target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23374151"/><text x="50%" y="50%" text-anchor="middle" fill="%239CA3AF" font-size="12">Image</text></svg>';
+                    target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23374151"/><text x="100" y="90" text-anchor="middle" fill="%239CA3AF" font-size="12" font-family="Arial">Image Error</text><text x="100" y="110" text-anchor="middle" fill="%236B7280" font-size="10" font-family="Arial">Failed to Load</text></svg>';
+                    console.error('Failed to load image:', image.substring(0, 50) + '...');
                   }}
+                  style={{ opacity: 0 }}
                 />
+                
+                {/* Loading overlay for base64 images */}
+                {image.startsWith('data:') && (
+                  <div className="absolute inset-0 bg-gray-800/50 flex items-center justify-center opacity-0 transition-opacity">
+                    <div className="text-center">
+                      <div className="animate-pulse text-blue-400 text-xs">
+                        Processing...
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
+              
               <button
                 onClick={() => removeImage(index)}
-                className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                title="Remove image"
               >
                 <X className="h-4 w-4" />
               </button>
+              
               {index === 0 && (
                 <div className="absolute bottom-2 left-2">
-                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                    Main
+                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow-md">
+                    Main Photo
                   </span>
                 </div>
               )}
+              
+              {/* Image type indicator */}
+              <div className="absolute top-2 left-2">
+                <span className={`text-xs px-2 py-1 rounded shadow-md ${
+                  image.startsWith('data:') 
+                    ? 'bg-green-600 text-white' 
+                    : 'bg-gray-600 text-gray-200'
+                }`}>
+                  {image.startsWith('data:') ? 'Uploaded' : 'URL'}
+                </span>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Image Count */}
-      <div className="text-sm text-gray-400">
-        {images.length} image{images.length !== 1 ? 's' : ''} uploaded
-        {images.length > 0 && ' • First image will be used as main photo'}
+      {/* Enhanced Image Count and Status */}
+      <div className="flex items-center justify-between text-sm text-gray-400">
+        <div>
+          {images.length} image{images.length !== 1 ? 's' : ''} uploaded
+          {images.length > 0 && ' • First image will be used as main photo'}
+        </div>
+        {images.length > 0 && (
+          <div className="flex items-center space-x-2">
+            <span className="text-green-400">
+              {images.filter(img => img.startsWith('data:')).length} uploaded files
+            </span>
+            <span className="text-gray-500">•</span>
+            <span className="text-blue-400">
+              {images.filter(img => !img.startsWith('data:')).length} URL links
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
