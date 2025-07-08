@@ -478,8 +478,8 @@ export default function HomePage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <Card className="card-hover overflow-hidden">
-                    <div className="relative h-48">
+                  <Card className="card-hover overflow-hidden h-full flex flex-col">
+                    <div className="relative h-48 flex-shrink-0">
                       <Image
                         src={property.photos[0]}
                         alt={property.title}
@@ -512,7 +512,7 @@ export default function HomePage() {
                       </div>
                     </CardHeader>
                     
-                    <CardContent>
+                    <CardContent className="flex-1 flex flex-col">
                       <div className="flex justify-between items-center mb-4">
                         <div className="text-2xl font-bold text-blue-600">
                           {formatCurrency(property.rent)}/mo
@@ -534,7 +534,7 @@ export default function HomePage() {
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-4 min-h-[2rem]">
                         {property.amenities.slice(0, 3).map((amenity) => (
                           <span
                             key={amenity}
@@ -545,7 +545,7 @@ export default function HomePage() {
                         ))}
                       </div>
                       
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-2 mt-auto">
                         <Link href={`/property/${property.id}`} className="flex-1">
                           <Button className="w-full" size="sm">
                             View Details
@@ -571,13 +571,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="md:flex md:items-center md:justify-between">
             <div className="flex justify-center md:justify-start">
-                              <Image 
-                  src="/logo.png" 
-                  alt="MSA Real Estate" 
-                  width={500}
-                  height={150}
-                  className="h-24 w-auto"
-                />
+              <Image 
+                src="/logo.png" 
+                alt="MSA Real Estate" 
+                width={500}
+                height={150}
+                className="h-24 w-auto"
+              />
             </div>
             <div className="mt-4 md:mt-0 md:ml-4">
               <div className="grid grid-cols-2 gap-8">
@@ -608,4 +608,4 @@ export default function HomePage() {
       </footer>
     </div>
   );
-} 
+}

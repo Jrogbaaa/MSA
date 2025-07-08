@@ -76,6 +76,15 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
   const handleFiles = useCallback(async (files: FileList) => {
     setUploading(true);
     setUploadSuccess(false);
+    
+    // Check if adding new files would exceed the 20-image limit
+    const totalImages = images.length + files.length;
+    if (totalImages > 20) {
+      alert(`Cannot upload ${files.length} image(s). Maximum 20 images allowed per property. You currently have ${images.length} image(s).`);
+      setUploading(false);
+      return;
+    }
+    
     const newImages: string[] = [];
     
     for (let i = 0; i < files.length; i++) {
@@ -162,7 +171,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
             Drop images here or click to upload
           </p>
           <p className="text-sm text-gray-400">
-            Supports PNG, JPG, JPEG up to 5MB each
+            Supports PNG, JPG, JPEG up to 5MB each • Max 20 images per property
           </p>
           {uploading && (
             <div className="mt-4 space-y-2">
@@ -253,7 +262,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
       {/* Enhanced Image Count and Status */}
       <div className="flex items-center justify-between text-sm text-gray-400">
         <div>
-          {images.length} image{images.length !== 1 ? 's' : ''} uploaded
+          {images.length}/20 image{images.length !== 1 ? 's' : ''} uploaded
           {images.length > 0 && ' • First image will be used as main photo'}
         </div>
         {images.length > 0 && (

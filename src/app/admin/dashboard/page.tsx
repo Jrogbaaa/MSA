@@ -14,13 +14,46 @@ import DocumentManager from '@/components/admin/DocumentManager';
 export default function AdminDashboardPage() {
   const { isAdmin, isLoading } = useAdminAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'documents' | 'activity'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'applications' | 'documents' | 'activity'>('overview');
+  const [applications, setApplications] = useState<any[]>([]);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
       router.push('/admin/login');
     }
   }, [isAdmin, isLoading, router]);
+
+  // Load applications from localStorage
+  useEffect(() => {
+    const loadApplications = () => {
+      try {
+        const savedApplications = localStorage.getItem('msa_applications');
+        if (savedApplications) {
+          const parsedApplications = JSON.parse(savedApplications);
+          setApplications(parsedApplications);
+        }
+      } catch (error) {
+        console.error('Error loading applications:', error);
+      }
+    };
+
+    loadApplications();
+
+    // Listen for storage changes (when new applications are submitted)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'msa_applications' && e.newValue) {
+        try {
+          const parsedApplications = JSON.parse(e.newValue);
+          setApplications(parsedApplications);
+        } catch (error) {
+          console.error('Error parsing updated applications:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const handleLogout = () => {
     logoutAdmin();
@@ -94,6 +127,20 @@ export default function AdminDashboardPage() {
             Properties
           </button>
           <button
+            onClick={() => setActiveTab('applications')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'applications'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Applications {applications.length > 0 && (
+              <span className="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {applications.length}
+              </span>
+            )}
+          </button>
+          <button
             onClick={() => setActiveTab('documents')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeTab === 'documents'
@@ -137,7 +184,7 @@ export default function AdminDashboardPage() {
                   <Users className="h-4 w-4 text-green-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">0</div>
+                  <div className="text-2xl font-bold text-white">{applications.length}</div>
                   <p className="text-xs text-gray-400">Pending review</p>
                 </CardContent>
               </Card>
@@ -219,6 +266,133 @@ export default function AdminDashboardPage() {
 
         {activeTab === 'properties' && (
           <PropertyManager />
+        )}
+
+        {activeTab === 'applications' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Property Applications</h2>
+              <p className="text-gray-400">{applications.length} total applications</p>
+            </div>
+
+            {applications.length === 0 ? (
+              <Card className="bg-gray-800 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2">No Applications Yet</h3>
+                  <p className="text-gray-400">Applications will appear here when users apply for properties.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {applications.map((application, index) => (
+                  <Card key={application.id || index} className="bg-gray-800 border-gray-700">
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Application Details */}
+                        <div className="lg:col-span-2">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-lg font-semibold text-white mb-1">
+                                {application.applicantName}
+                              </h3>
+                              <p className="text-gray-400 text-sm">
+                                Applied {new Date(application.submissionDate).toLocaleDateString('en-GB')} at {new Date(application.submissionDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              application.status === 'pending' 
+                                ? 'bg-yellow-900 text-yellow-300 border border-yellow-700'
+                                : application.status === 'approved'
+                                ? 'bg-green-900 text-green-300 border border-green-700'
+                                : 'bg-red-900 text-red-300 border border-red-700'
+                            }`}>
+                              {application.status?.charAt(0).toUpperCase() + application.status?.slice(1) || 'Pending'}
+                            </span>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-gray-400 text-sm">Email</p>
+                                <p className="text-white">{application.applicantEmail}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Phone</p>
+                                <p className="text-white">{application.applicantPhone}</p>
+                              </div>
+                            </div>
+
+                            {application.userId && (
+                              <div>
+                                <p className="text-gray-400 text-sm">User ID</p>
+                                <p className="text-white text-xs font-mono">{application.userId}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Property Details */}
+                        <div className="lg:col-span-1">
+                          <div className="bg-gray-700 rounded-lg p-4">
+                            <h4 className="text-white font-medium mb-2">Property Details</h4>
+                            <div className="space-y-2">
+                              <div>
+                                <p className="text-gray-400 text-sm">Property</p>
+                                <p className="text-white text-sm">{application.propertyTitle}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Address</p>
+                                <p className="text-white text-sm">{application.propertyAddress}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Rent</p>
+                                <p className="text-white font-semibold">£{application.propertyRent}/mo</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Property ID</p>
+                                <p className="text-white text-xs font-mono">{application.propertyId}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-700">
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700"
+                          onClick={() => {
+                            const mailtoLink = `mailto:${application.applicantEmail}?subject=Re: Your Application for ${application.propertyTitle}&body=Hi ${application.applicantName},%0A%0AThank you for your interest in ${application.propertyTitle}.%0A%0A`;
+                            window.open(mailtoLink, '_blank');
+                          }}
+                        >
+                          <Mail className="h-4 w-4 mr-1" />
+                          Email Applicant
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                          onClick={() => {
+                            const phoneNumber = application.applicantPhone.replace(/\D/g, '');
+                            window.open(`tel:${phoneNumber}`, '_self');
+                          }}
+                        >
+                          📞 Call {application.applicantPhone}
+                        </Button>
+                        <div className="flex-1"></div>
+                        <p className="text-xs text-gray-500 self-center">
+                          Application ID: {application.id}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'documents' && (

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Check, Upload, File, X, User, Briefcase, Users, FileText } from 'lucide-react';
+import { ArrowLeft, Check, Send, Mail, Phone, User } from 'lucide-react';
 import { Property } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,22 +13,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { properties as initialProperties } from '@/data/properties';
 
 interface ApplicationFormData {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  employment?: string;
-  references?: string;
-  documents?: string[];
+  name: string;
+  email: string;
+  phone: string;
 }
-
-const steps = [
-  { id: 1, title: 'Personal Information', icon: User },
-  { id: 2, title: 'Employment Details', icon: Briefcase },
-  { id: 3, title: 'References', icon: Users },
-  { id: 4, title: 'Documents', icon: FileText },
-  { id: 5, title: 'Review & Submit', icon: Check },
-];
 
 export default function ApplicationPage() {
   const params = useParams();
@@ -36,13 +24,16 @@ export default function ApplicationPage() {
   const { user } = useAuth();
   const propertyId = params.id as string;
   
-  const [currentStep, setCurrentStep] = useState(1);
   const [properties, setProperties] = useState<Property[]>([]);
   const [property, setProperty] = useState<Property | null>(null);
-  const [formData, setFormData] = useState<ApplicationFormData>({});
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [formData, setFormData] = useState<ApplicationFormData>({
+    name: '',
+    email: '',
+    phone: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Load properties from localStorage (same system as admin panel and homepage)
   useEffect(() => {
@@ -51,22 +42,17 @@ export default function ApplicationPage() {
         const savedProperties = localStorage.getItem('msa_admin_properties');
         if (savedProperties) {
           const parsedProperties = JSON.parse(savedProperties);
-          // Convert date strings back to Date objects
           const propertiesWithDates = parsedProperties.map((property: any) => ({
             ...property,
             createdAt: new Date(property.createdAt),
             updatedAt: new Date(property.updatedAt)
           }));
           setProperties(propertiesWithDates);
-          console.log(`Loaded ${propertiesWithDates.length} properties from localStorage`);
         } else {
-          // First time loading - use initial data
           setProperties(initialProperties);
-          console.log(`Using ${initialProperties.length} default properties`);
         }
       } catch (error) {
         console.error('Error loading properties from localStorage:', error);
-        // Fallback to initial properties if localStorage fails
         setProperties(initialProperties);
       }
       setIsLoading(false);
@@ -85,7 +71,6 @@ export default function ApplicationPage() {
             updatedAt: new Date(property.updatedAt)
           }));
           setProperties(propertiesWithDates);
-          console.log('Properties updated from admin panel - auto-refreshed');
         } catch (error) {
           console.error('Error parsing updated properties:', error);
         }
@@ -104,163 +89,179 @@ export default function ApplicationPage() {
         setProperty(foundProperty);
       } else {
         console.error('Property not found:', propertyId);
-        // Redirect to home if property not found
         router.push('/');
       }
     }
   }, [propertyId, properties, isLoading, router]);
 
+  // Pre-fill user data if authenticated
   useEffect(() => {
-    if (!user) {
-      // Redirect to sign-in instead of homepage, with return URL
-      router.push(`/auth/signin?returnUrl=/apply/${propertyId}`);
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : prev.name,
+        email: user.email || prev.email
+      }));
     }
-  }, [user, router, propertyId]);
+  }, [user]);
 
-  const handleNextStep = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
+  const handleSubmitApplication = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name || !formData.email || !formData.phone) {
+      alert('Please fill in all fields');
+      return;
     }
-  };
 
-  const handlePreviousStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleSubmitApplication = async () => {
     setIsSubmitting(true);
     
     try {
       const applicationData = {
-        ...formData,
-        documents: uploadedFiles,
+        id: `app_${Date.now()}`,
         propertyId,
-        userId: user?.id,
         propertyTitle: property?.title,
         propertyAddress: property?.address,
         propertyRent: property?.rent,
+        applicantName: formData.name,
+        applicantEmail: formData.email,
+        applicantPhone: formData.phone,
+        userId: user?.id,
+        status: 'pending',
         submissionDate: new Date().toISOString(),
+        createdAt: new Date().toISOString()
       };
       
-      console.log('Submitting application:', applicationData);
+      // Store application in localStorage for admin tracking
+      const existingApplications = JSON.parse(localStorage.getItem('msa_applications') || '[]');
+      const updatedApplications = [applicationData, ...existingApplications];
+      localStorage.setItem('msa_applications', JSON.stringify(updatedApplications));
       
-      // Simulate processing time to show professional experience
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Application saved to localStorage:', applicationData);
+      
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Create comprehensive email for application submission
-      const emailSubject = `🏠 NEW APPLICATION: ${property?.title} - ${formData.firstName} ${formData.lastName}`;
+      const emailSubject = `🏠 NEW APPLICATION: ${property?.title} - ${formData.name}`;
       const emailBody = `
 NEW PROPERTY APPLICATION RECEIVED
 =====================================
 
 📍 PROPERTY DETAILS:
 • Title: ${property?.title}
-• Address: ${property?.address}  
-• Monthly Rent: £${property?.rent}
+• Address: ${property?.address}
+• Monthly Rent: ${formatCurrency(property?.rent || 0)}
 • Property ID: ${propertyId}
 
 👤 APPLICANT INFORMATION:
-• Name: ${formData.firstName || 'Not provided'} ${formData.lastName || 'Not provided'}
-• Email: ${formData.email || user?.email || 'Not provided'}
-• Phone: ${formData.phone || 'Not provided'}
-• User ID: ${user?.id}
-
-💼 EMPLOYMENT & REFERENCES:
-• Employment: ${formData.employment || 'Not provided'}
-• References: ${formData.references || 'Not provided'}
-
-📄 DOCUMENTS:
-• Number of files uploaded: ${uploadedFiles.length}
+• Name: ${formData.name}
+• Email: ${formData.email}
+• Phone: ${formData.phone}
+• User ID: ${user?.id || 'Not signed in'}
 
 📅 SUBMISSION:
-• Date: ${new Date().toLocaleString('en-GB')}
+• Date: ${new Date().toLocaleDateString('en-GB')}
 • Time: ${new Date().toLocaleTimeString('en-GB')}
 
 ⚡ NEXT STEPS:
 1. Review applicant information
 2. Contact applicant via email or phone
 3. Arrange property viewing if needed
-4. Process application documents
-5. Make rental decision
+4. Make rental decision
 
 ✅ This application was submitted through the MSA Real Estate website.
+View admin dashboard: ${window.location.origin}/admin/dashboard
 
 Best regards,
 MSA Real Estate Application System
-${window.location.origin}
       `;
       
-      // Store application in localStorage for admin tracking
-      const applications = JSON.parse(localStorage.getItem('msa_applications') || '[]');
-      const newApplication = {
-        id: `app_${Date.now()}`,
-        ...applicationData,
-        status: 'pending',
-        submittedAt: new Date().toISOString()
-      };
-      applications.push(newApplication);
-      localStorage.setItem('msa_applications', JSON.stringify(applications));
+      // Open email client with pre-filled content
+      const mailtoLink = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      window.open(mailtoLink, '_blank');
       
-      console.log('Application saved to localStorage for admin tracking');
-      
-      // Open email client
-      const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      
-      // Show success message first, then open email
-      alert(`✅ Application Submitted Successfully!\n\nYour application for "${property?.title}" has been submitted.\n\nAn email will open to notify the property manager.\n\nYou'll be redirected to your dashboard.`);
-      
-      // Small delay then open email client
-      setTimeout(() => {
-        window.open(mailtoUrl, '_blank');
-      }, 500);
-      
-      // Redirect to dashboard with success message
-      router.push('/dashboard?applicationSubmitted=true');
+      setIsSubmitted(true);
       
     } catch (error) {
       console.error('Error submitting application:', error);
-      alert('❌ Error submitting application. Please try again.');
+      alert('There was an error submitting your application. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleInputChange = (field: keyof ApplicationFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <h1 className="text-xl font-semibold text-gray-900 mb-2">Loading Application...</h1>
-          <p className="text-gray-600">Retrieving property details</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading property details...</p>
         </div>
       </div>
     );
   }
 
-  if (!property || !user) {
+  if (!property) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            {!user ? 'Authentication Required' : 'Property Not Found'}
-          </h1>
-          <p className="text-gray-600 mb-6">
-            {!user 
-              ? 'Please sign in to apply for this property' 
-              : 'The property you\'re trying to apply for could not be found'}
-          </p>
-          <div className="space-x-4">
-            <Button onClick={() => router.push('/')}>
-              View All Properties
-            </Button>
-            {!user && (
-              <Button variant="outline" onClick={() => router.push(`/auth/signin?returnUrl=/apply/${propertyId}`)}>
-                Sign In
-              </Button>
-            )}
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Property Not Found</h1>
+          <p className="text-gray-600 mb-6">The property you're looking for doesn't exist.</p>
+          <Button onClick={() => router.push('/')}>
+            Back to Properties
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+          <Card className="text-center">
+            <CardContent className="pt-8 pb-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="h-8 w-8 text-green-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Application Submitted!
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Thank you for your interest in <strong>{property.title}</strong>. 
+                We have received your application and will contact you soon.
+              </p>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-500">
+                  📧 An email notification has been sent to our team
+                </p>
+                <p className="text-sm text-gray-500">
+                  📞 We'll contact you at <strong>{formData.phone}</strong>
+                </p>
+              </div>
+              <div className="mt-6 space-y-3">
+                <Button onClick={() => router.push('/')} className="w-full">
+                  Back to Properties
+                </Button>
+                <Button onClick={() => router.push('/dashboard')} variant="outline" className="w-full">
+                  View Dashboard
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          </motion.div>
         </div>
       </div>
     );
@@ -272,194 +273,148 @@ ${window.location.origin}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft size={20} className="mr-2" />
-                Back
-              </button>
-              <h1 className="text-xl font-semibold text-gray-900">Apply for Property</h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
-                Step {currentStep} of {steps.length}
-              </span>
-            </div>
+            <Button
+              variant="ghost"
+              onClick={() => router.back()}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft size={20} />
+              <span>Back</span>
+            </Button>
+            <h1 className="text-xl font-semibold text-gray-900">
+              Apply for Property
+            </h1>
+            <div className="w-20" /> {/* Spacer for centering */}
           </div>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Property Summary */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="relative w-20 h-20 rounded-lg overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Property Summary */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-8">
+              <div className="aspect-video relative overflow-hidden rounded-t-lg">
                 <img
                   src={property.photos[0]}
                   alt={property.title}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">{property.title}</h2>
-                <p className="text-gray-600">{property.address}</p>
-                <p className="text-2xl font-bold text-blue-600 mt-2">
-                  {formatCurrency(property.rent)}/month
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {property.title}
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  {property.address}
                 </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
-              const isActive = currentStep === step.id;
-              const isCompleted = currentStep > step.id;
-              
-              return (
-                <div key={step.id} className="flex items-center">
-                  <div
-                    className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                      isCompleted
-                        ? 'bg-green-500 text-white'
-                        : isActive
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-400'
-                    }`}
-                  >
-                    {isCompleted ? <Check size={20} /> : <Icon size={20} />}
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div
-                      className={`w-full h-1 mx-4 ${
-                        isCompleted ? 'bg-green-500' : 'bg-gray-200'
-                      }`}
-                    />
-                  )}
+                <div className="text-2xl font-bold text-blue-600 mb-4">
+                  {formatCurrency(property.rent)}/mo
                 </div>
-              );
-            })}
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div>🛏️ {property.bedrooms} {property.bedrooms === 1 ? 'bedroom' : 'bedrooms'}</div>
+                  <div>🚿 {property.bathrooms} {property.bathrooms === 1 ? 'bathroom' : 'bathrooms'}</div>
+                  <div>📐 {property.squareFootage} sqft</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Application Form */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Send className="h-5 w-5" />
+                  <span>Application Form</span>
+                </CardTitle>
+                <p className="text-gray-600">
+                  Please provide your contact information so we can get in touch with you about this property.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmitApplication} className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <User className="inline h-4 w-4 mr-1" />
+                      Full Name *
+                    </label>
+                    <Input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      placeholder="Enter your full name"
+                      required
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Mail className="inline h-4 w-4 mr-1" />
+                      Email Address *
+                    </label>
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      placeholder="Enter your email address"
+                      required
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Phone className="inline h-4 w-4 mr-1" />
+                      Phone Number *
+                    </label>
+                    <Input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      placeholder="Enter your phone number"
+                      required
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-900 mb-2">What happens next?</h4>
+                    <ul className="text-sm text-blue-800 space-y-1">
+                      <li>• We'll review your application immediately</li>
+                      <li>• Our team will contact you within 24 hours</li>
+                      <li>• We can arrange a property viewing if needed</li>
+                      <li>• Complete the rental process if approved</li>
+                    </ul>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full h-12 text-lg"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <span>Submitting Application...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <Send className="h-5 w-5" />
+                        <span>Submit Application</span>
+                      </div>
+                    )}
+                  </Button>
+
+                  <p className="text-xs text-gray-500 text-center">
+                    By submitting this application, you consent to being contacted about this property.
+                  </p>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
-
-        {/* Form Steps */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">
-              {steps.find(s => s.id === currentStep)?.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Personal Information Step */}
-            {currentStep === 1 && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">First Name</label>
-                      <Input
-                        defaultValue={user?.firstName || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                        placeholder="Enter your first name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Last Name</label>
-                      <Input
-                        defaultValue={user?.lastName || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                        placeholder="Enter your last name"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Email</label>
-                      <Input
-                        defaultValue={user?.email || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        type="email"
-                        placeholder="Enter your email"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Phone</label>
-                      <Input
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        type="tel"
-                        placeholder="Enter your phone number"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end">
-                    <Button onClick={handleNextStep} className="flex items-center space-x-2">
-                      <span>Next</span>
-                      <ArrowRight size={16} />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Submit Button for other steps */}
-            {currentStep > 1 && (
-              <div className="space-y-6">
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <p className="text-gray-600">
-                    Step {currentStep} content would go here...
-                  </p>
-                  
-                  <div className="flex justify-between">
-                    <Button type="button" variant="outline" onClick={handlePreviousStep}>
-                      Previous
-                    </Button>
-                    {currentStep === steps.length ? (
-                      <Button 
-                        onClick={handleSubmitApplication} 
-                        disabled={isSubmitting}
-                        className="flex items-center space-x-2"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                            <span>Submitting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Submit Application</span>
-                            <Check size={16} />
-                          </>
-                        )}
-                      </Button>
-                    ) : (
-                      <Button onClick={handleNextStep} className="flex items-center space-x-2">
-                        <span>Next</span>
-                        <ArrowRight size={16} />
-                      </Button>
-                    )}
-                  </div>
-                </motion.div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
