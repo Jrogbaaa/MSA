@@ -36,6 +36,23 @@ export default function ContactPage() {
     setSubmitError(null);
     
     try {
+      // Create contact message object for storage
+      const contactMessage = {
+        id: Date.now().toString(),
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        submittedAt: new Date().toISOString(),
+        status: 'new' // 'new', 'read', 'replied'
+      };
+
+      // Store message in localStorage for admin dashboard
+      const existingMessages = JSON.parse(localStorage.getItem('msa_contact_messages') || '[]');
+      existingMessages.unshift(contactMessage); // Add to beginning
+      localStorage.setItem('msa_contact_messages', JSON.stringify(existingMessages));
+
       // Try to send email directly via EmailJS
       const emailResult = await sendContactEmail({
         name: formData.name,
@@ -80,6 +97,22 @@ Submitted: ${new Date().toLocaleString('en-GB')}
       }
     } catch (error) {
       console.error('Contact form submission error:', error);
+      
+      // Still store message even if email fails
+      const contactMessage = {
+        id: Date.now().toString(),
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        submittedAt: new Date().toISOString(),
+        status: 'new'
+      };
+
+      const existingMessages = JSON.parse(localStorage.getItem('msa_contact_messages') || '[]');
+      existingMessages.unshift(contactMessage);
+      localStorage.setItem('msa_contact_messages', JSON.stringify(existingMessages));
       
       // Fallback to mailto even on catch
       const emailSubject = `MSA Contact: ${formData.subject}`;

@@ -21,6 +21,14 @@ A modern, mobile-first real estate platform built with Next.js, featuring stream
 - **Professional Email Templates**: Comprehensive applicant and property details
 - **One-Click Contact**: Direct email and phone buttons for applicants
 
+### 📬 **Contact Management System**
+- **Professional Contact Page**: Clean, responsive contact form with validation
+- **Instant Message Storage**: All contact inquiries automatically saved to admin dashboard
+- **Dual Email System**: EmailJS integration with mailto fallback for reliability
+- **Real-time Admin Notifications**: Live contact message tracking with notification badges
+- **Complete Message Management**: View, reply, and track all customer communications
+- **Status Tracking**: Mark messages as New, Read, or Replied for organized follow-up
+
 ### 🔐 **Authentication System**
 - **Google Sign-In**: One-click authentication with Google accounts
 - **Email Registration**: Sign-up option for users without Google accounts
@@ -37,11 +45,17 @@ A modern, mobile-first real estate platform built with Next.js, featuring stream
 ### 🛡️ **Advanced Admin Panel**
 - **Secure Admin Access**: Hardcoded admin authentication with fallback credentials
 - **Property Management**: Add, edit, delete properties with advanced image upload
-- **Application Management**: NEW - Complete application viewer and tracking system
+- **Application Management**: Complete application viewer and tracking system
   - Real-time application notifications with badge counters
   - Detailed applicant information display
   - One-click email and phone contact buttons
   - Application status tracking and management
+- **Contact Message Management**: NEW - Professional contact inquiry system
+  - Real-time contact message tracking and notifications
+  - Complete message viewer with sender details and content
+  - One-click reply and phone contact functionality
+  - Message status management (New, Read, Replied)
+  - Instant localStorage storage with cross-tab synchronization
 - **Document Management**: Upload and manage tenant documents
 - **Analytics Dashboard**: Live property and application statistics
 - **Real-time Sync**: Cross-tab synchronization for instant updates
@@ -162,19 +176,28 @@ src/
 
 ## 🎯 Key Features Breakdown
 
-### New Application Flow
+### Application Flow
 1. **User Clicks "Apply Now"** → Simple form with name, email, phone
 2. **Instant Submission** → Application saved to localStorage + email sent
 3. **Admin Notification** → Automatic email to arnoldestates1@gmail.com
 4. **Admin Review** → View applications in dashboard Applications tab
 5. **Contact Applicant** → One-click email/phone buttons
 
+### Contact Management Flow
+1. **User Submits Contact Form** → Professional form with name, email, phone, subject, message
+2. **Dual Storage & Email** → Message saved to localStorage + EmailJS/mailto email sent
+3. **Admin Dashboard Update** → NEW: Real-time message notification in Messages tab
+4. **Admin Review** → View complete message details with sender information
+5. **Professional Response** → One-click reply with pre-filled email templates
+6. **Status Tracking** → Mark messages as New, Read, or Replied for organized follow-up
+
 ### Enhanced Admin Workflow
 1. **Access Admin Panel** → Visit `/admin/login`
-2. **Dashboard Overview** → Live property and application statistics
+2. **Dashboard Overview** → Live property, application, and contact message statistics
 3. **Property Management** → Upload up to 20 images per property
-4. **Application Management** → NEW: View all applications with contact buttons
-5. **Real-time Updates** → Instant notifications for new applications
+4. **Application Management** → View all applications with contact buttons
+5. **Contact Message Management** → NEW: Professional message tracking and response system
+6. **Real-time Updates** → Instant notifications for new applications and messages
 
 ### Image Upload System
 1. **Drag & Drop Interface** → Modern file upload experience

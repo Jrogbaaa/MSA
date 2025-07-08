@@ -14,8 +14,9 @@ import DocumentManager from '@/components/admin/DocumentManager';
 export default function AdminDashboardPage() {
   const { isAdmin, isLoading } = useAdminAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'applications' | 'documents' | 'activity'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'applications' | 'messages' | 'documents' | 'activity'>('overview');
   const [applications, setApplications] = useState<any[]>([]);
+  const [contactMessages, setContactMessages] = useState<any[]>([]);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
@@ -23,7 +24,7 @@ export default function AdminDashboardPage() {
     }
   }, [isAdmin, isLoading, router]);
 
-  // Load applications from localStorage
+  // Load applications and contact messages from localStorage
   useEffect(() => {
     const loadApplications = () => {
       try {
@@ -37,9 +38,22 @@ export default function AdminDashboardPage() {
       }
     };
 
-    loadApplications();
+    const loadContactMessages = () => {
+      try {
+        const savedMessages = localStorage.getItem('msa_contact_messages');
+        if (savedMessages) {
+          const parsedMessages = JSON.parse(savedMessages);
+          setContactMessages(parsedMessages);
+        }
+      } catch (error) {
+        console.error('Error loading contact messages:', error);
+      }
+    };
 
-    // Listen for storage changes (when new applications are submitted)
+    loadApplications();
+    loadContactMessages();
+
+    // Listen for storage changes (when new applications or messages are submitted)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'msa_applications' && e.newValue) {
         try {
@@ -47,6 +61,14 @@ export default function AdminDashboardPage() {
           setApplications(parsedApplications);
         } catch (error) {
           console.error('Error parsing updated applications:', error);
+        }
+      }
+      if (e.key === 'msa_contact_messages' && e.newValue) {
+        try {
+          const parsedMessages = JSON.parse(e.newValue);
+          setContactMessages(parsedMessages);
+        } catch (error) {
+          console.error('Error parsing updated contact messages:', error);
         }
       }
     };
@@ -141,6 +163,20 @@ export default function AdminDashboardPage() {
             )}
           </button>
           <button
+            onClick={() => setActiveTab('messages')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'messages'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Messages {contactMessages.filter(msg => msg.status === 'new').length > 0 && (
+              <span className="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {contactMessages.filter(msg => msg.status === 'new').length}
+              </span>
+            )}
+          </button>
+          <button
             onClick={() => setActiveTab('documents')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeTab === 'documents'
@@ -195,7 +231,7 @@ export default function AdminDashboardPage() {
                   <Mail className="h-4 w-4 text-yellow-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">0</div>
+                  <div className="text-2xl font-bold text-white">{contactMessages.filter(msg => msg.status === 'new').length}</div>
                   <p className="text-xs text-gray-400">New inquiries</p>
                 </CardContent>
               </Card>
@@ -251,12 +287,71 @@ export default function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="text-center py-8">
-                      <p className="text-gray-400">No recent activity</p>
-                      <p className="text-gray-500 text-sm mt-2">
-                        Activity will appear here as users interact with your properties
-                      </p>
-                    </div>
+                    {/* Recent Contact Messages */}
+                    {contactMessages.slice(0, 3).map((message, index) => (
+                      <div key={message.id || index} className="bg-gray-700 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Mail className="h-4 w-4 text-yellow-400" />
+                              <h4 className="font-medium text-white text-sm">{message.name}</h4>
+                              <span className={`px-2 py-0.5 rounded-full text-xs ${
+                                message.status === 'new' ? 'bg-blue-900 text-blue-300' : 'bg-gray-600 text-gray-300'
+                              }`}>
+                                {message.status}
+                              </span>
+                            </div>
+                            <p className="text-gray-400 text-xs">{message.subject}</p>
+                            <p className="text-gray-500 text-xs mt-1">
+                              {new Date(message.submittedAt).toLocaleDateString('en-GB')} at {new Date(message.submittedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Recent Applications */}
+                    {applications.slice(0, 2).map((application, index) => (
+                      <div key={application.id || index} className="bg-gray-700 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Users className="h-4 w-4 text-green-400" />
+                              <h4 className="font-medium text-white text-sm">{application.applicantName}</h4>
+                              <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-900 text-yellow-300">
+                                Application
+                              </span>
+                            </div>
+                            <p className="text-gray-400 text-xs">{application.propertyTitle}</p>
+                            <p className="text-gray-500 text-xs mt-1">
+                              {new Date(application.submissionDate).toLocaleDateString('en-GB')} at {new Date(application.submissionDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {contactMessages.length === 0 && applications.length === 0 && (
+                      <div className="text-center py-8">
+                        <p className="text-gray-400">No recent activity</p>
+                        <p className="text-gray-500 text-sm mt-2">
+                          Activity will appear here as users interact with your properties
+                        </p>
+                      </div>
+                    )}
+
+                    {(contactMessages.length > 0 || applications.length > 0) && (
+                      <div className="pt-2">
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
+                          onClick={() => setActiveTab(contactMessages.length > 0 ? 'messages' : 'applications')}
+                        >
+                          View All Activity
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -385,6 +480,146 @@ export default function AdminDashboardPage() {
                         <div className="flex-1"></div>
                         <p className="text-xs text-gray-500 self-center">
                           Application ID: {application.id}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'messages' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Contact Messages</h2>
+              <p className="text-gray-400">{contactMessages.length} total messages</p>
+            </div>
+
+            {contactMessages.length === 0 ? (
+              <Card className="bg-gray-800 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2">No Messages Yet</h3>
+                  <p className="text-gray-400">Contact messages will appear here when users submit the contact form.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {contactMessages.map((message, index) => (
+                  <Card key={message.id || index} className="bg-gray-800 border-gray-700">
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Message Details */}
+                        <div className="lg:col-span-2">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-lg font-semibold text-white mb-1">
+                                {message.name}
+                              </h3>
+                              <p className="text-gray-400 text-sm">
+                                Sent {new Date(message.submittedAt).toLocaleDateString('en-GB')} at {new Date(message.submittedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              message.status === 'new' 
+                                ? 'bg-blue-900 text-blue-300 border border-blue-700'
+                                : message.status === 'read'
+                                ? 'bg-yellow-900 text-yellow-300 border border-yellow-700'
+                                : 'bg-green-900 text-green-300 border border-green-700'
+                            }`}>
+                              {message.status?.charAt(0).toUpperCase() + message.status?.slice(1) || 'New'}
+                            </span>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-gray-400 text-sm">Subject</p>
+                              <p className="text-white font-medium">{message.subject}</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-gray-400 text-sm">Email</p>
+                                <p className="text-white">{message.email}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400 text-sm">Phone</p>
+                                <p className="text-white">{message.phone || 'Not provided'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Message Content */}
+                        <div className="lg:col-span-1">
+                          <div className="bg-gray-700 rounded-lg p-4">
+                            <h4 className="text-white font-medium mb-2">Message</h4>
+                            <div className="max-h-40 overflow-y-auto">
+                              <p className="text-gray-300 text-sm whitespace-pre-wrap">
+                                {message.message}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-700">
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700"
+                          onClick={() => {
+                            const mailtoLink = `mailto:${message.email}?subject=Re: ${message.subject}&body=Hi ${message.name},%0A%0AThank you for contacting MSA Real Estate.%0A%0A`;
+                            window.open(mailtoLink, '_blank');
+                            
+                            // Mark as read
+                            const updatedMessages = contactMessages.map(msg => 
+                              msg.id === message.id ? { ...msg, status: 'read' } : msg
+                            );
+                            setContactMessages(updatedMessages);
+                            localStorage.setItem('msa_contact_messages', JSON.stringify(updatedMessages));
+                          }}
+                        >
+                          <Mail className="h-4 w-4 mr-1" />
+                          Reply
+                        </Button>
+                        
+                        {message.phone && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                            onClick={() => {
+                              const phoneNumber = message.phone.replace(/\D/g, '');
+                              window.open(`tel:${phoneNumber}`, '_self');
+                            }}
+                          >
+                            📞 Call {message.phone}
+                          </Button>
+                        )}
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                          onClick={() => {
+                            const updatedMessages = contactMessages.map(msg => 
+                              msg.id === message.id 
+                                ? { ...msg, status: msg.status === 'new' ? 'read' : 'new' }
+                                : msg
+                            );
+                            setContactMessages(updatedMessages);
+                            localStorage.setItem('msa_contact_messages', JSON.stringify(updatedMessages));
+                          }}
+                        >
+                          Mark as {message.status === 'new' ? 'Read' : 'Unread'}
+                        </Button>
+
+                        <div className="flex-1"></div>
+                        <p className="text-xs text-gray-500 self-center">
+                          Message ID: {message.id}
                         </p>
                       </div>
                     </CardContent>
