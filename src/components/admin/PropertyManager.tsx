@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,18 +35,176 @@ const defaultFormData: PropertyFormData = {
   availability: 'available'
 };
 
+// Image Upload Component
+interface ImageUploadProps {
+  images: string[];
+  onImagesChange: (images: string[]) => void;
+}
+
+const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChange }) => {
+  const [dragActive, setDragActive] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFiles(e.dataTransfer.files);
+    }
+  }, []);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      handleFiles(e.target.files);
+    }
+  }, []);
+
+  const handleFiles = useCallback(async (files: FileList) => {
+    setUploading(true);
+    const newImages: string[] = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert(`${file.name} is not an image file`);
+        continue;
+      }
+      
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} is too large. Please use images under 5MB.`);
+        continue;
+      }
+
+      // Create object URL for preview (in a real app, you'd upload to a server/cloud storage)
+      const imageUrl = URL.createObjectURL(file);
+      
+      // Simulate file upload delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // In a real app, this would be the URL returned from your file upload service
+      // For now, we'll use the object URL as a placeholder
+      const finalUrl = `/properties/uploaded/${Date.now()}-${file.name}`;
+      newImages.push(finalUrl);
+    }
+    
+    onImagesChange([...images, ...newImages]);
+    setUploading(false);
+  }, [images, onImagesChange]);
+
+  const removeImage = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index);
+    onImagesChange(newImages);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Drag and Drop Zone */}
+      <div
+        className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${
+          dragActive 
+            ? 'border-blue-400 bg-blue-900/20' 
+            : 'border-gray-600 bg-gray-700/50'
+        }`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={handleChange}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        />
+        
+        <div className="text-center">
+          <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <p className="text-lg font-medium text-white mb-2">
+            Drop images here or click to upload
+          </p>
+          <p className="text-sm text-gray-400">
+            Supports PNG, JPG, JPEG up to 5MB each
+          </p>
+          {uploading && (
+            <div className="mt-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400 mx-auto"></div>
+              <p className="text-sm text-blue-400 mt-2">Uploading images...</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Image Preview Grid */}
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {images.map((image, index) => (
+            <div key={index} className="relative group">
+              <div className="aspect-square bg-gray-700 rounded-lg overflow-hidden">
+                <img
+                  src={image}
+                  alt={`Property image ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback for broken images
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23374151"/><text x="50%" y="50%" text-anchor="middle" fill="%239CA3AF" font-size="12">Image</text></svg>';
+                  }}
+                />
+              </div>
+              <button
+                onClick={() => removeImage(index)}
+                className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              {index === 0 && (
+                <div className="absolute bottom-2 left-2">
+                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                    Main
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Image Count */}
+      <div className="text-sm text-gray-400">
+        {images.length} image{images.length !== 1 ? 's' : ''} uploaded
+        {images.length > 0 && ' • First image will be used as main photo'}
+      </div>
+    </div>
+  );
+};
+
 export default function PropertyManager() {
   const [properties, setProperties] = useState<Property[]>(initialProperties);
   const [isAddingProperty, setIsAddingProperty] = useState(false);
   const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
   const [formData, setFormData] = useState<PropertyFormData>(defaultFormData);
   const [amenitiesInput, setAmenitiesInput] = useState('');
-  const [photosInput, setPhotosInput] = useState('');
 
   const resetForm = () => {
     setFormData(defaultFormData);
     setAmenitiesInput('');
-    setPhotosInput('');
   };
 
   const handleEdit = (property: Property) => {
@@ -64,7 +222,6 @@ export default function PropertyManager() {
       availability: property.availability
     });
     setAmenitiesInput(property.amenities.join(', '));
-    setPhotosInput(property.photos.join(', '));
     setIsAddingProperty(false);
   };
 
@@ -79,15 +236,14 @@ export default function PropertyManager() {
   };
 
   const handleSave = () => {
-    // Parse amenities and photos from comma-separated strings
+    // Parse amenities from comma-separated strings
     const amenitiesList = amenitiesInput.split(',').map(item => item.trim()).filter(item => item.length > 0);
-    const photosList = photosInput.split(',').map(item => item.trim()).filter(item => item.length > 0);
 
     const propertyData: Property = {
       ...formData,
       id: editingPropertyId || Date.now().toString(),
       amenities: amenitiesList,
-      photos: photosList,
+      photos: formData.photos, // Already an array from the image upload component
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -376,13 +532,11 @@ export default function PropertyManager() {
               {/* Photos */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Photo URLs (comma-separated)
+                  Photos
                 </label>
-                <Input
-                  value={photosInput}
-                  onChange={(e) => setPhotosInput(e.target.value)}
-                  placeholder="e.g., /properties/1/main.jpg, /properties/1/1.jpg"
-                  className="bg-gray-700 border-gray-600 text-white"
+                <ImageUploadComponent
+                  images={formData.photos}
+                  onImagesChange={(newImages) => handleInputChange('photos', newImages)}
                 />
               </div>
 
