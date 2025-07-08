@@ -623,13 +623,20 @@ export default function PropertyManager() {
                     Monthly Rent (£) *
                   </label>
                   <Input
-                    type="number"
-                    value={formData.rent}
-                    onChange={(e) => handleInputChange('rent', parseInt(e.target.value) || 0)}
+                    type="text"
+                    value={formData.rent || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Only allow numbers and empty string
+                      if (value === '' || /^\d+$/.test(value)) {
+                        handleInputChange('rent', value === '' ? 0 : parseInt(value));
+                      }
+                    }}
                     placeholder="825"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     required
                   />
+                  <p className="text-xs text-gray-400 mt-1">Enter monthly rent amount (numbers only)</p>
                 </div>
               </div>
 

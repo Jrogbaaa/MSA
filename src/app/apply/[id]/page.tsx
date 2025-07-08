@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-import { properties } from '@/data/properties';
+import { properties as initialProperties } from '@/data/properties';
 
 interface ApplicationFormData {
   firstName?: string;
@@ -30,8 +30,6 @@ const steps = [
   { id: 5, title: 'Review & Submit', icon: Check },
 ];
 
-// Remove mock property - will fetch from actual data
-
 export default function ApplicationPage() {
   const params = useParams();
   const router = useRouter();
@@ -39,22 +37,78 @@ export default function ApplicationPage() {
   const propertyId = params.id as string;
   
   const [currentStep, setCurrentStep] = useState(1);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [property, setProperty] = useState<Property | null>(null);
   const [formData, setFormData] = useState<ApplicationFormData>({});
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load properties from localStorage (same system as admin panel and homepage)
   useEffect(() => {
-    // Fetch the actual property by ID
-    const foundProperty = properties.find(p => p.id === propertyId);
-    if (foundProperty) {
-      setProperty(foundProperty);
-    } else {
-      console.error('Property not found:', propertyId);
-      // Redirect to home if property not found
-      router.push('/');
+    const loadProperties = () => {
+      try {
+        const savedProperties = localStorage.getItem('msa_admin_properties');
+        if (savedProperties) {
+          const parsedProperties = JSON.parse(savedProperties);
+          // Convert date strings back to Date objects
+          const propertiesWithDates = parsedProperties.map((property: any) => ({
+            ...property,
+            createdAt: new Date(property.createdAt),
+            updatedAt: new Date(property.updatedAt)
+          }));
+          setProperties(propertiesWithDates);
+          console.log(`Loaded ${propertiesWithDates.length} properties from localStorage`);
+        } else {
+          // First time loading - use initial data
+          setProperties(initialProperties);
+          console.log(`Using ${initialProperties.length} default properties`);
+        }
+      } catch (error) {
+        console.error('Error loading properties from localStorage:', error);
+        // Fallback to initial properties if localStorage fails
+        setProperties(initialProperties);
+      }
+      setIsLoading(false);
+    };
+
+    loadProperties();
+
+    // Listen for storage changes (when admin panel updates properties)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'msa_admin_properties' && e.newValue) {
+        try {
+          const parsedProperties = JSON.parse(e.newValue);
+          const propertiesWithDates = parsedProperties.map((property: any) => ({
+            ...property,
+            createdAt: new Date(property.createdAt),
+            updatedAt: new Date(property.updatedAt)
+          }));
+          setProperties(propertiesWithDates);
+          console.log('Properties updated from admin panel - auto-refreshed');
+        } catch (error) {
+          console.error('Error parsing updated properties:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Find and set current property when properties are loaded
+  useEffect(() => {
+    if (!isLoading && properties.length > 0) {
+      const foundProperty = properties.find(p => p.id === propertyId);
+      if (foundProperty) {
+        setProperty(foundProperty);
+      } else {
+        console.error('Property not found:', propertyId);
+        // Redirect to home if property not found
+        router.push('/');
+      }
     }
-  }, [propertyId, router]);
+  }, [propertyId, properties, isLoading, router]);
 
   useEffect(() => {
     if (!user) {
@@ -87,59 +141,126 @@ export default function ApplicationPage() {
         propertyTitle: property?.title,
         propertyAddress: property?.address,
         propertyRent: property?.rent,
+        submissionDate: new Date().toISOString(),
       };
       
       console.log('Submitting application:', applicationData);
-      console.log('Application notification will be sent to: arnoldestates1@gmail.com');
       
       // Simulate processing time to show professional experience
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Create email for application submission
-      const emailSubject = `New Property Application: ${property?.title}`;
+      // Create comprehensive email for application submission
+      const emailSubject = `🏠 NEW APPLICATION: ${property?.title} - ${formData.firstName} ${formData.lastName}`;
       const emailBody = `
 NEW PROPERTY APPLICATION RECEIVED
+=====================================
 
-Property Details:
-- Title: ${property?.title}
-- Address: ${property?.address}
-- Rent: £${property?.rent}/month
+📍 PROPERTY DETAILS:
+• Title: ${property?.title}
+• Address: ${property?.address}  
+• Monthly Rent: £${property?.rent}
+• Property ID: ${propertyId}
 
-Applicant Information:
-- Name: ${formData.firstName || 'Not provided'} ${formData.lastName || 'Not provided'}
-- Email: ${formData.email || 'Not provided'}
-- Phone: ${formData.phone || 'Not provided'}
+👤 APPLICANT INFORMATION:
+• Name: ${formData.firstName || 'Not provided'} ${formData.lastName || 'Not provided'}
+• Email: ${formData.email || user?.email || 'Not provided'}
+• Phone: ${formData.phone || 'Not provided'}
+• User ID: ${user?.id}
 
-Application Details:
-- User ID: ${user?.id}
-- Property ID: ${propertyId}
-- Submission Date: ${new Date().toLocaleString('en-GB')}
+💼 EMPLOYMENT & REFERENCES:
+• Employment: ${formData.employment || 'Not provided'}
+• References: ${formData.references || 'Not provided'}
 
-Please review this application and contact the applicant to arrange next steps.
+📄 DOCUMENTS:
+• Number of files uploaded: ${uploadedFiles.length}
+
+📅 SUBMISSION:
+• Date: ${new Date().toLocaleString('en-GB')}
+• Time: ${new Date().toLocaleTimeString('en-GB')}
+
+⚡ NEXT STEPS:
+1. Review applicant information
+2. Contact applicant via email or phone
+3. Arrange property viewing if needed
+4. Process application documents
+5. Make rental decision
+
+✅ This application was submitted through the MSA Real Estate website.
 
 Best regards,
-MSA Real Estate Website
+MSA Real Estate Application System
+${window.location.origin}
       `;
       
-      // Open email client after a short delay
-      setTimeout(() => {
-        const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-        window.open(mailtoUrl, '_blank');
-      }, 1000);
+      // Store application in localStorage for admin tracking
+      const applications = JSON.parse(localStorage.getItem('msa_applications') || '[]');
+      const newApplication = {
+        id: `app_${Date.now()}`,
+        ...applicationData,
+        status: 'pending',
+        submittedAt: new Date().toISOString()
+      };
+      applications.push(newApplication);
+      localStorage.setItem('msa_applications', JSON.stringify(applications));
       
+      console.log('Application saved to localStorage for admin tracking');
+      
+      // Open email client
+      const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      
+      // Show success message first, then open email
+      alert(`✅ Application Submitted Successfully!\n\nYour application for "${property?.title}" has been submitted.\n\nAn email will open to notify the property manager.\n\nYou'll be redirected to your dashboard.`);
+      
+      // Small delay then open email client
+      setTimeout(() => {
+        window.open(mailtoUrl, '_blank');
+      }, 500);
+      
+      // Redirect to dashboard with success message
       router.push('/dashboard?applicationSubmitted=true');
+      
     } catch (error) {
       console.error('Error submitting application:', error);
+      alert('❌ Error submitting application. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">Loading Application...</h1>
+          <p className="text-gray-600">Retrieving property details</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!property || !user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Loading...</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            {!user ? 'Authentication Required' : 'Property Not Found'}
+          </h1>
+          <p className="text-gray-600 mb-6">
+            {!user 
+              ? 'Please sign in to apply for this property' 
+              : 'The property you\'re trying to apply for could not be found'}
+          </p>
+          <div className="space-x-4">
+            <Button onClick={() => router.push('/')}>
+              View All Properties
+            </Button>
+            {!user && (
+              <Button variant="outline" onClick={() => router.push(`/auth/signin?returnUrl=/apply/${propertyId}`)}>
+                Sign In
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -205,7 +326,7 @@ MSA Real Estate Website
               return (
                 <div key={step.id} className="flex items-center">
                   <div
-                    className={`flex items-center justify-center w-10 h-10 rounded-full $\{
+                    className={`flex items-center justify-center w-10 h-10 rounded-full ${
                       isCompleted
                         ? 'bg-green-500 text-white'
                         : isActive
@@ -217,7 +338,7 @@ MSA Real Estate Website
                   </div>
                   {index < steps.length - 1 && (
                     <div
-                      className={`w-full h-1 mx-4 $\{
+                      className={`w-full h-1 mx-4 ${
                         isCompleted ? 'bg-green-500' : 'bg-gray-200'
                       }`}
                     />

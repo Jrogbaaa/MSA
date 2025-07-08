@@ -34,22 +34,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log('Auth state changed:', firebaseUser ? 'User signed in' : 'User signed out');
+    let unsubscribe: () => void;
+
+    // Set up authentication state listener
+    const initializeAuth = async () => {
+      console.log('Initializing authentication...');
       
-      if (firebaseUser) {
-        try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-          let userData: User;
-          
-          if (userDoc.exists()) {
-            userData = {
-              id: firebaseUser.uid,
-              ...userDoc.data(),
-            } as User;
-          } else {
-            // Create new user document
-            userData = {
+      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        console.log('Auth state changed:', firebaseUser ? `User signed in: ${firebaseUser.email}` : 'User signed out');
+        
+        if (firebaseUser) {
+          try {
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+            let userData: User;
+            
+            if (userDoc.exists()) {
+              userData = {
+                id: firebaseUser.uid,
+                ...userDoc.data(),
+              } as User;
+              console.log('User data loaded from Firestore:', userData.email);
+            } else {
+              // Create new user document
+              userData = {
+                id: firebaseUser.uid,
+                email: firebaseUser.email!,
+                firstName: firebaseUser.displayName?.split(' ')[0] || '',
+                lastName: firebaseUser.displayName?.split(' ')[1] || '',
+                photoURL: firebaseUser.photoURL || undefined,
+                role: 'tenant',
+                savedProperties: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              };
+              await setDoc(doc(db, 'users', firebaseUser.uid), userData);
+              console.log('New user document created:', userData.email);
+            }
+            
+            setUser(userData);
+          } catch (error: any) {
+            console.warn('Firestore access failed, using basic user data:', error.message);
+            // If offline or other Firestore error, create a basic user object from Firebase Auth
+            const basicUser: User = {
               id: firebaseUser.uid,
               email: firebaseUser.email!,
               firstName: firebaseUser.displayName?.split(' ')[0] || '',
@@ -60,40 +86,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               createdAt: new Date(),
               updatedAt: new Date(),
             };
-            await setDoc(doc(db, 'users', firebaseUser.uid), userData);
+            console.log('Using basic user data (offline mode):', basicUser.email);
+            setUser(basicUser);
           }
-          
-          console.log('Setting user data:', userData);
-          setUser(userData);
-        } catch (error: any) {
-          console.warn('Firestore access failed, using basic user data:', error.message);
-          // If offline or other Firestore error, create a basic user object from Firebase Auth
-          const basicUser: User = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email!,
-            firstName: firebaseUser.displayName?.split(' ')[0] || '',
-            lastName: firebaseUser.displayName?.split(' ')[1] || '',
-            photoURL: firebaseUser.photoURL || undefined,
-            role: 'tenant',
-            savedProperties: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          };
-          console.log('Setting basic user data:', basicUser);
-          setUser(basicUser);
+        } else {
+          console.log('No authenticated user found');
+          setUser(null);
         }
-      } else {
-        console.log('No user, setting user to null');
-        setUser(null);
-      }
-      
-      setLoading(false);
-      if (!authInitialized) {
-        setAuthInitialized(true);
-      }
-    });
+        
+        setLoading(false);
+        if (!authInitialized) {
+          setAuthInitialized(true);
+          console.log('Authentication system initialized');
+        }
+      });
+    };
 
-    return unsubscribe;
+    initializeAuth();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [authInitialized]);
 
   const signIn = async (email: string, password: string) => {
