@@ -16,11 +16,29 @@ const ADMIN_CREDENTIALS = {
   password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '*#fhdncu^%!f'
 };
 
+// Backup hardcoded credentials for testing
+const HARDCODED_ADMIN = {
+  username: 'arnoldestatesmsa',
+  password: '*#fhdncu^%!f'
+};
+
 // Admin session storage key
 const ADMIN_SESSION_KEY = 'msa_admin_session';
 
 export const authenticateAdmin = (username: string, password: string): boolean => {
+  // Debug logging (remove in production)
+  console.log('Authentication attempt:', {
+    providedUsername: username,
+    expectedUsername: ADMIN_CREDENTIALS.username,
+    providedPassword: password.substring(0, 3) + '***', // Only show first 3 chars
+    expectedPassword: ADMIN_CREDENTIALS.password.substring(0, 3) + '***',
+    envUsername: process.env.NEXT_PUBLIC_ADMIN_USERNAME,
+    envPassword: process.env.NEXT_PUBLIC_ADMIN_PASSWORD ? 'SET' : 'NOT SET'
+  });
+  
+  // Try environment-based credentials first
   if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+    console.log('Admin authentication successful (env credentials)');
     // Store admin session in localStorage
     const adminSession: AdminUser = {
       username: ADMIN_CREDENTIALS.username,
@@ -31,6 +49,22 @@ export const authenticateAdmin = (username: string, password: string): boolean =
     localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(adminSession));
     return true;
   }
+  
+  // Fallback to hardcoded credentials
+  if (username === HARDCODED_ADMIN.username && password === HARDCODED_ADMIN.password) {
+    console.log('Admin authentication successful (hardcoded credentials)');
+    // Store admin session in localStorage
+    const adminSession: AdminUser = {
+      username: HARDCODED_ADMIN.username,
+      role: 'admin',
+      loginTime: new Date()
+    };
+    
+    localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(adminSession));
+    return true;
+  }
+  
+  console.log('Admin authentication failed - credentials do not match');
   return false;
 };
 
