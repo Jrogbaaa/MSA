@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged,
@@ -30,20 +31,25 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('Auth state changed:', firebaseUser ? 'User signed in' : 'User signed out');
+      
       if (firebaseUser) {
         try {
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          let userData: User;
+          
           if (userDoc.exists()) {
-            setUser({
+            userData = {
               id: firebaseUser.uid,
               ...userDoc.data(),
-            } as User);
+            } as User;
           } else {
             // Create new user document
-            const newUser: User = {
+            userData = {
               id: firebaseUser.uid,
               email: firebaseUser.email!,
               firstName: firebaseUser.displayName?.split(' ')[0] || '',
@@ -54,9 +60,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               createdAt: new Date(),
               updatedAt: new Date(),
             };
-            await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-            setUser(newUser);
+            await setDoc(doc(db, 'users', firebaseUser.uid), userData);
           }
+          
+          console.log('Setting user data:', userData);
+          setUser(userData);
         } catch (error: any) {
           console.warn('Firestore access failed, using basic user data:', error.message);
           // If offline or other Firestore error, create a basic user object from Firebase Auth
@@ -71,29 +79,71 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             createdAt: new Date(),
             updatedAt: new Date(),
           };
+          console.log('Setting basic user data:', basicUser);
           setUser(basicUser);
         }
       } else {
+        console.log('No user, setting user to null');
         setUser(null);
       }
+      
       setLoading(false);
+      if (!authInitialized) {
+        setAuthInitialized(true);
+      }
     });
 
     return unsubscribe;
-  }, []);
+  }, [authInitialized]);
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Attempting email sign in...');
       await signInWithEmailAndPassword(auth, email, password);
+      console.log('Email sign in successful');
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;
     }
   };
 
+  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
+    try {
+      console.log('Attempting sign up...');
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      const user = result.user;
+
+      // Update the user profile with display name
+      await updateProfile(user, {
+        displayName: `${firstName} ${lastName}`,
+      });
+
+      // Create user document in Firestore
+      const userData: User = {
+        id: user.uid,
+        email: user.email!,
+        firstName,
+        lastName,
+        photoURL: user.photoURL || undefined,
+        role: 'tenant',
+        savedProperties: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await setDoc(doc(db, 'users', user.uid), userData);
+      console.log('Sign up successful');
+    } catch (error) {
+      console.error('Sign up error:', error);
+      throw error;
+    }
+  };
+
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      console.log('Attempting Google sign in...');
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log('Google sign in successful:', result.user);
     } catch (error) {
       console.error('Google sign in error:', error);
       throw error;
@@ -102,7 +152,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     try {
+      console.log('Signing out...');
       await firebaseSignOut(auth);
+      console.log('Sign out successful');
     } catch (error) {
       console.error('Sign out error:', error);
       throw error;
@@ -138,6 +190,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     loading,
     signIn,
+    signUp,
     signInWithGoogle,
     signOut,
     updateProfile: updateUserProfile,

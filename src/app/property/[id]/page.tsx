@@ -140,6 +140,7 @@ export default function PropertyDetailPage() {
                   src={property.photos[currentImageIndex]}
                   alt={`${property.title} - Photo ${currentImageIndex + 1}`}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw"
                   className="object-cover"
                 />
                 
@@ -184,6 +185,7 @@ export default function PropertyDetailPage() {
                         src={photo}
                         alt={`Thumbnail ${index + 1}`}
                         fill
+                        sizes="80px"
                         className="object-cover"
                       />
                     </button>

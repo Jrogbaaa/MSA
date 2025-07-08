@@ -8,11 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { useAdminAuth, logoutAdmin, getAdminSession } from '@/lib/adminAuth';
 import PropertyManager from '@/components/admin/PropertyManager';
+import DocumentManager from '@/components/admin/DocumentManager';
+
 
 export default function AdminDashboardPage() {
   const { isAdmin, isLoading } = useAdminAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'activity'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'documents' | 'activity'>('overview');
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
@@ -90,6 +92,16 @@ export default function AdminDashboardPage() {
             }`}
           >
             Properties
+          </button>
+          <button
+            onClick={() => setActiveTab('documents')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'documents'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Documents
           </button>
           <button
             onClick={() => setActiveTab('activity')}
@@ -207,6 +219,10 @@ export default function AdminDashboardPage() {
 
         {activeTab === 'properties' && (
           <PropertyManager />
+        )}
+
+        {activeTab === 'documents' && (
+          <DocumentManager />
         )}
 
         {activeTab === 'activity' && (

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,39 +12,61 @@ import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 
 
-function SignInContent() {
+function SignUpContent() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [hasRedirected, setHasRedirected] = useState(false);
   
-  const { user, loading, signIn, signInWithGoogle } = useAuth();
+  const { user, signUp, signInWithGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get('returnUrl') || '/dashboard';
 
   useEffect(() => {
-    // Only redirect if user is authenticated and we haven't already attempted redirect
-    if (user && !loading && !hasRedirected) {
-      console.log('User authenticated, redirecting to:', returnUrl);
-      setHasRedirected(true);
+    if (user) {
+      // User is already signed in, redirect to return URL
       router.push(returnUrl);
     }
-  }, [user, loading, router, returnUrl, hasRedirected]);
+  }, [user, router, returnUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
+    // Validation
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await signIn(email, password);
+      await signUp(email, password, firstName, lastName);
       // Redirect will happen in useEffect when user state updates
-    } catch (error) {
-      console.error('Sign in error:', error);
-      setError('Invalid email or password. Please try again.');
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        setError('This email is already registered. Please sign in instead.');
+      } else if (error.code === 'auth/weak-password') {
+        setError('Password is too weak. Please choose a stronger password.');
+      } else if (error.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
+      } else {
+        setError('Failed to create account. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -59,35 +81,11 @@ function SignInContent() {
       // Redirect will happen in useEffect when user state updates
     } catch (error) {
       console.error('Google sign in error:', error);
-      setError('Google sign-in failed. Please try again.');
+      setError('Google sign-up failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Show loading while auth is initializing
-  if (loading && !user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't show the form if user is already authenticated
-  if (user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Redirecting...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -105,17 +103,17 @@ function SignInContent() {
             />
           </Link>
           <h2 className="text-3xl font-bold text-gray-900">
-            Sign in to your account
+            Create your account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Access your applications, saved properties, and more
+            Join us to access exclusive properties and save your applications
           </p>
         </div>
 
-        {/* Sign In Form */}
+        {/* Sign Up Form */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-center">Welcome Back</CardTitle>
+            <CardTitle className="text-center">Get Started</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {error && (
@@ -125,6 +123,39 @@ function SignInContent() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                    First Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <Input
+                      id="firstName"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First name"
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Last Name
+                  </label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Last name"
+                    required
+                  />
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                   Email address
@@ -154,7 +185,7 @@ function SignInContent() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder="Create a password"
                     className="pl-10 pr-10"
                     required
                   />
@@ -168,6 +199,31 @@ function SignInContent() {
                 </div>
               </div>
 
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
+                    className="pl-10 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
               <Button
                 type="submit"
                 disabled={isLoading}
@@ -176,10 +232,10 @@ function SignInContent() {
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Signing in...</span>
+                    <span>Creating account...</span>
                   </div>
                 ) : (
-                  'Sign In'
+                  'Create Account'
                 )}
               </Button>
             </form>
@@ -218,29 +274,19 @@ function SignInContent() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Sign in with Google
+              Sign up with Google
             </Button>
 
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <Link href="/auth/signup" className="text-blue-600 hover:text-blue-500">
-                  Sign up
+                Already have an account?{' '}
+                <Link href="/auth/signin" className="text-blue-600 hover:text-blue-500">
+                  Sign in
                 </Link>
               </p>
             </div>
           </CardContent>
         </Card>
-
-        {/* Admin Login Link */}
-        <div className="text-center">
-          <Link 
-            href="/admin/login" 
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            Admin Login
-          </Link>
-        </div>
 
         {/* Back to Home */}
         <div className="text-center">
@@ -257,14 +303,14 @@ function SignInContent() {
   );
 }
 
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     }>
-      <SignInContent />
+      <SignUpContent />
     </Suspense>
   );
 } 

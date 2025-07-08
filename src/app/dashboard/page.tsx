@@ -12,6 +12,7 @@ import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 
+
 interface TenantDocument {
   id: string;
   title: string;
@@ -58,7 +59,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/');
+      router.push('/auth/signin?returnUrl=/dashboard');
     }
   }, [user, router]);
 

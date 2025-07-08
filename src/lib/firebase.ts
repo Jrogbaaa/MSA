@@ -23,6 +23,26 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 
+// Configure Google Auth Provider
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
+// Enable offline persistence for Firestore (helps with connection issues)
+if (typeof window !== 'undefined') {
+  // Only run in browser environment
+  import('firebase/firestore').then(({ enableIndexedDbPersistence }) => {
+    // Enable offline persistence
+    enableIndexedDbPersistence(db).catch((err: any) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+      } else if (err.code === 'unimplemented') {
+        console.warn('The current browser does not support all of the features required to enable persistence');
+      }
+    });
+  });
+}
+
 // Initialize Analytics (only in browser)
 let analytics: any;
 if (typeof window !== 'undefined') {

@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { sendContactEmail, initEmailJS } from '@/lib/emailjs';
 import { checkEnvironmentVariables } from '@/lib/emailjs-test';
 
+
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',

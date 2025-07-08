@@ -10,6 +10,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { authenticateAdmin, isAdminAuthenticated } from '@/lib/adminAuth';
 
+
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

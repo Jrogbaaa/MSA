@@ -23,7 +23,7 @@ const heroBackgrounds = [
 ];
 
 export default function HomePage() {
-  const { user, signInWithGoogle, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     priceRange: [0, 4000],
@@ -100,13 +100,7 @@ export default function HomePage() {
     setFilteredProperties(filtered);
   }, [searchFilters]);
 
-  const handleSignIn = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.error('Sign in failed:', error);
-    }
-  };
+
 
   const handleSaveProperty = (propertyId: string) => {
     setSavedProperties(prev => 
@@ -162,6 +156,28 @@ export default function HomePage() {
             <div className="flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
+                  {/* User Profile Display */}
+                  <div className="flex items-center space-x-3">
+                    {user.photoURL ? (
+                      <Image
+                        src={user.photoURL}
+                        alt={`${user.firstName} ${user.lastName}`}
+                        width={32}
+                        height={32}
+                        className="rounded-full"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm font-medium">
+                          {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                    <span className="text-sm font-medium text-gray-700 hidden sm:block">
+                      {user.firstName} {user.lastName}
+                    </span>
+                  </div>
+                  
                   <Link href="/dashboard">
                     <Button variant="outline" size="sm">
                       Dashboard
@@ -172,9 +188,11 @@ export default function HomePage() {
                   </Button>
                 </div>
               ) : (
-                <Button onClick={handleSignIn} size="sm">
-                  Tenant Sign In
-                </Button>
+                <Link href="/auth/signin">
+                  <Button size="sm">
+                    Tenant Sign In
+                  </Button>
+                </Link>
               )}
               
               {/* Mobile menu button */}
@@ -220,6 +238,7 @@ export default function HomePage() {
               src={bg}
               alt={`Hero background ${index + 1}`}
               fill
+              sizes="100vw"
               className="object-cover"
               priority={index === 0}
               onError={() => {
@@ -353,6 +372,7 @@ export default function HomePage() {
                       src={property.photos[0]}
                       alt={property.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover"
                     />
                     {/* Urgency Badge */}
