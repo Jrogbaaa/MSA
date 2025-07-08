@@ -196,11 +196,56 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
 };
 
 export default function PropertyManager() {
-  const [properties, setProperties] = useState<Property[]>(initialProperties);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [isAddingProperty, setIsAddingProperty] = useState(false);
   const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
   const [formData, setFormData] = useState<PropertyFormData>(defaultFormData);
   const [amenitiesInput, setAmenitiesInput] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load properties from localStorage on component mount
+  useEffect(() => {
+    const loadProperties = () => {
+      try {
+        const savedProperties = localStorage.getItem('msa_admin_properties');
+        if (savedProperties) {
+          const parsedProperties = JSON.parse(savedProperties);
+          // Convert date strings back to Date objects
+          const propertiesWithDates = parsedProperties.map((property: any) => ({
+            ...property,
+            createdAt: new Date(property.createdAt),
+            updatedAt: new Date(property.updatedAt)
+          }));
+          setProperties(propertiesWithDates);
+          console.log(`Loaded ${propertiesWithDates.length} properties from localStorage`);
+        } else {
+          // First time loading - use initial data and save to localStorage
+          setProperties(initialProperties);
+          localStorage.setItem('msa_admin_properties', JSON.stringify(initialProperties));
+          console.log(`Initialized with ${initialProperties.length} default properties`);
+        }
+      } catch (error) {
+        console.error('Error loading properties from localStorage:', error);
+        // Fallback to initial properties if localStorage fails
+        setProperties(initialProperties);
+      }
+      setIsLoading(false);
+    };
+
+    loadProperties();
+  }, []);
+
+  // Save properties to localStorage whenever properties change
+  useEffect(() => {
+    if (!isLoading && properties.length > 0) {
+      try {
+        localStorage.setItem('msa_admin_properties', JSON.stringify(properties));
+        console.log(`Saved ${properties.length} properties to localStorage`);
+      } catch (error) {
+        console.error('Error saving properties to localStorage:', error);
+      }
+    }
+  }, [properties, isLoading]);
 
   const resetForm = () => {
     setFormData(defaultFormData);
@@ -226,40 +271,73 @@ export default function PropertyManager() {
   };
 
   const handleDelete = (propertyId: string) => {
-    if (window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
-      setProperties(properties.filter(p => p.id !== propertyId));
+    const propertyToDelete = properties.find(p => p.id === propertyId);
+    if (!propertyToDelete) return;
+
+    const confirmMessage = `Are you sure you want to delete "${propertyToDelete.title}"?\n\nThis action cannot be undone and will remove the property from the live website.`;
+    
+    if (window.confirm(confirmMessage)) {
+      const updatedProperties = properties.filter(p => p.id !== propertyId);
+      setProperties(updatedProperties);
       
-      // In a real app, this would make an API call to delete from database
-      console.log(`Property ${propertyId} deleted`);
-      alert('Property deleted successfully!');
+      console.log(`Property "${propertyToDelete.title}" (ID: ${propertyId}) deleted`);
+      
+      // Show success message with property details
+      alert(`✅ Property Successfully Deleted!\n\n"${propertyToDelete.title}" has been removed from the system.\n\nThe property list has been updated and saved.`);
+      
+      // If we were editing this property, close the edit form
+      if (editingPropertyId === propertyId) {
+        handleCancel();
+      }
     }
   };
 
   const handleSave = () => {
+    // Validate required fields
+    if (!formData.title.trim()) {
+      alert('❌ Property title is required!');
+      return;
+    }
+    if (!formData.address.trim()) {
+      alert('❌ Property address is required!');
+      return;
+    }
+    if (formData.rent <= 0) {
+      alert('❌ Monthly rent must be greater than £0!');
+      return;
+    }
+
     // Parse amenities from comma-separated strings
     const amenitiesList = amenitiesInput.split(',').map(item => item.trim()).filter(item => item.length > 0);
 
+    const now = new Date();
     const propertyData: Property = {
       ...formData,
-      id: editingPropertyId || Date.now().toString(),
+      id: editingPropertyId || `property_${now.getTime()}`, // Generate unique ID
       amenities: amenitiesList,
-      photos: formData.photos, // Already an array from the image upload component
-      createdAt: new Date(),
-      updatedAt: new Date()
+      photos: formData.photos,
+      createdAt: editingPropertyId ? 
+        properties.find(p => p.id === editingPropertyId)?.createdAt || now : 
+        now,
+      updatedAt: now
     };
 
     if (editingPropertyId) {
       // Update existing property
-      setProperties(properties.map(p => 
+      const updatedProperties = properties.map(p => 
         p.id === editingPropertyId ? propertyData : p
-      ));
+      );
+      setProperties(updatedProperties);
+      
       console.log('Property updated:', propertyData);
-      alert('Property updated successfully!');
+      alert(`✅ Property Updated Successfully!\n\n"${propertyData.title}" has been updated and saved.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}`);
     } else {
       // Add new property
-      setProperties([...properties, propertyData]);
+      const updatedProperties = [...properties, propertyData];
+      setProperties(updatedProperties);
+      
       console.log('Property added:', propertyData);
-      alert('Property added successfully!');
+      alert(`✅ Property Added Successfully!\n\n"${propertyData.title}" has been added to the system.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}\nProperty ID: ${propertyData.id}`);
     }
 
     // Reset form and close modals
@@ -281,6 +359,32 @@ export default function PropertyManager() {
     }));
   };
 
+  // Add function to reset to default properties (for admin use)
+  const resetToDefaultProperties = () => {
+    const confirmMessage = `⚠️ RESET TO DEFAULT PROPERTIES\n\nThis will:\n• Delete ALL current properties\n• Restore original demo properties\n• Cannot be undone\n\nAre you sure you want to continue?`;
+    
+    if (window.confirm(confirmMessage)) {
+      setProperties(initialProperties);
+      localStorage.setItem('msa_admin_properties', JSON.stringify(initialProperties));
+      alert('✅ Properties reset to defaults!\n\nAll custom properties have been removed and demo properties restored.');
+      
+      // Close any open forms
+      handleCancel();
+    }
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+          <span className="ml-3 text-white">Loading properties...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header with Add Button */}
@@ -289,14 +393,33 @@ export default function PropertyManager() {
           <Home className="mr-2 h-6 w-6" />
           Property Management
         </h2>
-        <Button 
-          onClick={() => setIsAddingProperty(true)}
-          className="bg-blue-600 hover:bg-blue-700"
-          disabled={isAddingProperty || editingPropertyId !== null}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Property
-        </Button>
+        <div className="flex space-x-3">
+          <Button 
+            onClick={() => setIsAddingProperty(true)}
+            className="bg-blue-600 hover:bg-blue-700"
+            disabled={isAddingProperty || editingPropertyId !== null}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Property
+          </Button>
+          <Button 
+            onClick={resetToDefaultProperties}
+            variant="outline"
+            className="border-gray-600 text-gray-300 hover:bg-gray-700"
+            disabled={isAddingProperty || editingPropertyId !== null}
+          >
+            <Home className="mr-2 h-4 w-4" />
+            Reset Demo
+          </Button>
+        </div>
+      </div>
+
+      {/* Properties Count and Status */}
+      <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+        <div className="flex items-center justify-between text-sm text-gray-300">
+          <span>📊 Total Properties: <strong className="text-white">{properties.length}</strong></span>
+          <span>💾 Auto-saved to browser storage</span>
+        </div>
       </div>
 
       {/* Property List */}

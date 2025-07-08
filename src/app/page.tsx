@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Search, Filter, MapPin, Bed, Bath, Square, Heart, User, Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Property, SearchFilters } from '@/types';
-import { properties } from '@/data/properties';
+import { properties as initialProperties } from '@/data/properties';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +24,8 @@ const heroBackgrounds = [
 
 export default function HomePage() {
   const { user, signOut } = useAuth();
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     priceRange: [0, 4000],
     bedrooms: null,
@@ -36,6 +37,59 @@ export default function HomePage() {
   const [savedProperties, setSavedProperties] = useState<string[]>([]);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [propertiesLoaded, setPropertiesLoaded] = useState(false);
+
+  // Load properties from localStorage (same system as admin panel)
+  useEffect(() => {
+    const loadProperties = () => {
+      try {
+        const savedProperties = localStorage.getItem('msa_admin_properties');
+        if (savedProperties) {
+          const parsedProperties = JSON.parse(savedProperties);
+          // Convert date strings back to Date objects
+          const propertiesWithDates = parsedProperties.map((property: any) => ({
+            ...property,
+            createdAt: new Date(property.createdAt),
+            updatedAt: new Date(property.updatedAt)
+          }));
+          setProperties(propertiesWithDates);
+          console.log(`Loaded ${propertiesWithDates.length} properties from localStorage`);
+        } else {
+          // First time loading - use initial data
+          setProperties(initialProperties);
+          console.log(`Using ${initialProperties.length} default properties`);
+        }
+      } catch (error) {
+        console.error('Error loading properties from localStorage:', error);
+        // Fallback to initial properties if localStorage fails
+        setProperties(initialProperties);
+      }
+      setPropertiesLoaded(true);
+    };
+
+    loadProperties();
+
+    // Listen for storage changes (when admin panel updates properties)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'msa_admin_properties' && e.newValue) {
+        try {
+          const parsedProperties = JSON.parse(e.newValue);
+          const propertiesWithDates = parsedProperties.map((property: any) => ({
+            ...property,
+            createdAt: new Date(property.createdAt),
+            updatedAt: new Date(property.updatedAt)
+          }));
+          setProperties(propertiesWithDates);
+          console.log('Properties updated from admin panel - auto-refreshed');
+        } catch (error) {
+          console.error('Error parsing updated properties:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Preload hero images with fallback
   useEffect(() => {
@@ -82,6 +136,8 @@ export default function HomePage() {
 
   // Filter properties based on search criteria
   useEffect(() => {
+    if (!propertiesLoaded) return;
+
     let filtered = properties.filter(property => {
       const matchesPrice = property.rent >= searchFilters.priceRange[0] && 
                           property.rent <= searchFilters.priceRange[1];
@@ -98,7 +154,7 @@ export default function HomePage() {
     });
 
     setFilteredProperties(filtered);
-  }, [searchFilters]);
+  }, [searchFilters, properties, propertiesLoaded]);
 
 
 
@@ -353,103 +409,160 @@ export default function HomePage() {
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
               Available Properties
             </h3>
-            <p className="text-gray-600">
-              {filteredProperties.length} properties available
-            </p>
+            {propertiesLoaded ? (
+              <p className="text-gray-600">
+                {filteredProperties.length} properties available
+              </p>
+            ) : (
+              <p className="text-gray-600">Loading properties...</p>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((property) => (
-              <motion.div
-                key={property.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Card className="card-hover overflow-hidden">
-                  <div className="relative h-48">
-                    <Image
-                      src={property.photos[0]}
-                      alt={property.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover"
-                    />
-                    {/* Urgency Badge */}
-                    {property.id === '1' && (
-                      <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                        Only 2 left!
-                      </div>
-                    )}
-                    <button
-                      className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md"
-                      onClick={() => handleSaveProperty(property.id)}
-                    >
-                      <Heart 
-                        size={20} 
-                        className={savedProperties.includes(property.id) ? 'text-red-500 fill-current' : 'text-gray-400'}
-                      />
-                    </button>
-                  </div>
-                  
+          {!propertiesLoaded ? (
+            // Loading State
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((index) => (
+                <Card key={index} className="overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">{property.title}</CardTitle>
-                    <div className="flex items-center text-gray-500 text-sm">
-                      <MapPin size={16} className="mr-1" />
-                      {property.address}
-                    </div>
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                   </CardHeader>
-                  
                   <CardContent>
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {formatCurrency(property.rent)}/mo
-                      </div>
+                    <div className="h-8 bg-gray-200 rounded mb-4 w-1/2"></div>
+                    <div className="flex space-x-4 mb-4">
+                      <div className="h-4 bg-gray-200 rounded w-16"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16"></div>
                     </div>
-                    
-                    <div className="flex space-x-4 mb-4 text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <Bed size={16} className="mr-1" />
-                        {formatBedrooms(property.bedrooms)}
-                      </div>
-                      <div className="flex items-center">
-                        <Bath size={16} className="mr-1" />
-                        {formatBathrooms(property.bathrooms)}
-                      </div>
-                      <div className="flex items-center">
-                        <Square size={16} className="mr-1" />
-                        {property.squareFootage} sqft
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {property.amenities.slice(0, 3).map((amenity) => (
-                        <span
-                          key={amenity}
-                          className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
-                        >
-                          {amenity}
-                        </span>
-                      ))}
-                    </div>
-                    
                     <div className="flex space-x-2">
-                      <Link href={`/property/${property.id}`} className="flex-1">
-                        <Button className="w-full" size="sm">
-                          View Details
-                        </Button>
-                      </Link>
-                      <Link href={`/apply/${property.id}`}>
-                        <Button variant="outline" size="sm">
-                          Apply Now
-                        </Button>
-                      </Link>
+                      <div className="h-8 bg-gray-200 rounded flex-1"></div>
+                      <div className="h-8 bg-gray-200 rounded w-20"></div>
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : filteredProperties.length === 0 ? (
+            // No Properties Found State
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <MapPin size={48} className="mx-auto mb-4" />
+              </div>
+              <h4 className="text-xl font-semibold text-gray-700 mb-2">
+                No properties found
+              </h4>
+              <p className="text-gray-600 mb-6">
+                Try adjusting your search filters to see more results.
+              </p>
+              <Button 
+                onClick={() => setSearchFilters({
+                  priceRange: [0, 4000],
+                  bedrooms: null,
+                  bathrooms: null,
+                  availability: 'available',
+                  searchTerm: '',
+                })}
+                variant="outline"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          ) : (
+            // Properties Grid
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProperties.map((property) => (
+                <motion.div
+                  key={property.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Card className="card-hover overflow-hidden">
+                    <div className="relative h-48">
+                      <Image
+                        src={property.photos[0]}
+                        alt={property.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover"
+                      />
+                      {/* Urgency Badge */}
+                      {property.id === '1' && (
+                        <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                          Only 2 left!
+                        </div>
+                      )}
+                      <button
+                        className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md"
+                        onClick={() => handleSaveProperty(property.id)}
+                      >
+                        <Heart 
+                          size={20} 
+                          className={savedProperties.includes(property.id) ? 'text-red-500 fill-current' : 'text-gray-400'}
+                        />
+                      </button>
+                    </div>
+                    
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">{property.title}</CardTitle>
+                      <div className="flex items-center text-gray-500 text-sm">
+                        <MapPin size={16} className="mr-1" />
+                        {property.address}
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent>
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {formatCurrency(property.rent)}/mo
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-4 mb-4 text-sm text-gray-600">
+                        <div className="flex items-center">
+                          <Bed size={16} className="mr-1" />
+                          {formatBedrooms(property.bedrooms)}
+                        </div>
+                        <div className="flex items-center">
+                          <Bath size={16} className="mr-1" />
+                          {formatBathrooms(property.bathrooms)}
+                        </div>
+                        <div className="flex items-center">
+                          <Square size={16} className="mr-1" />
+                          {property.squareFootage} sqft
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {property.amenities.slice(0, 3).map((amenity) => (
+                          <span
+                            key={amenity}
+                            className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
+                          >
+                            {amenity}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Link href={`/property/${property.id}`} className="flex-1">
+                          <Button className="w-full" size="sm">
+                            View Details
+                          </Button>
+                        </Link>
+                        <Link href={`/apply/${property.id}`}>
+                          <Button variant="outline" size="sm">
+                            Apply Now
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

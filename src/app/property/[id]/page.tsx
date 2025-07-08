@@ -18,7 +18,7 @@ import {
   Mail
 } from 'lucide-react';
 import { Property } from '@/types';
-import { properties } from '@/data/properties';
+import { properties as initialProperties } from '@/data/properties';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency, formatBedrooms, formatBathrooms } from '@/lib/utils';
@@ -30,18 +30,72 @@ export default function PropertyDetailPage() {
   const router = useRouter();
   const propertyId = params.id as string;
   
+  const [properties, setProperties] = useState<Property[]>([]);
   const [property, setProperty] = useState<Property | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load properties from localStorage (same system as admin panel and homepage)
   useEffect(() => {
-    // Find property by ID
-    const foundProperty = properties.find(p => p.id === propertyId);
-    if (foundProperty) {
-      setProperty(foundProperty);
+    const loadProperties = () => {
+      try {
+        const savedProperties = localStorage.getItem('msa_admin_properties');
+        if (savedProperties) {
+          const parsedProperties = JSON.parse(savedProperties);
+          // Convert date strings back to Date objects
+          const propertiesWithDates = parsedProperties.map((property: any) => ({
+            ...property,
+            createdAt: new Date(property.createdAt),
+            updatedAt: new Date(property.updatedAt)
+          }));
+          setProperties(propertiesWithDates);
+          console.log(`Loaded ${propertiesWithDates.length} properties from localStorage`);
+        } else {
+          // First time loading - use initial data
+          setProperties(initialProperties);
+          console.log(`Using ${initialProperties.length} default properties`);
+        }
+      } catch (error) {
+        console.error('Error loading properties from localStorage:', error);
+        // Fallback to initial properties if localStorage fails
+        setProperties(initialProperties);
+      }
+      setIsLoading(false);
+    };
+
+    loadProperties();
+
+    // Listen for storage changes (when admin panel updates properties)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'msa_admin_properties' && e.newValue) {
+        try {
+          const parsedProperties = JSON.parse(e.newValue);
+          const propertiesWithDates = parsedProperties.map((property: any) => ({
+            ...property,
+            createdAt: new Date(property.createdAt),
+            updatedAt: new Date(property.updatedAt)
+          }));
+          setProperties(propertiesWithDates);
+          console.log('Properties updated from admin panel - auto-refreshed');
+        } catch (error) {
+          console.error('Error parsing updated properties:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Find and set current property when properties are loaded
+  useEffect(() => {
+    if (!isLoading && properties.length > 0) {
+      const foundProperty = properties.find(p => p.id === propertyId);
+      setProperty(foundProperty || null);
     }
-  }, [propertyId]);
+  }, [propertyId, properties, isLoading]);
 
   const handleNextImage = () => {
     if (property && currentImageIndex < property.photos.length - 1) {
@@ -73,13 +127,101 @@ export default function PropertyDetailPage() {
   };
 
   if (!property) {
+    if (isLoading) {
+      // Loading state
+      return (
+        <div className="min-h-screen bg-gray-50">
+          {/* Header */}
+          <header className="bg-white shadow-sm border-b">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-16">
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => router.back()}
+                    className="flex items-center text-gray-600 hover:text-gray-900"
+                  >
+                    <ArrowLeft size={20} className="mr-2" />
+                    Back
+                  </button>
+                  <h1 className="text-xl font-semibold text-gray-900">Property Details</h1>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Loading Skeleton */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="animate-pulse">
+                  <div className="h-64 md:h-96 bg-gray-200 rounded-lg"></div>
+                  <div className="flex space-x-2 mt-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="w-20 h-20 bg-gray-200 rounded-lg"></div>
+                    ))}
+                  </div>
+                </div>
+                
+                <Card>
+                  <CardHeader>
+                    <div className="animate-pulse space-y-3">
+                      <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="animate-pulse space-y-4">
+                      <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+                      <div className="flex space-x-4">
+                        <div className="h-4 bg-gray-200 rounded w-20"></div>
+                        <div className="h-4 bg-gray-200 rounded w-20"></div>
+                        <div className="h-4 bg-gray-200 rounded w-20"></div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="space-y-6">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="animate-pulse space-y-4">
+                      <div className="h-12 bg-gray-200 rounded"></div>
+                      <div className="h-12 bg-gray-200 rounded"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Property not found (after loading is complete)
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
+          <div className="text-gray-400 mb-4">
+            <MapPin size={48} className="mx-auto mb-4" />
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Property Not Found</h1>
-          <Link href="/">
-            <Button>Back to Properties</Button>
-          </Link>
+          <p className="text-gray-600 mb-6">
+            The property you're looking for might have been removed or doesn't exist.
+          </p>
+          <div className="space-x-4">
+            <Link href="/">
+              <Button>View All Properties</Button>
+            </Link>
+            <Button variant="outline" onClick={() => router.back()}>
+              Go Back
+            </Button>
+          </div>
         </div>
       </div>
     );
