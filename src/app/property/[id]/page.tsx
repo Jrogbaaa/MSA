@@ -22,6 +22,7 @@ import { properties as initialProperties } from '@/data/properties';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency, formatBedrooms, formatBathrooms } from '@/lib/utils';
+import { getAllProperties, subscribeToProperties } from '@/lib/properties';
 import Image from 'next/image';
 import Link from 'next/link';
 

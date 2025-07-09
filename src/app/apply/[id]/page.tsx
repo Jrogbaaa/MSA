@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { properties as initialProperties } from '@/data/properties';
+import { getAllProperties, subscribeToProperties } from '@/lib/properties';
 
 interface ApplicationFormData {
   name: string;
