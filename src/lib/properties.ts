@@ -14,22 +14,21 @@ const RETRY_DELAY = 1000; // 1 second
 // Utility function to wait
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Enhanced error handling utility
+// Enhanced error handling utility with reduced console noise
 const handleFirebaseError = (error: any, operation: string) => {
-  console.error(`Firebase ${operation} error:`, error);
+  // Use console.warn instead of console.error to prevent Next.js error interception
+  console.warn(`🔥 Firebase ${operation} issue:`, error?.code || 'unknown');
   
-  // Log specific error details for debugging
-  if (error.code) {
-    console.error(`Error code: ${error.code}`);
-  }
-  if (error.message) {
-    console.error(`Error message: ${error.message}`);
+  // Only log detailed errors in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`Firebase ${operation} details:`, {
+      code: error?.code,
+      message: error?.message?.substring(0, 100) // Limit message length
+    });
   }
   
-  // Don't throw errors in production to allow localStorage fallback
-  if (process.env.NODE_ENV !== 'production') {
-    console.warn(`${operation} failed, using localStorage fallback`);
-  }
+  // Always indicate fallback usage
+  console.log(`📱 Using localStorage fallback for ${operation}`);
 };
 
 // Retry mechanism for Firebase operations
@@ -100,25 +99,52 @@ export const getAllProperties = async (): Promise<Property[]> => {
       return propertiesSnapshot.docs.map(convertFirestoreToProperty);
     };
     
-    const properties = await withRetry(fetchOperation, 'fetch properties');
+    const firebaseProperties = await withRetry(fetchOperation, 'fetch properties');
+    console.log(`✅ Fetched ${firebaseProperties.length} properties from Firebase`);
     
-    console.log(`✅ Fetched ${properties.length} properties from Firebase`);
+    // Always prefer Firebase data when available, but use localStorage as fallback
+    if (firebaseProperties.length > 0) {
+      // Update localStorage with Firebase data to keep them in sync
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(firebaseProperties));
+          console.log('💾 Properties synced to localStorage');
+        } catch (storageError) {
+          console.warn('Failed to sync properties to localStorage:', storageError);
+        }
+      }
+      return firebaseProperties;
+    }
     
-    // Update localStorage for offline access
+    // If Firebase is empty, check localStorage for any saved properties
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(properties));
-        console.log('💾 Properties cached to localStorage');
+        const savedProperties = localStorage.getItem(LOCALSTORAGE_KEY);
+        if (savedProperties) {
+          const localProperties = JSON.parse(savedProperties).map((property: any) => ({
+            ...property,
+            createdAt: new Date(property.createdAt),
+            updatedAt: new Date(property.updatedAt)
+          }));
+          
+          if (localProperties.length > 0) {
+            console.log(`📱 Using ${localProperties.length} properties from localStorage (Firebase is empty)`);
+            return localProperties;
+          }
+        }
       } catch (storageError) {
-        console.warn('Failed to cache properties to localStorage:', storageError);
+        console.warn('Failed to check localStorage for properties:', storageError);
       }
     }
     
-    return properties.length > 0 ? properties : initialProperties;
+    // Final fallback to initial demo properties
+    console.log('📦 Using initial demo properties');
+    return initialProperties;
+    
   } catch (error) {
     handleFirebaseError(error, 'fetch properties');
     
-    // Fallback to localStorage
+    // Fallback to localStorage when Firebase fails
     if (typeof window !== 'undefined') {
       try {
         const savedProperties = localStorage.getItem(LOCALSTORAGE_KEY);
@@ -430,46 +456,76 @@ export const initializeDefaultProperties = async (): Promise<void> => {
   }
 };
 
-// Listen for real-time property updates with enhanced error handling
-export const subscribeToProperties = (callback: (properties: Property[]) => void): (() => void) => {
-  try {
-    console.log('🔄 Setting up real-time property updates...');
-    
-    const propertiesCollection = collection(db, PROPERTIES_COLLECTION);
-    const propertiesQuery = query(propertiesCollection, orderBy('createdAt', 'desc'));
-    
-    const unsubscribe = onSnapshot(propertiesQuery, 
-      (snapshot) => {
-        const properties = snapshot.docs.map(convertFirestoreToProperty);
-        console.log(`🔄 Real-time update: ${properties.length} properties`);
-        
-        // Update localStorage for offline access
-        if (typeof window !== 'undefined') {
-          try {
-            localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(properties));
-            console.log('💾 Properties synced to localStorage');
-          } catch (storageError) {
-            console.warn('Failed to sync properties to localStorage:', storageError);
+// Enhanced real-time properties subscription with cleanup and conflict prevention
+export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) => void): (() => void) => {
+  console.log('🔄 Setting up real-time properties subscription...');
+  
+  let isSubscriptionActive = true;
+  let unsubscribeFirestore: (() => void) | null = null;
+  
+  const setupFirestoreSubscription = () => {
+    try {
+      const propertiesCollection = collection(db, PROPERTIES_COLLECTION);
+      const propertiesQuery = query(propertiesCollection, orderBy('createdAt', 'desc'));
+      
+      unsubscribeFirestore = onSnapshot(
+        propertiesQuery,
+        (snapshot) => {
+          if (!isSubscriptionActive) {
+            console.log('🛑 Subscription inactive, ignoring update');
+            return;
           }
+          
+          const properties = snapshot.docs.map(convertFirestoreToProperty);
+          console.log(`🔄 Real-time update: ${properties.length} properties received`);
+          
+          // Always sync with localStorage when we get real-time updates
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(properties));
+              console.log('💾 Real-time properties synced to localStorage');
+            } catch (storageError) {
+              console.warn('Failed to sync real-time properties to localStorage:', storageError);
+            }
+          }
+          
+          // Call the callback with the updated properties
+          callback(properties);
+        },
+        (error) => {
+          console.error('❌ Real-time subscription error:', error);
+          if (!isSubscriptionActive) return;
+          
+          // Fallback to localStorage on subscription error
+          handleSubscriptionFallback(callback);
         }
-        
-        callback(properties);
-      }, 
-      (error) => {
-        handleFirebaseError(error, 'real-time properties');
-        handleSubscriptionFallback(callback);
-      }
-    );
+      );
+      
+      console.log('✅ Real-time subscription established');
+    } catch (error) {
+      console.error('❌ Failed to establish real-time subscription:', error);
+      if (!isSubscriptionActive) return;
+      
+      // Use fallback method
+      handleSubscriptionFallback(callback);
+    }
+  };
+  
+  // Start subscription
+  setupFirestoreSubscription();
+  
+  // Return cleanup function
+  return () => {
+    console.log('🧹 Cleaning up properties subscription...');
+    isSubscriptionActive = false;
     
-    return unsubscribe;
-  } catch (error) {
-    handleFirebaseError(error, 'subscribe to properties');
-    handleSubscriptionFallback(callback);
-    // Return a no-op function if Firebase fails
-    return () => {
-      console.log('No-op unsubscribe function - Firebase subscription failed');
-    };
-  }
+    if (unsubscribeFirestore) {
+      unsubscribeFirestore();
+      unsubscribeFirestore = null;
+    }
+    
+    console.log('✅ Properties subscription cleanup complete');
+  };
 };
 
 // Get property statistics
@@ -525,5 +581,10 @@ export const clearAllProperties = async (): Promise<void> => {
   }
 };
 
+
+
 // Export localStorage key for compatibility
-export { LOCALSTORAGE_KEY }; 
+export { LOCALSTORAGE_KEY };
+
+// Alias for backward compatibility
+export const subscribeToProperties = subscribeToPropertiesCleanup; 

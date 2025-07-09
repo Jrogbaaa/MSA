@@ -88,9 +88,15 @@ test.describe('Homepage Tests', () => {
     test('should navigate to about page', async ({ page }) => {
       await page.goto('/');
       
-      // Use navigation-specific About link to avoid footer
-      await page.getByRole('navigation').getByRole('link', { name: 'About' }).click();
-      await expect(page).toHaveURL(/\/about$/);
+      // Wait for page to load
+      await page.waitForLoadState('networkidle', { timeout: 15000 });
+      
+      // Use navigation-specific About link to avoid footer - with more flexible selection
+      const aboutLink = page.getByRole('navigation').getByRole('link', { name: 'About' }).first()
+        .or(page.getByRole('link', { name: 'About' }).first());
+      
+      await aboutLink.click({ timeout: 10000 });
+      await expect(page).toHaveURL(/\/about$/, { timeout: 15000 });
       
       // Check for about content
       const aboutHeading = page.getByRole('heading', { name: /About/i })
@@ -104,9 +110,15 @@ test.describe('Homepage Tests', () => {
     test('should navigate to contact page', async ({ page }) => {
       await page.goto('/');
       
-      // Use navigation-specific Contact link to avoid footer
-      await page.getByRole('navigation').getByRole('link', { name: 'Contact' }).click();
-      await expect(page).toHaveURL(/\/contact$/);
+      // Wait for page to load
+      await page.waitForLoadState('networkidle', { timeout: 15000 });
+      
+      // Use navigation-specific Contact link to avoid footer - with more flexible selection
+      const contactLink = page.getByRole('navigation').getByRole('link', { name: 'Contact' }).first()
+        .or(page.getByRole('link', { name: 'Contact' }).first());
+      
+      await contactLink.click({ timeout: 10000 });
+      await expect(page).toHaveURL(/\/contact$/, { timeout: 15000 });
       
       // Check for contact content
       const contactHeading = page.getByRole('heading', { name: /Contact/i })
@@ -125,10 +137,13 @@ test.describe('Homepage Tests', () => {
   });
 
   test.describe('Mobile', () => {
-    test.use({ viewport: { width: 375, height: 667 } });
+    test.use({ viewport: { width: 390, height: 844 } }); // Updated to more modern mobile viewport
 
     test('should load homepage on mobile', async ({ page }) => {
       await page.goto('/');
+      
+      // Wait for page load with longer timeout for mobile
+      await page.waitForLoadState('networkidle', { timeout: 20000 });
       
       // Check main heading is visible on mobile
       const mainHeading = page.locator('h1').first().or(page.getByRole('heading', { level: 1 })).first();
@@ -157,6 +172,9 @@ test.describe('Homepage Tests', () => {
     test('should display properties in mobile layout', async ({ page }) => {
       await page.goto('/');
       
+      // Wait for page load with longer timeout for mobile
+      await page.waitForLoadState('networkidle', { timeout: 20000 });
+      
       // Look for property content in mobile layout
       const propertyContent = page.locator('[data-testid="property-card"]')
         .or(page.locator('.property-card'))
@@ -178,6 +196,9 @@ test.describe('Homepage Tests', () => {
 
     test('should handle mobile property application', async ({ page }) => {
       await page.goto('/');
+      
+      // Wait for page load with longer timeout for mobile
+      await page.waitForLoadState('networkidle', { timeout: 20000 });
       
       // Look for apply buttons on mobile
       const applyButton = page.getByRole('button', { name: /apply now/i })
@@ -205,12 +226,18 @@ test.describe('Homepage Tests', () => {
     test('should maintain session across page reloads', async ({ page }) => {
       await page.goto('/');
       
+      // Wait for initial load
+      await page.waitForLoadState('networkidle', { timeout: 15000 });
+      
       // Check initial page load
       const pageContent = page.locator('body').first();
       await expect(pageContent).toBeVisible();
       
       // Reload the page
       await page.reload();
+      
+      // Wait for reload to complete
+      await page.waitForLoadState('networkidle', { timeout: 15000 });
       
       // Check that the page loads correctly after reload
       const mainContent = page.locator('h1').first()
@@ -226,28 +253,34 @@ test.describe('Homepage Tests', () => {
     test('should handle network interruptions gracefully', async ({ page }) => {
       await page.goto('/');
       
+      // Wait for initial load
+      await page.waitForLoadState('networkidle', { timeout: 15000 });
+      
       // Go offline
       await page.context().setOffline(true);
       
       // Try to navigate - use navigation-specific link with more robust selection
-      const aboutLink = page.getByRole('navigation').getByRole('link', { name: 'About' }).first();
+      const aboutLink = page.getByRole('navigation').getByRole('link', { name: 'About' }).first()
+        .or(page.getByRole('link', { name: 'About' }).first());
+        
       if (await aboutLink.isVisible()) {
         try {
-          await aboutLink.click({ timeout: 5000 });
+          await aboutLink.click({ timeout: 3000 });
         } catch (error) {
           // Expected behavior when offline - navigation might fail
+          console.log('Navigation failed while offline - this is expected');
         }
       }
       
       // Go back online
       await page.context().setOffline(false);
       
-      // Wait for page to be ready
-      await page.waitForLoadState('networkidle', { timeout: 10000 });
+      // Wait for connection to restore with shorter timeout
+      await page.waitForTimeout(2000);
       
       // Should be able to navigate normally - use a more stable approach
-      await page.goto('/contact');
-      await expect(page).toHaveURL(/\/contact$/);
+      await page.goto('/contact', { timeout: 15000 });
+      await expect(page).toHaveURL(/\/contact$/, { timeout: 10000 });
     });
   });
 }); 

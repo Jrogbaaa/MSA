@@ -10,7 +10,9 @@ import { useAdminAuth, logoutAdmin, getAdminSession } from '@/lib/adminAuth';
 import PropertyManager from '@/components/admin/PropertyManager';
 import DocumentManager from '@/components/admin/DocumentManager';
 import TenantManager from '@/components/admin/TenantManager';
-import { getFirebaseStatus, retryFirestoreConnection } from '@/lib/firebase';
+import { getFirebaseStatus, retryFirestoreConnection, testFirebasePermissions, db } from '@/lib/firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { getAllProperties } from '@/lib/properties';
 
 
 export default function AdminDashboardPage() {
@@ -21,12 +23,43 @@ export default function AdminDashboardPage() {
   const [contactMessages, setContactMessages] = useState<any[]>([]);
   const [firebaseStatus, setFirebaseStatus] = useState<any>(null);
   const [connectionRetrying, setConnectionRetrying] = useState(false);
+  const [permissionsTest, setPermissionsTest] = useState<any>(null);
+  const [testingPermissions, setTestingPermissions] = useState(false);
+  const [manualPropertiesCheck, setManualPropertiesCheck] = useState<any>(null);
+  const [checkingProperties, setCheckingProperties] = useState(false);
+  const [propertyStats, setPropertyStats] = useState({ 
+    totalProperties: 0, 
+    availableProperties: 0, 
+    totalRevenue: 0 
+  });
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
       router.push('/admin/login');
     }
   }, [isAdmin, isLoading, router]);
+
+  // Load property statistics
+  useEffect(() => {
+    const loadPropertyStats = async () => {
+      try {
+        const properties = await getAllProperties();
+        const stats = {
+          totalProperties: properties.length,
+          availableProperties: properties.filter(p => p.availability === 'available').length,
+          totalRevenue: properties.reduce((sum, p) => sum + p.rent, 0)
+        };
+        setPropertyStats(stats);
+        console.log('📊 Property statistics loaded:', stats);
+      } catch (error) {
+        console.error('❌ Failed to load property statistics:', error);
+      }
+    };
+
+    if (isAdmin) {
+      loadPropertyStats();
+    }
+  }, [isAdmin]);
 
   // Load applications and contact messages from localStorage
   useEffect(() => {
@@ -117,6 +150,82 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleTestPermissions = async () => {
+    setTestingPermissions(true);
+    try {
+      console.log('🔍 Testing Firebase permissions...');
+      const results = await testFirebasePermissions();
+      setPermissionsTest(results);
+      
+      if (results.canWrite && results.canRead && results.canDelete) {
+        console.log('✅ All Firebase permissions working correctly');
+      } else {
+        console.error('❌ Firebase permissions issues detected:', results.errors);
+      }
+    } catch (error) {
+      console.error('❌ Failed to test permissions:', error);
+      setPermissionsTest({
+        canRead: false,
+        canWrite: false,
+        canDelete: false,
+        errors: [`Test failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        details: ['❌ Permission test failed to execute']
+      });
+    } finally {
+      setTestingPermissions(false);
+    }
+  };
+
+  const handleCheckProperties = async () => {
+    setCheckingProperties(true);
+    try {
+      console.log('🔍 Manually checking properties in Firebase...');
+      
+      // Direct Firebase query to see what's actually in the database
+      const propertiesCollection = collection(db, 'properties');
+      const propertiesQuery = query(propertiesCollection, orderBy('createdAt', 'desc'));
+      const snapshot = await getDocs(propertiesQuery);
+      
+      const propertiesData = snapshot.docs.map(doc => {
+        const data = doc.data() as any;
+        return {
+          id: doc.id,
+          ...data,
+          docExists: doc.exists()
+        };
+      });
+      
+      // Also check localStorage
+      const localStorageData = localStorage.getItem('msa_admin_properties');
+      const localProperties = localStorageData ? JSON.parse(localStorageData) : [];
+      
+      const results = {
+        firebaseCount: propertiesData.length,
+        firebaseProperties: propertiesData.map((p: any) => ({ id: p.id, title: p.title || 'No title' })),
+        localStorageCount: localProperties.length,
+        localStorageProperties: localProperties.map((p: any) => ({ id: p.id, title: p.title || 'No title' })),
+        rawFirebaseData: propertiesData,
+        timestamp: new Date().toISOString()
+      };
+      
+      setManualPropertiesCheck(results);
+      console.log('📊 Manual property check results:', results);
+      
+    } catch (error) {
+      console.error('❌ Failed to check properties:', error);
+      setManualPropertiesCheck({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        firebaseCount: 0,
+        firebaseProperties: [],
+        localStorageCount: 0,
+        localStorageProperties: [],
+        timestamp: new Date().toISOString()
+      });
+    } finally {
+      setCheckingProperties(false);
+    }
+  };
+
   const handleLogout = () => {
     logoutAdmin();
     router.push('/admin/login');
@@ -181,30 +290,195 @@ export default function AdminDashboardPage() {
           </div>
         )}
         
-        {(!isHealthy || !firestoreConnected) && (
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-yellow-400">
-              Connection issues detected. Properties may load from cache.
-            </div>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-gray-400">
+            {(!isHealthy || !firestoreConnected) 
+              ? "Connection issues detected. Properties may load from cache."
+              : "Firebase connection is healthy. Test permissions to troubleshoot save issues."
+            }
+          </div>
+          <div className="flex space-x-2">
             <Button
-              onClick={handleRetryConnection}
-              disabled={connectionRetrying}
+              onClick={handleTestPermissions}
+              disabled={testingPermissions}
               variant="outline"
               size="sm"
-              className="border-blue-600 text-blue-400 hover:bg-blue-900/20"
+              className="border-purple-600 text-purple-400 hover:bg-purple-900/20"
             >
-              {connectionRetrying ? (
+              {testingPermissions ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Retrying...
+                  Testing...
                 </>
               ) : (
                 <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Retry Connection
+                  <Shield className="mr-2 h-4 w-4" />
+                  Test Permissions
                 </>
               )}
             </Button>
+            <Button
+              onClick={handleCheckProperties}
+              disabled={checkingProperties}
+              variant="outline"
+              size="sm"
+              className="border-orange-600 text-orange-400 hover:bg-orange-900/20"
+            >
+              {checkingProperties ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Checking...
+                </>
+              ) : (
+                <>
+                  <Database className="mr-2 h-4 w-4" />
+                  Check Properties
+                </>
+              )}
+            </Button>
+            {(!isHealthy || !firestoreConnected) && (
+              <Button
+                onClick={handleRetryConnection}
+                disabled={connectionRetrying}
+                variant="outline"
+                size="sm"
+                className="border-blue-600 text-blue-400 hover:bg-blue-900/20"
+              >
+                {connectionRetrying ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Retrying...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Retry Connection
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {permissionsTest && (
+          <div className="mt-4 p-4 bg-gray-700 rounded-lg">
+            <h4 className="text-white font-medium mb-3">🔍 Firebase Permissions Test Results</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+              <div className={`p-3 rounded-lg ${permissionsTest.canRead ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'}`}>
+                <div className="text-sm font-medium text-white">Read Access</div>
+                <div className={`text-sm ${permissionsTest.canRead ? 'text-green-400' : 'text-red-400'}`}>
+                  {permissionsTest.canRead ? '✅ Working' : '❌ Failed'}
+                </div>
+              </div>
+              
+              <div className={`p-3 rounded-lg ${permissionsTest.canWrite ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'}`}>
+                <div className="text-sm font-medium text-white">Write Access</div>
+                <div className={`text-sm ${permissionsTest.canWrite ? 'text-green-400' : 'text-red-400'}`}>
+                  {permissionsTest.canWrite ? '✅ Working' : '❌ Failed'}
+                </div>
+              </div>
+              
+              <div className={`p-3 rounded-lg ${permissionsTest.canDelete ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'}`}>
+                <div className="text-sm font-medium text-white">Delete Access</div>
+                <div className={`text-sm ${permissionsTest.canDelete ? 'text-green-400' : 'text-red-400'}`}>
+                  {permissionsTest.canDelete ? '✅ Working' : '❌ Failed'}
+                </div>
+              </div>
+            </div>
+
+            {permissionsTest.errors.length > 0 && (
+              <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
+                <div className="text-sm font-medium text-red-400 mb-2">❌ Errors Detected:</div>
+                {permissionsTest.errors.map((error: string, index: number) => (
+                  <div key={index} className="text-sm text-red-300">• {error}</div>
+                ))}
+              </div>
+            )}
+
+            <div className="text-xs text-gray-400">
+              <div className="mb-1">📋 Test Details:</div>
+              {permissionsTest.details.map((detail: string, index: number) => (
+                <div key={index} className="ml-2">• {detail}</div>
+              ))}
+            </div>
+
+            {permissionsTest.errors.length > 0 && (
+              <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">
+                <div className="text-sm font-medium text-yellow-400 mb-2">💡 Solution:</div>
+                <div className="text-sm text-yellow-300">
+                  Your Firebase Firestore security rules are blocking write operations. 
+                  Please update your security rules in the Firebase Console to allow property uploads.
+                </div>
+                <div className="text-xs text-yellow-400 mt-2">
+                  Go to Firebase Console → Firestore Database → Rules → Update rules to allow authenticated writes
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {manualPropertiesCheck && (
+          <div className="mt-4 p-4 bg-gray-700 rounded-lg">
+            <h4 className="text-white font-medium mb-3">🔍 Property Database Check Results</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="p-3 bg-blue-900/30 border border-blue-700 rounded-lg">
+                <div className="text-sm font-medium text-white">Firebase Database</div>
+                <div className="text-blue-400 text-lg font-bold">{manualPropertiesCheck.firebaseCount} properties</div>
+                {manualPropertiesCheck.firebaseProperties.length > 0 && (
+                  <div className="mt-2 text-xs text-blue-300">
+                    {manualPropertiesCheck.firebaseProperties.map((prop: any, index: number) => (
+                      <div key={index}>• {prop.title} (ID: {prop.id})</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-3 bg-green-900/30 border border-green-700 rounded-lg">
+                <div className="text-sm font-medium text-white">Browser Storage</div>
+                <div className="text-green-400 text-lg font-bold">{manualPropertiesCheck.localStorageCount} properties</div>
+                {manualPropertiesCheck.localStorageProperties.length > 0 && (
+                  <div className="mt-2 text-xs text-green-300">
+                    {manualPropertiesCheck.localStorageProperties.map((prop: any, index: number) => (
+                      <div key={index}>• {prop.title} (ID: {prop.id})</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {manualPropertiesCheck.error && (
+              <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
+                <div className="text-sm font-medium text-red-400">❌ Error:</div>
+                <div className="text-sm text-red-300">{manualPropertiesCheck.error}</div>
+              </div>
+            )}
+
+            <div className="text-xs text-gray-400 mb-3">
+              Last checked: {new Date(manualPropertiesCheck.timestamp).toLocaleString()}
+            </div>
+
+            {manualPropertiesCheck.firebaseCount === 0 && manualPropertiesCheck.localStorageCount > 0 && (
+              <div className="p-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">
+                <div className="text-sm font-medium text-yellow-400 mb-2">🔄 Sync Issue Detected:</div>
+                <div className="text-sm text-yellow-300">
+                  Properties exist in browser storage but not in Firebase. This explains why they disappear on refresh.
+                </div>
+                <div className="text-xs text-yellow-400 mt-2">
+                  Solution: Try re-uploading a property or check Firebase security rules.
+                </div>
+              </div>
+            )}
+
+            {manualPropertiesCheck.firebaseCount > 0 && manualPropertiesCheck.localStorageCount === 0 && (
+              <div className="p-3 bg-blue-900/20 border border-blue-700 rounded-lg">
+                <div className="text-sm font-medium text-blue-400 mb-2">📱 Storage Issue:</div>
+                <div className="text-sm text-blue-300">
+                  Properties exist in Firebase but not in browser storage. The real-time sync may not be working.
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -337,8 +611,8 @@ export default function AdminDashboardPage() {
                   <Home className="h-4 w-4 text-blue-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">4</div>
-                  <p className="text-xs text-gray-400">Including Gold Street Studio</p>
+                  <div className="text-2xl font-bold text-white">{propertyStats.totalProperties}</div>
+                  <p className="text-xs text-gray-400">{propertyStats.availableProperties} available</p>
                 </CardContent>
               </Card>
 
@@ -370,7 +644,7 @@ export default function AdminDashboardPage() {
                   <BarChart3 className="h-4 w-4 text-purple-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">£7,325</div>
+                  <div className="text-2xl font-bold text-white">£{propertyStats.totalRevenue.toLocaleString()}</div>
                   <p className="text-xs text-gray-400">Monthly potential</p>
                 </CardContent>
               </Card>

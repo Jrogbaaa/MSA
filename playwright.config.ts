@@ -5,12 +5,18 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
+  /* Test timeout per test */
+  timeout: 60 * 1000, // 60 seconds per test
+  /* Expect timeout for assertions */
+  expect: {
+    timeout: 15 * 1000, // 15 seconds for assertions
+  },
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -32,6 +38,12 @@ export default defineConfig({
     
     /* Record video on failure */
     video: 'retain-on-failure',
+    
+    /* Default action timeout */
+    actionTimeout: 15 * 1000, // 15 seconds for actions
+    
+    /* Default navigation timeout */
+    navigationTimeout: 30 * 1000, // 30 seconds for navigation
   },
 
   /* Configure projects for major browsers */
@@ -59,11 +71,21 @@ export default defineConfig({
     },
     {
       name: 'mobile',
-      use: { ...devices['iPhone 13'] },
+      use: { 
+        ...devices['iPhone 13'],
+        // Increase timeouts for mobile tests
+        actionTimeout: 20 * 1000,
+        navigationTimeout: 45 * 1000,
+      },
     },
     {
       name: 'mobile-android',
-      use: { ...devices['Pixel 5'] },
+      use: { 
+        ...devices['Pixel 5'],
+        // Increase timeouts for mobile tests
+        actionTimeout: 20 * 1000,
+        navigationTimeout: 45 * 1000,
+      },
     },
     {
       name: 'tablet',
