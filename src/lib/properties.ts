@@ -64,6 +64,18 @@ const withRetry = async <T>(
       lastError = error;
       console.warn(`❌ ${operationName} failed on attempt ${attempt}/${maxRetries}:`, error);
       
+      // Handle specific Firebase document size error - don't retry
+      if (error instanceof Error && 
+          (error.message.includes('longer than 1048487 bytes') || 
+           error.message.includes('document is too large') ||
+           error.message.includes('The value of property "array" is longer than'))) {
+        throw new Error(
+          `🚫 Firebase Document Too Large: The property data exceeds Firebase's 1MB limit. ` +
+          `Please reduce the number of images or use lower quality photos. ` +
+          `Current size is approximately ${Math.round(JSON.stringify(error).length / 1024)}KB.`
+        );
+      }
+      
       if (attempt < maxRetries) {
         const delay = RETRY_DELAY * attempt; // Exponential backoff
         console.log(`⏳ Retrying in ${delay}ms...`);
