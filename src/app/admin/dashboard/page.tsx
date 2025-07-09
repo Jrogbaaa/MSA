@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, LogOut, Home, Users, Mail, Settings, BarChart3 } from 'lucide-react';
+import { Shield, LogOut, Home, Users, Mail, Settings, BarChart3, Database, RefreshCw, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { useAdminAuth, logoutAdmin, getAdminSession } from '@/lib/adminAuth';
 import PropertyManager from '@/components/admin/PropertyManager';
 import DocumentManager from '@/components/admin/DocumentManager';
 import TenantManager from '@/components/admin/TenantManager';
+import { getFirebaseStatus, retryFirestoreConnection } from '@/lib/firebase';
 
 
 export default function AdminDashboardPage() {
@@ -18,6 +19,8 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'applications' | 'messages' | 'tenants' | 'documents' | 'activity'>('overview');
   const [applications, setApplications] = useState<any[]>([]);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
+  const [firebaseStatus, setFirebaseStatus] = useState<any>(null);
+  const [connectionRetrying, setConnectionRetrying] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
@@ -78,6 +81,42 @@ export default function AdminDashboardPage() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  useEffect(() => {
+    const checkFirebaseStatus = async () => {
+      try {
+        const status = await getFirebaseStatus();
+        setFirebaseStatus(status);
+      } catch (error) {
+        console.error('Error checking Firebase status:', error);
+      }
+    };
+
+    checkFirebaseStatus();
+    
+    // Check status every 30 seconds
+    const statusInterval = setInterval(checkFirebaseStatus, 30000);
+    
+    return () => clearInterval(statusInterval);
+  }, []);
+
+  const handleRetryConnection = async () => {
+    setConnectionRetrying(true);
+    try {
+      console.log('🔄 Retrying Firebase connection...');
+      const success = await retryFirestoreConnection();
+      if (success) {
+        console.log('✅ Connection restored successfully');
+        // Refresh Firebase status
+        const status = await getFirebaseStatus();
+        setFirebaseStatus(status);
+      }
+    } catch (error) {
+      console.error('❌ Failed to restore connection:', error);
+    } finally {
+      setConnectionRetrying(false);
+    }
+  };
+
   const handleLogout = () => {
     logoutAdmin();
     router.push('/admin/login');
@@ -96,6 +135,81 @@ export default function AdminDashboardPage() {
   if (!isAdmin) {
     return null; // Will redirect via useEffect
   }
+
+  const renderFirebaseStatus = () => {
+    if (!firebaseStatus) return null;
+
+    const { isHealthy, firestoreConnected, projectId, timestamp, error } = firebaseStatus;
+
+    return (
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-white flex items-center">
+            <Database className="mr-2 h-5 w-5" />
+            Firebase Status
+          </h3>
+          <div className="flex items-center space-x-2">
+            <div className={`w-3 h-3 rounded-full ${isHealthy && firestoreConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+            <span className={`text-sm font-medium ${isHealthy && firestoreConnected ? 'text-green-400' : 'text-red-400'}`}>
+              {isHealthy && firestoreConnected ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
+        </div>
+        
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gray-700 rounded-lg p-3">
+            <div className="text-sm text-gray-400">Project ID</div>
+            <div className="text-white font-mono text-sm">{projectId}</div>
+          </div>
+          
+          <div className="bg-gray-700 rounded-lg p-3">
+            <div className="text-sm text-gray-400">Firestore</div>
+            <div className={`text-sm font-medium ${firestoreConnected ? 'text-green-400' : 'text-red-400'}`}>
+              {firestoreConnected ? 'Connected' : 'Disconnected'}
+            </div>
+          </div>
+          
+          <div className="bg-gray-700 rounded-lg p-3">
+            <div className="text-sm text-gray-400">Last Check</div>
+            <div className="text-white text-sm">{timestamp.toLocaleTimeString()}</div>
+          </div>
+        </div>
+        
+        {error && (
+          <div className="mt-4 p-3 bg-red-900/20 border border-red-800 rounded-lg">
+            <div className="text-sm text-red-400">Error: {error}</div>
+          </div>
+        )}
+        
+        {(!isHealthy || !firestoreConnected) && (
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-yellow-400">
+              Connection issues detected. Properties may load from cache.
+            </div>
+            <Button
+              onClick={handleRetryConnection}
+              disabled={connectionRetrying}
+              variant="outline"
+              size="sm"
+              className="border-blue-600 text-blue-400 hover:bg-blue-900/20"
+            >
+              {connectionRetrying ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Retrying...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Retry Connection
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -127,6 +241,9 @@ export default function AdminDashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Firebase Status */}
+        {renderFirebaseStatus()}
+
         {/* Navigation Tabs */}
         <div className="flex space-x-1 mb-8">
           <button

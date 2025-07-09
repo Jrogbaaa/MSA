@@ -1,8 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
+import { logFirebaseConfigDiagnostic, checkFirebaseHealth } from './firebaseConfig';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,16 +15,32 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Log diagnostic information during initialization
+if (typeof window !== 'undefined') {
+  logFirebaseConfigDiagnostic();
+}
 
-// Initialize Firebase services
+// Initialize Firebase with error handling
+let app: any;
+try {
+  app = initializeApp(firebaseConfig);
+  console.log('✅ Firebase app initialized successfully');
+} catch (error) {
+  console.error('❌ Firebase initialization failed:', error);
+  throw error;
+}
+
+// Initialize Firebase services with improved configuration
 export const auth = getAuth(app);
+
+// Initialize Firestore with proper cache configuration
 export const db = getFirestore(app);
+
+// Initialize Storage
 export const storage = getStorage(app);
-export const googleProvider = new GoogleAuthProvider();
 
 // Configure Google Auth Provider
+export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
@@ -35,20 +52,73 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Enable offline persistence for Firestore (helps with connection issues)
-if (typeof window !== 'undefined') {
-  // Only run in browser environment
-  import('firebase/firestore').then(({ enableIndexedDbPersistence }) => {
-    // Enable offline persistence
-    enableIndexedDbPersistence(db).catch((err: any) => {
-      if (err.code === 'failed-precondition') {
-        console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-      } else if (err.code === 'unimplemented') {
-        console.warn('The current browser does not support all of the features required to enable persistence');
+// Enhanced connection management
+let isConnectionHealthy = true;
+let lastConnectionCheck = new Date();
+
+export const checkFirestoreConnection = async (): Promise<boolean> => {
+  const now = new Date();
+  
+  try {
+    // Don't check too frequently
+    if (now.getTime() - lastConnectionCheck.getTime() < 5000) {
+      return isConnectionHealthy;
+    }
+    
+    await enableNetwork(db);
+    isConnectionHealthy = true;
+    lastConnectionCheck = now;
+    
+    console.log('✅ Firestore connection healthy');
+    return true;
+  } catch (error) {
+    console.error('🔥 Firestore connection issue:', error);
+    isConnectionHealthy = false;
+    lastConnectionCheck = now;
+    return false;
+  }
+};
+
+export const getConnectionStatus = (): boolean => {
+  return isConnectionHealthy;
+};
+
+// Enhanced Firebase health monitoring
+export const getFirebaseStatus = async () => {
+  const health = await checkFirebaseHealth();
+  const connectionStatus = await checkFirestoreConnection();
+  
+  return {
+    ...health,
+    firestoreConnected: connectionStatus,
+    authInitialized: !!auth,
+    storageInitialized: !!storage
+  };
+};
+
+// Connection retry with exponential backoff
+export const retryFirestoreConnection = async (maxRetries = 3): Promise<boolean> => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const success = await checkFirestoreConnection();
+      if (success) {
+        console.log(`✅ Firestore connection restored on attempt ${attempt}`);
+        return true;
       }
-    });
-  });
-}
+    } catch (error) {
+      console.warn(`❌ Connection attempt ${attempt} failed:`, error);
+    }
+    
+    if (attempt < maxRetries) {
+      const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
+      console.log(`⏳ Retrying connection in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  console.error('❌ All connection attempts failed');
+  return false;
+};
 
 // Initialize Analytics (disabled due to API key issues)
 let analytics: any = null;
