@@ -91,7 +91,7 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 
 # Admin Authentication
 NEXT_PUBLIC_ADMIN_USERNAME=arnoldestatesmsa
-NEXT_PUBLIC_ADMIN_PASSWORD=*#fhdncu^%!f
+NEXT_PUBLIC_ADMIN_PASSWORD=your_admin_password
 ```
 
 ## 🔄 Deployment Status

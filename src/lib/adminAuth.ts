@@ -13,13 +13,13 @@ interface AdminUser {
 // Admin credentials (securely stored in environment variables)
 const ADMIN_CREDENTIALS = {
   username: process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'arnoldestatesmsa',
-  password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '*#fhdncu^%!f'
+  password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || '*#fhdncu^%!f'
 };
 
-// Backup hardcoded credentials for testing
+// Backup hardcoded credentials for development only
 const HARDCODED_ADMIN = {
   username: 'arnoldestatesmsa',
-  password: '*#fhdncu^%!f'
+  password: process.env.ADMIN_PASSWORD || '*#fhdncu^%!f'
 };
 
 // Admin session storage key

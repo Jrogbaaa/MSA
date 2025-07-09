@@ -9,12 +9,13 @@ import Link from 'next/link';
 import { useAdminAuth, logoutAdmin, getAdminSession } from '@/lib/adminAuth';
 import PropertyManager from '@/components/admin/PropertyManager';
 import DocumentManager from '@/components/admin/DocumentManager';
+import TenantManager from '@/components/admin/TenantManager';
 
 
 export default function AdminDashboardPage() {
   const { isAdmin, isLoading } = useAdminAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'applications' | 'messages' | 'documents' | 'activity'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'applications' | 'messages' | 'tenants' | 'documents' | 'activity'>('overview');
   const [applications, setApplications] = useState<any[]>([]);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
 
@@ -175,6 +176,16 @@ export default function AdminDashboardPage() {
                 {contactMessages.filter(msg => msg.status === 'new').length}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setActiveTab('tenants')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'tenants'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Tenants
           </button>
           <button
             onClick={() => setActiveTab('documents')}
@@ -628,6 +639,10 @@ export default function AdminDashboardPage() {
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'tenants' && (
+          <TenantManager />
         )}
 
         {activeTab === 'documents' && (

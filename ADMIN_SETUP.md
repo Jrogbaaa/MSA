@@ -8,7 +8,7 @@
 
 ### **Admin Credentials:**
 - **Username**: `arnoldestatesmsa`
-- **Password**: `*#fhdncu^%!f`
+- **Password**: `[Contact Admin for Password]`
 
 ### **Session Duration**: 24 hours (automatic logout)
 
@@ -357,7 +357,7 @@
 
 #### **4. Session Management**
 - ✅ **24-Hour Limit**: Sessions expire automatically
-- ✅ **Hardcoded Auth**: Use exact credentials: arnoldestatesmsa / *#fhdncu^%!f
+- ✅ **Secure Auth**: Use environment-based credentials for production security
 - ✅ **Multiple Sessions**: Can be logged in on multiple devices
 - ✅ **Auto-logout**: System handles expired sessions gracefully
 

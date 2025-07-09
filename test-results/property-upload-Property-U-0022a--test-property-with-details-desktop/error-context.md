@@ -1,0 +1,82 @@
+# Page snapshot
+
+```yaml
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+- banner:
+  - img
+  - heading "MSA Admin Panel" [level=1]
+  - text: Welcome, arnoldestatesmsa
+  - button "Logout":
+    - img
+    - text: Logout
+- button "Overview"
+- button "Properties"
+- button "Applications"
+- button "Messages"
+- button "Tenants"
+- button "Documents"
+- button "Activity"
+- heading "Property Management" [level=2]:
+  - img
+  - text: Property Management
+- button "Add Property" [disabled]:
+  - img
+  - text: Add Property
+- button "Reset Demo" [disabled]:
+  - img
+  - text: Reset Demo
+- text: "📊 Total Properties:"
+- strong: "0"
+- text: 💾 Auto-saved to browser storage
+- heading "Add New Property" [level=3]:
+  - text: Add New Property
+  - button:
+    - img
+- text: Property Title *
+- textbox "e.g., Modern Studio Flat": Test Property - Automated Test
+- text: Monthly Rent (£) *
+- textbox "825": "1200"
+- paragraph: Enter monthly rent amount (numbers only)
+- text: Address *
+- textbox "e.g., Gold Street, Northampton, NN1 1RS": 123 Test Street, Test City, TE1 2ST
+- text: Bedrooms
+- spinbutton: "0"
+- text: Bathrooms
+- spinbutton: "1"
+- text: Square Feet
+- spinbutton: "0"
+- text: Status
+- combobox:
+  - option "Available" [selected]
+  - option "Occupied"
+  - option "Maintenance"
+- text: Description
+- textbox "Describe the property features, location benefits, etc.": This is a test property created by automated testing to verify the property upload functionality works correctly.
+- text: Amenities (comma-separated)
+- textbox "e.g., Gym, Parking, Pet Friendly, Balcony"
+- text: Photos
+- button "Choose File"
+- img
+- paragraph: Drop images here or click to upload
+- paragraph: Supports PNG, JPG, JPEG, HEIC, HEIF, WebP, AVIF up to 10MB each • Max 20 images per property
+- text: 0/20 images uploaded
+- button "Add Property":
+  - img
+  - text: Add Property
+- button "Cancel":
+  - img
+  - text: Cancel
+- heading "Property Statistics" [level=3]
+- text: 0 Total Properties 0 Available 0 Occupied £0 Total Potential Revenue
+- heading "Quick Actions" [level=3]:
+  - img
+  - text: Quick Actions
+- link "View Live Site":
+  - /url: /
+  - button "View Live Site"
+- button "Check Email"
+- button "Export Data"
+- paragraph: Logged in as administrator since 09/07/2025, 11:44:15
+```

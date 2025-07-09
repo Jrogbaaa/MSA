@@ -50,11 +50,12 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Initialize Analytics (only in browser)
-let analytics: any;
-if (typeof window !== 'undefined') {
-  analytics = getAnalytics(app);
-}
+// Initialize Analytics (disabled due to API key issues)
+let analytics: any = null;
+// Commenting out analytics until Firebase API key is updated
+// if (typeof window !== 'undefined') {
+//   analytics = getAnalytics(app);
+// }
 
 export { analytics };
 export default app; 

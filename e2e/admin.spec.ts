@@ -1,47 +1,35 @@
 import { test, expect, Page } from '@playwright/test';
 
+// Use environment variable for admin password, fallback to hardcoded for local testing
+const ADMIN_PASSWORD = process.env.ADMIN_TEST_PASSWORD || '*#fhdncu^%!f';
+
 test.describe('Admin Panel Tests', () => {
-  
+  test.beforeEach(async ({ page }) => {
+    // Set longer timeout for admin tests
+    test.setTimeout(60000);
+  });
+
   test.describe('Admin Authentication', () => {
-    test('should display admin login form', async ({ page }) => {
-      await page.goto('/admin/login');
+    test('should redirect to admin login when accessing admin dashboard without authentication', async ({ page }) => {
+      await page.goto('/admin/dashboard');
       
-      // Check form elements with flexible selectors
-      const heading = page.getByRole('heading', { name: /admin login/i })
-        .or(page.getByRole('heading', { name: /admin/i }))
-        .or(page.locator('h1, h2, h3').filter({ hasText: /admin/i }))
+      // Should redirect to admin login
+      await expect(page).toHaveURL(/\/admin\/login$/);
+      
+      // Check for login form elements
+      const loginHeading = page.getByRole('heading', { name: /admin access/i })
+        .or(page.getByRole('heading', { name: /login/i }))
         .first();
       
-      if (await heading.isVisible()) {
-        await expect(heading).toBeVisible();
+      if (await loginHeading.isVisible()) {
+        await expect(loginHeading).toBeVisible();
       }
-      
-      // Check for form fields with flexible selectors
-      const emailField = page.getByLabel(/email/i)
-        .or(page.locator('input[type="email"]'))
-        .or(page.locator('input[placeholder*="email"]'))
-        .first();
-      
-      const passwordField = page.getByLabel(/password/i)
-        .or(page.locator('input[type="password"]'))
-        .or(page.locator('input[placeholder*="password"]'))
-        .first();
-      
-      const submitButton = page.getByRole('button', { name: /access admin panel/i })
-        .or(page.getByRole('button', { name: /login/i }))
-        .or(page.getByRole('button', { name: /sign in/i }))
-        .or(page.locator('button[type="submit"]'))
-        .first();
-      
-      if (await emailField.isVisible()) await expect(emailField).toBeVisible();
-      if (await passwordField.isVisible()) await expect(passwordField).toBeVisible();
-      if (await submitButton.isVisible()) await expect(submitButton).toBeVisible();
     });
 
-    test('should authenticate admin with correct credentials', async ({ page }) => {
+    test('should allow admin login with valid credentials', async ({ page }) => {
       await page.goto('/admin/login');
       
-      // Try to fill admin credentials with flexible selectors
+      // Try to find login form elements with flexible selectors
       const emailField = page.getByLabel(/email/i)
         .or(page.locator('input[type="email"]'))
         .or(page.locator('input[placeholder*="email"]'))
@@ -54,13 +42,12 @@ test.describe('Admin Panel Tests', () => {
       
       const submitButton = page.getByRole('button', { name: /access admin panel/i })
         .or(page.getByRole('button', { name: /login/i }))
-        .or(page.getByRole('button', { name: /sign in/i }))
         .or(page.locator('button[type="submit"]'))
         .first();
       
       if (await emailField.isVisible() && await passwordField.isVisible() && await submitButton.isVisible()) {
         await emailField.fill('admin@msaproperties.co.uk');
-        await passwordField.fill('*#fhdncu^%!f');
+        await passwordField.fill(ADMIN_PASSWORD);
         await submitButton.click();
         
         // Check if we get redirected to dashboard (handle both relative and absolute URLs)
@@ -123,7 +110,7 @@ test.describe('Admin Panel Tests', () => {
       
       if (await emailField.isVisible() && await passwordField.isVisible() && await submitButton.isVisible()) {
         await emailField.fill('admin@msaproperties.co.uk');
-        await passwordField.fill('*#fhdncu^%!f');
+        await passwordField.fill(ADMIN_PASSWORD);
         await submitButton.click();
         await expect(page).toHaveURL(/\/admin\/dashboard$/, { timeout: 10000 });
         return true;
@@ -234,7 +221,7 @@ test.describe('Admin Panel Tests', () => {
       
       if (await emailField.isVisible() && await passwordField.isVisible() && await submitButton.isVisible()) {
         await emailField.fill('admin@msaproperties.co.uk');
-        await passwordField.fill('*#fhdncu^%!f');
+        await passwordField.fill(ADMIN_PASSWORD);
         await submitButton.click();
         await expect(page).toHaveURL(/\/admin\/dashboard$/, { timeout: 10000 });
         

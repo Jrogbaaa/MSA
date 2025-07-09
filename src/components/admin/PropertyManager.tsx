@@ -1,13 +1,22 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon, CheckCircle, Cloud, CloudOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Property } from '@/types';
 import { properties as initialProperties } from '@/data/properties';
 import { formatCurrency } from '@/lib/utils';
+import { 
+  getAllProperties, 
+  saveProperty, 
+  deleteProperty as deletePropertyFromFirebase, 
+  initializeDefaultProperties,
+  subscribeToProperties,
+  getPropertyStatistics,
+  clearAllProperties
+} from '@/lib/properties';
 
 interface PropertyFormData {
   title: string;
@@ -73,6 +82,33 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
     }
   }, []);
 
+  // Function to compress image to reduce localStorage usage
+  const compressImage = (file: File, maxWidth: number = 1200, quality: number = 0.8): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+        const newWidth = img.width * ratio;
+        const newHeight = img.height * ratio;
+        
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, newWidth, newHeight);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedDataUrl);
+      };
+      
+      img.onerror = () => reject(new Error('Image load error'));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleFiles = useCallback(async (files: FileList) => {
     setUploading(true);
     setUploadSuccess(false);
@@ -90,36 +126,60 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert(`${file.name} is not an image file`);
+      // Enhanced file type validation - support HEIC and more formats
+      const validImageTypes = [
+        'image/jpeg',
+        'image/jpg', 
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'image/heic',
+        'image/heif',
+        'image/avif',
+        'image/tiff',
+        'image/bmp'
+      ];
+      
+      const fileExtension = file.name.toLowerCase().split('.').pop();
+      const isValidExtension = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'avif', 'tiff', 'bmp'].includes(fileExtension || '');
+      
+      if (!file.type.startsWith('image/') && !validImageTypes.includes(file.type) && !isValidExtension) {
+        alert(`${file.name} is not a supported image file. Supported formats: JPG, PNG, GIF, WebP, HEIC, HEIF, AVIF, TIFF, BMP`);
         continue;
       }
       
-      // Validate file size (5MB limit)
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} is too large. Please use images under 5MB.`);
+      // Validate file size (10MB limit - increased for HEIC files which are larger)
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`${file.name} is too large. Please use images under 10MB.`);
         continue;
       }
 
       try {
-        // Convert file to base64 data URL
-        const base64Url = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (e.target?.result) {
-              resolve(e.target.result as string);
-            } else {
-              reject(new Error('Failed to read file'));
-            }
-          };
-          reader.onerror = () => reject(new Error('File reading error'));
-          reader.readAsDataURL(file);
-        });
+        let processedImageUrl: string;
         
-        // Add the base64 URL to the images array
-        newImages.push(base64Url);
-        console.log(`Converted ${file.name} to base64 data URL`);
+        // For HEIC files or very large images, convert to File first then compress
+        if (file.type.includes('heic') || file.type.includes('heif') || file.size > 2 * 1024 * 1024) {
+          console.log(`Compressing ${file.name} to reduce storage usage...`);
+          processedImageUrl = await compressImage(file, 1200, 0.85);
+        } else {
+          // For smaller images, use direct base64 conversion
+          processedImageUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (e.target?.result) {
+                resolve(e.target.result as string);
+              } else {
+                reject(new Error('Failed to read file'));
+              }
+            };
+            reader.onerror = () => reject(new Error('File reading error'));
+            reader.readAsDataURL(file);
+          });
+        }
+        
+        // Add the processed image URL to the images array
+        newImages.push(processedImageUrl);
+        console.log(`Processed ${file.name} - Original: ${(file.size / 1024).toFixed(1)}KB, Compressed: ${(processedImageUrl.length / 1024).toFixed(1)}KB`);
         
       } catch (error) {
         console.error(`Error processing ${file.name}:`, error);
@@ -127,11 +187,12 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
       }
     }
     
+    // IMPORTANT: Append new images to existing ones, don't replace
     onImagesChange([...images, ...newImages]);
     setUploading(false);
     
     if (newImages.length > 0) {
-      console.log(`Successfully uploaded ${newImages.length} image(s) as base64 data URLs`);
+      console.log(`Successfully uploaded ${newImages.length} image(s) with compression`);
       setUploadSuccess(true);
       // Hide success message after 3 seconds
       setTimeout(() => setUploadSuccess(false), 3000);
@@ -160,7 +221,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
         <input
           type="file"
           multiple
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           onChange={handleChange}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
@@ -171,7 +232,10 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
             Drop images here or click to upload
           </p>
           <p className="text-sm text-gray-400">
-            Supports PNG, JPG, JPEG up to 5MB each • Max 20 images per property
+            Supports PNG, JPG, JPEG, HEIC, HEIF, WebP, AVIF up to 10MB each • Max 20 images per property
+          </p>
+          <p className="text-xs text-blue-400 mt-1">
+            Images are automatically compressed to optimize storage space
           </p>
           {uploading && (
             <div className="mt-4 space-y-2">
@@ -288,47 +352,102 @@ export default function PropertyManager() {
   const [formData, setFormData] = useState<PropertyFormData>(defaultFormData);
   const [amenitiesInput, setAmenitiesInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState(false);
+  const [savingProperty, setSavingProperty] = useState(false);
 
-  // Load properties from localStorage on component mount
+  // Load properties from Firebase with localStorage fallback
   useEffect(() => {
-    const loadProperties = () => {
+    const loadProperties = async () => {
       try {
-        const savedProperties = localStorage.getItem('msa_admin_properties');
-        if (savedProperties) {
-          const parsedProperties = JSON.parse(savedProperties);
-          // Convert date strings back to Date objects
-          const propertiesWithDates = parsedProperties.map((property: any) => ({
-            ...property,
-            createdAt: new Date(property.createdAt),
-            updatedAt: new Date(property.updatedAt)
-          }));
-          setProperties(propertiesWithDates);
-          console.log(`Loaded ${propertiesWithDates.length} properties from localStorage`);
-        } else {
-          // First time loading - use initial data and save to localStorage
-          setProperties(initialProperties);
-          localStorage.setItem('msa_admin_properties', JSON.stringify(initialProperties));
-          console.log(`Initialized with ${initialProperties.length} default properties`);
-        }
+        console.log('🔥 Loading properties from Firebase...');
+        
+        // Initialize default properties if needed
+        await initializeDefaultProperties();
+        
+        // Load all properties
+        const allProperties = await getAllProperties();
+        setProperties(allProperties);
+        setIsFirebaseConnected(true);
+        
+        console.log(`✅ Loaded ${allProperties.length} properties from Firebase`);
+        
+        // Set up real-time updates
+        const unsubscribe = subscribeToProperties((updatedProperties) => {
+          console.log(`🔄 Real-time update: ${updatedProperties.length} properties`);
+          setProperties(updatedProperties);
+        });
+        
+        // Cleanup subscription on unmount
+        return () => {
+          unsubscribe();
+        };
       } catch (error) {
-        console.error('Error loading properties from localStorage:', error);
-        // Fallback to initial properties if localStorage fails
-        setProperties(initialProperties);
+        console.error('❌ Error loading properties from Firebase:', error);
+        setIsFirebaseConnected(false);
+        
+        // Fallback to localStorage
+        try {
+          const savedProperties = localStorage.getItem('msa_admin_properties');
+          if (savedProperties) {
+            const parsedProperties = JSON.parse(savedProperties);
+            const propertiesWithDates = parsedProperties.map((property: any) => ({
+              ...property,
+              createdAt: new Date(property.createdAt),
+              updatedAt: new Date(property.updatedAt)
+            }));
+            setProperties(propertiesWithDates);
+            console.log(`📱 Loaded ${propertiesWithDates.length} properties from localStorage fallback`);
+          } else {
+            setProperties(initialProperties);
+            console.log(`📦 Using ${initialProperties.length} default properties`);
+          }
+        } catch (storageError) {
+          console.error('localStorage fallback error:', storageError);
+          setProperties(initialProperties);
+        }
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     loadProperties();
   }, []);
 
-  // Save properties to localStorage whenever properties change
+  // Function to get storage usage info
+  const getStorageInfo = () => {
+    const storage = localStorage.getItem('msa_admin_properties');
+    const sizeInBytes = storage ? new Blob([storage]).size : 0;
+    const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
+    return { sizeInBytes, sizeInMB };
+  };
+
+  // Function to clear old data if storage is getting full
+  const clearOldDataIfNeeded = () => {
+    try {
+      // Remove any old/unused keys
+      const keysToRemove = ['msa_old_properties', 'msa_temp_data', 'msa_backup_properties'];
+      keysToRemove.forEach(key => {
+        if (localStorage.getItem(key)) {
+          localStorage.removeItem(key);
+          console.log(`Removed old data: ${key}`);
+        }
+      });
+    } catch (error) {
+      console.error('Error clearing old data:', error);
+    }
+  };
+
+  // Backup properties to localStorage for offline access
   useEffect(() => {
     if (!isLoading && properties.length > 0) {
       try {
-        localStorage.setItem('msa_admin_properties', JSON.stringify(properties));
-        console.log(`Saved ${properties.length} properties to localStorage`);
+        // Only backup to localStorage, don't rely on it as primary storage
+        const dataToSave = JSON.stringify(properties);
+        localStorage.setItem('msa_admin_properties', dataToSave);
+        console.log(`💾 Backed up ${properties.length} properties to localStorage`);
       } catch (error) {
-        console.error('Error saving properties to localStorage:', error);
+        console.warn('localStorage backup failed:', error);
+        // Don't show errors for localStorage backup failures
       }
     }
   }, [properties, isLoading]);
@@ -356,80 +475,99 @@ export default function PropertyManager() {
     setIsAddingProperty(false);
   };
 
-  const handleDelete = (propertyId: string) => {
+  const handleDelete = async (propertyId: string) => {
     const propertyToDelete = properties.find(p => p.id === propertyId);
     if (!propertyToDelete) return;
 
-    const confirmMessage = `Are you sure you want to delete "${propertyToDelete.title}"?\n\nThis action cannot be undone and will remove the property from the live website.`;
+    const confirmMessage = `Are you sure you want to delete "${propertyToDelete.title}"?\n\nThis action cannot be undone and will remove the property from the live website and Firebase.`;
     
     if (window.confirm(confirmMessage)) {
-      const updatedProperties = properties.filter(p => p.id !== propertyId);
-      setProperties(updatedProperties);
-      
-      console.log(`Property "${propertyToDelete.title}" (ID: ${propertyId}) deleted`);
-      
-      // Show success message with property details
-      alert(`✅ Property Successfully Deleted!\n\n"${propertyToDelete.title}" has been removed from the system.\n\nThe property list has been updated and saved.`);
-      
-      // If we were editing this property, close the edit form
-      if (editingPropertyId === propertyId) {
-        handleCancel();
+      try {
+        console.log(`🗑️ Deleting property "${propertyToDelete.title}" (ID: ${propertyId})`);
+        
+        // Delete from Firebase
+        await deletePropertyFromFirebase(propertyId);
+        
+        console.log(`✅ Property "${propertyToDelete.title}" deleted from Firebase`);
+        
+        // Show success message with property details
+        alert(`✅ Property Successfully Deleted!\n\n"${propertyToDelete.title}" has been removed from Firebase and the live website.\n\nThe property list has been updated.`);
+        
+        // If we were editing this property, close the edit form
+        if (editingPropertyId === propertyId) {
+          handleCancel();
+        }
+      } catch (error) {
+        console.error('❌ Error deleting property:', error);
+        alert(`❌ Error deleting property: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try again.`);
       }
     }
   };
 
-  const handleSave = () => {
-    // Validate required fields
-    if (!formData.title.trim()) {
-      alert('❌ Property title is required!');
-      return;
-    }
-    if (!formData.address.trim()) {
-      alert('❌ Property address is required!');
-      return;
-    }
-    if (formData.rent <= 0) {
-      alert('❌ Monthly rent must be greater than £0!');
-      return;
-    }
-
-    // Parse amenities from comma-separated strings
-    const amenitiesList = amenitiesInput.split(',').map(item => item.trim()).filter(item => item.length > 0);
-
-    const now = new Date();
-    const propertyData: Property = {
-      ...formData,
-      id: editingPropertyId || `property_${now.getTime()}`, // Generate unique ID
-      amenities: amenitiesList,
-      photos: formData.photos,
-      createdAt: editingPropertyId ? 
-        properties.find(p => p.id === editingPropertyId)?.createdAt || now : 
-        now,
-      updatedAt: now
-    };
-
-    if (editingPropertyId) {
-      // Update existing property
-      const updatedProperties = properties.map(p => 
-        p.id === editingPropertyId ? propertyData : p
-      );
-      setProperties(updatedProperties);
+  const handleSave = async () => {
+    if (savingProperty) return; // Prevent double-saving
+    
+    try {
+      setSavingProperty(true);
+      console.log('🔄 Starting property save process...');
+      console.log('Current form data:', formData);
+      console.log('Current properties count:', properties.length);
       
-      console.log('Property updated:', propertyData);
-      alert(`✅ Property Updated Successfully!\n\n"${propertyData.title}" has been updated and saved.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}`);
-    } else {
-      // Add new property
-      const updatedProperties = [...properties, propertyData];
-      setProperties(updatedProperties);
-      
-      console.log('Property added:', propertyData);
-      alert(`✅ Property Added Successfully!\n\n"${propertyData.title}" has been added to the system.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}\nProperty ID: ${propertyData.id}`);
-    }
+      // Validate required fields
+      if (!formData.title.trim()) {
+        alert('❌ Property title is required!');
+        return;
+      }
+      if (!formData.address.trim()) {
+        alert('❌ Property address is required!');
+        return;
+      }
+      if (formData.rent <= 0) {
+        alert('❌ Monthly rent must be greater than £0!');
+        return;
+      }
 
-    // Reset form and close modals
-    resetForm();
-    setIsAddingProperty(false);
-    setEditingPropertyId(null);
+      // Parse amenities from comma-separated strings
+      const amenitiesList = amenitiesInput.split(',').map(item => item.trim()).filter(item => item.length > 0);
+
+      const now = new Date();
+      const propertyData: Property = {
+        ...formData,
+        id: editingPropertyId || `property_${now.getTime()}`, // Generate unique ID
+        amenities: amenitiesList,
+        photos: formData.photos,
+        createdAt: editingPropertyId ? 
+          properties.find(p => p.id === editingPropertyId)?.createdAt || now : 
+          now,
+        updatedAt: now
+      };
+
+      console.log('💾 Property data to save:', propertyData);
+      console.log('📸 Number of photos:', propertyData.photos.length);
+
+      // Save to Firebase
+      await saveProperty(propertyData);
+      
+      console.log('✅ Property saved to Firebase successfully');
+      
+      if (editingPropertyId) {
+        alert(`✅ Property Updated Successfully!\n\n"${propertyData.title}" has been updated and saved to Firebase.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}\n\nChanges are live on the website!`);
+      } else {
+        alert(`✅ Property Added Successfully!\n\n"${propertyData.title}" has been added to Firebase.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}\nProperty ID: ${propertyData.id}\n\nProperty is now live on the website!`);
+      }
+
+      // Reset form and close modals
+      resetForm();
+      setIsAddingProperty(false);
+      setEditingPropertyId(null);
+      
+      console.log('🎉 Property save process completed successfully');
+    } catch (error) {
+      console.error('❌ Error saving property:', error);
+      alert(`❌ Error saving property: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try again. If the problem persists, the property may be saved locally but not synced to the live website.`);
+    } finally {
+      setSavingProperty(false);
+    }
   };
 
   const handleCancel = () => {
@@ -446,18 +584,65 @@ export default function PropertyManager() {
   };
 
   // Add function to reset to default properties (for admin use)
-  const resetToDefaultProperties = () => {
-    const confirmMessage = `⚠️ RESET TO DEFAULT PROPERTIES\n\nThis will:\n• Delete ALL current properties\n• Restore original demo properties\n• Cannot be undone\n\nAre you sure you want to continue?`;
+  const resetToDefaultProperties = async () => {
+    const confirmMessage = `⚠️ RESET TO DEFAULT PROPERTIES\n\nThis will:\n• Delete ALL current properties from Firebase\n• Restore original demo properties\n• Cannot be undone\n\nAre you sure you want to continue?`;
     
     if (window.confirm(confirmMessage)) {
-      setProperties(initialProperties);
-      localStorage.setItem('msa_admin_properties', JSON.stringify(initialProperties));
-      alert('✅ Properties reset to defaults!\n\nAll custom properties have been removed and demo properties restored.');
-      
-      // Close any open forms
-      handleCancel();
+      try {
+        console.log('🔄 Resetting to default properties...');
+        
+        // Clear all properties from Firebase
+        await clearAllProperties();
+        
+        // Initialize default properties
+        await initializeDefaultProperties();
+        
+        console.log('✅ Properties reset to defaults');
+        alert('✅ Properties reset to defaults!\n\nAll custom properties have been removed from Firebase and demo properties restored.\n\nChanges are live on the website!');
+        
+        // Close any open forms
+        handleCancel();
+      } catch (error) {
+        console.error('❌ Error resetting properties:', error);
+        alert(`❌ Error resetting properties: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try again.`);
+      }
     }
   };
+
+  // Function to clear all data from Firebase and localStorage
+  const clearAllData = async () => {
+    const confirmMessage = `⚠️ CLEAR ALL DATA\n\nThis will:\n• Delete ALL properties from Firebase\n• Delete ALL properties from browser storage\n• Free up storage space\n• Cannot be undone\n\nCurrent storage usage: ${getStorageInfo().sizeInMB}MB\n\nAre you sure you want to continue?`;
+    
+    if (window.confirm(confirmMessage)) {
+      try {
+        console.log('🧹 Clearing all data...');
+        
+        // Clear from Firebase
+        await clearAllProperties();
+        
+        // Clear from localStorage
+        localStorage.removeItem('msa_admin_properties');
+        localStorage.removeItem('msa_applications');
+        localStorage.removeItem('msa_contact_messages');
+        
+        // Clear any other related data
+        const keysToRemove = ['msa_old_properties', 'msa_temp_data', 'msa_backup_properties'];
+        keysToRemove.forEach(key => {
+          if (localStorage.getItem(key)) {
+            localStorage.removeItem(key);
+          }
+        });
+        
+        console.log('✅ All data cleared from Firebase and localStorage');
+        alert('✅ All data cleared!\n\nAll properties have been removed from Firebase and the live website.\nStorage has been freed up and you can now add new properties.');
+      } catch (error) {
+        console.error('❌ Error clearing data:', error);
+        alert(`❌ Error clearing data: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try refreshing the page.`);
+      }
+    }
+  };
+
+
 
   // Loading state
   if (isLoading) {
@@ -478,6 +663,11 @@ export default function PropertyManager() {
         <h2 className="text-2xl font-bold text-white flex items-center">
           <Home className="mr-2 h-6 w-6" />
           Property Management
+          {isFirebaseConnected ? (
+            <Cloud className="ml-2 h-5 w-5 text-green-400" />
+          ) : (
+            <CloudOff className="ml-2 h-5 w-5 text-yellow-400" />
+          )}
         </h2>
         <div className="flex space-x-3">
           <Button 
@@ -497,6 +687,15 @@ export default function PropertyManager() {
             <Home className="mr-2 h-4 w-4" />
             Reset Demo
           </Button>
+          <Button 
+            onClick={clearAllData}
+            variant="outline"
+            className="border-red-600 text-red-400 hover:bg-red-900/50"
+            disabled={isAddingProperty || editingPropertyId !== null}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear Storage
+          </Button>
         </div>
       </div>
 
@@ -504,7 +703,14 @@ export default function PropertyManager() {
       <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between text-sm text-gray-300">
           <span>📊 Total Properties: <strong className="text-white">{properties.length}</strong></span>
-          <span>💾 Auto-saved to browser storage</span>
+          <div className="flex items-center space-x-4">
+            {isFirebaseConnected ? (
+              <span className="text-green-400">🔥 Connected to Firebase</span>
+            ) : (
+              <span className="text-yellow-400">📱 Using localStorage fallback</span>
+            )}
+            <span className="text-blue-400">📊 Storage: {getStorageInfo().sizeInMB}MB</span>
+          </div>
         </div>
       </div>
 
@@ -761,10 +967,19 @@ export default function PropertyManager() {
                 <Button
                   onClick={handleSave}
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
-                  disabled={!formData.title || !formData.address || formData.rent <= 0}
+                  disabled={!formData.title || !formData.address || formData.rent <= 0 || savingProperty}
                 >
-                  <Save className="mr-2 h-4 w-4" />
-                  {editingPropertyId ? 'Update Property' : 'Add Property'}
+                  {savingProperty ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      {editingPropertyId ? 'Update Property' : 'Add Property'}
+                    </>
+                  )}
                 </Button>
                 <Button
                   onClick={handleCancel}

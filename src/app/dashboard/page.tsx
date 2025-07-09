@@ -9,59 +9,51 @@ import { Property, Application } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
+import { 
+  getUserDocuments, 
+  downloadDocument, 
+  getDocumentTypeDisplayName, 
+  getStatusColorClass, 
+  formatFileSize 
+} from '@/lib/userDocuments';
+import { TenantDocument } from '@/lib/firebaseAdmin';
 import Link from 'next/link';
 import Image from 'next/image';
 
 
-interface TenantDocument {
-  id: string;
-  title: string;
-  type: 'lease' | 'application' | 'insurance' | 'other';
-  dateUploaded: Date;
-  status: 'signed' | 'pending' | 'expired';
-  downloadUrl: string;
-  property?: string;
-}
 
-// Mock tenant documents
-const mockTenantDocuments: TenantDocument[] = [
-  {
-    id: '1',
-    title: 'Lease Agreement - Downtown Loft',
-    type: 'lease',
-    dateUploaded: new Date('2024-01-15'),
-    status: 'signed',
-    downloadUrl: '/documents/lease-downtown-loft.pdf',
-    property: 'Downtown Loft'
-  },
-  {
-    id: '2',
-    title: 'Tenant Insurance Policy',
-    type: 'insurance',
-    dateUploaded: new Date('2024-01-20'),
-    status: 'signed',
-    downloadUrl: '/documents/insurance-policy.pdf'
-  },
-  {
-    id: '3',
-    title: 'Maintenance Request Form',
-    type: 'other',
-    dateUploaded: new Date('2024-02-01'),
-    status: 'pending',
-    downloadUrl: '/documents/maintenance-request.pdf'
-  }
-];
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  const [userDocuments, setUserDocuments] = useState<TenantDocument[]>([]);
+  const [documentsLoading, setDocumentsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       router.push('/auth/signin?returnUrl=/dashboard');
     }
   }, [user, router]);
+
+  // Load user documents from Firebase
+  useEffect(() => {
+    const loadDocuments = async () => {
+      if (user?.id) {
+        try {
+          setDocumentsLoading(true);
+          const documents = await getUserDocuments(user.id);
+          setUserDocuments(documents);
+        } catch (error) {
+          console.error('Error loading user documents:', error);
+        } finally {
+          setDocumentsLoading(false);
+        }
+      }
+    };
+
+    loadDocuments();
+  }, [user?.id]);
 
   if (!user) {
     return null;
@@ -214,7 +206,7 @@ export default function DashboardPage() {
                         <File className="h-8 w-8 text-purple-600" />
                       </div>
                       <div className="ml-4">
-                        <div className="text-2xl font-bold text-gray-900">{mockTenantDocuments.length}</div>
+                        <div className="text-2xl font-bold text-gray-900">{userDocuments.length}</div>
                         <div className="text-sm text-gray-500">Documents</div>
                       </div>
                     </div>
@@ -229,7 +221,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="ml-4">
                         <div className="text-2xl font-bold text-gray-900">
-                          {mockTenantDocuments.filter(doc => doc.status === 'signed').length}
+                          {userDocuments.filter(doc => doc.status === 'signed').length}
                         </div>
                         <div className="text-sm text-gray-500">Signed Documents</div>
                       </div>
@@ -261,48 +253,56 @@ export default function DashboardPage() {
                     </p>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {mockTenantDocuments.map((document) => (
-                        <div key={document.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-shrink-0">
-                              <FileText className="h-8 w-8 text-blue-600" />
+                    {documentsLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-gray-500">Loading your documents...</p>
+                      </div>
+                    ) : userDocuments.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                        <p className="text-gray-500">No documents available</p>
+                        <p className="text-sm text-gray-400 mt-2">
+                          Documents uploaded by your property manager will appear here
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {userDocuments.map((document) => (
+                          <div key={document.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                            <div className="flex items-center space-x-3">
+                              <div className="flex-shrink-0">
+                                <FileText className="h-8 w-8 text-blue-600" />
+                              </div>
+                              <div>
+                                <h3 className="text-sm font-medium text-gray-900">{document.fileName}</h3>
+                                <p className="text-sm text-gray-500">
+                                  {getDocumentTypeDisplayName(document.documentType)} • 
+                                  Uploaded {document.uploadDate.toLocaleDateString('en-GB')} • 
+                                  {formatFileSize(document.fileSize)}
+                                </p>
+                                {document.description && (
+                                  <p className="text-xs text-gray-400">{document.description}</p>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <h3 className="text-sm font-medium text-gray-900">{document.title}</h3>
-                              <p className="text-sm text-gray-500">
-                                {document.type.charAt(0).toUpperCase() + document.type.slice(1)} • 
-                                Uploaded {document.dateUploaded.toLocaleDateString('en-GB')}
-                              </p>
-                              {document.property && (
-                                <p className="text-xs text-gray-400">{document.property}</p>
-                              )}
+                            <div className="flex items-center space-x-3">
+                              <span className={`px-2 py-1 text-xs rounded-full ${getStatusColorClass(document.status)}`}>
+                                {document.status.charAt(0).toUpperCase() + document.status.slice(1)}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => downloadDocument(document)}
+                              >
+                                <Download size={14} className="mr-1" />
+                                Download
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-3">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              document.status === 'signed' ? 'bg-green-100 text-green-800' :
-                              document.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {document.status.charAt(0).toUpperCase() + document.status.slice(1)}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                // In production, this would download the actual document
-                                console.log(`Downloading document: ${document.title}`);
-                                alert(`Document "${document.title}" download started`);
-                              }}
-                            >
-                              <Download size={14} className="mr-1" />
-                              Download
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}

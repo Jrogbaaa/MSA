@@ -173,7 +173,7 @@ export default function AdminLoginPage() {
             <p className="text-xs text-blue-200">
               <strong>Development Mode:</strong><br />
               Username: arnoldestatesmsa<br />
-              Password: *#fhdncu^%!f
+              Password: [Contact Admin for Password]
             </p>
           </div>
         )}
