@@ -184,12 +184,12 @@ export default function TenantManager() {
     }
   };
 
-  const handleDownloadDocument = (document: TenantDocument) => {
-    if (document.base64Data) {
+  const handleDownloadDocument = (tenantDocument: TenantDocument) => {
+    if (tenantDocument.base64Data) {
       // Create download link for base64 data
       const link = document.createElement('a');
-      link.href = document.base64Data;
-      link.download = document.fileName;
+      link.href = tenantDocument.base64Data;
+      link.download = tenantDocument.fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
