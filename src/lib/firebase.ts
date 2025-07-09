@@ -52,9 +52,10 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Enhanced connection management
+// Enhanced connection management with Firestore internal error handling
 let isConnectionHealthy = true;
 let lastConnectionCheck = new Date();
+let firestoreResetCount = 0;
 
 export const checkFirestoreConnection = async (): Promise<boolean> => {
   const now = new Date();
@@ -71,11 +72,40 @@ export const checkFirestoreConnection = async (): Promise<boolean> => {
     
     console.log('✅ Firestore connection healthy');
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('🔥 Firestore connection issue:', error);
+    
+    // Handle Firestore internal assertion failures
+    if (error?.message?.includes('INTERNAL ASSERTION FAILED')) {
+      console.warn('🔄 Firestore internal error detected, attempting recovery...');
+      await attemptFirestoreRecovery();
+    }
+    
     isConnectionHealthy = false;
     lastConnectionCheck = now;
     return false;
+  }
+};
+
+// Attempt to recover from Firestore internal assertion failures
+export const attemptFirestoreRecovery = async (): Promise<void> => {
+  try {
+    firestoreResetCount++;
+    console.log(`🔄 Attempting Firestore recovery (attempt ${firestoreResetCount})...`);
+    
+    // Disable and re-enable network to force reconnection
+    await disableNetwork(db);
+    
+    // Wait a moment before re-enabling
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    await enableNetwork(db);
+    
+    console.log('✅ Firestore recovery completed');
+    isConnectionHealthy = true;
+  } catch (recoveryError) {
+    console.error('❌ Firestore recovery failed:', recoveryError);
+    isConnectionHealthy = false;
   }
 };
 

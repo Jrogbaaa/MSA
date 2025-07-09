@@ -16,6 +16,14 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Enhanced error handling utility with reduced console noise
 const handleFirebaseError = (error: any, operation: string) => {
+  // Handle Firestore internal assertion failures specifically
+  if (error?.message?.includes('INTERNAL ASSERTION FAILED')) {
+    console.warn(`🚨 Firestore internal error detected during ${operation}`);
+    console.warn('💡 This is a known Firebase SDK issue - using localStorage fallback');
+    console.log(`📱 Using localStorage fallback for ${operation}`);
+    return;
+  }
+  
   // Use console.warn instead of console.error to prevent Next.js error interception
   console.warn(`🔥 Firebase ${operation} issue:`, error?.code || 'unknown');
   
@@ -456,15 +464,24 @@ export const initializeDefaultProperties = async (): Promise<void> => {
   }
 };
 
-// Enhanced real-time properties subscription with cleanup and conflict prevention
+// Enhanced real-time properties subscription with resilient Firebase connection handling
 export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) => void): (() => void) => {
   console.log('🔄 Setting up real-time properties subscription...');
   
   let isSubscriptionActive = true;
   let unsubscribeFirestore: (() => void) | null = null;
+  let reconnectTimer: NodeJS.Timeout | null = null;
   
-  const setupFirestoreSubscription = () => {
+  const setupFirestoreSubscription = async () => {
     try {
+      // Check Firebase connection health first
+      const connectionStatus = getConnectionStatus();
+      if (!connectionStatus) {
+        console.warn('🔥 Firebase connection unhealthy, using fallback for subscription');
+        handleSubscriptionFallback(callback);
+        return;
+      }
+      
       const propertiesCollection = collection(db, PROPERTIES_COLLECTION);
       const propertiesQuery = query(propertiesCollection, orderBy('createdAt', 'desc'));
       
@@ -476,21 +493,26 @@ export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) 
             return;
           }
           
-          const properties = snapshot.docs.map(convertFirestoreToProperty);
-          console.log(`🔄 Real-time update: ${properties.length} properties received`);
-          
-          // Always sync with localStorage when we get real-time updates
-          if (typeof window !== 'undefined') {
-            try {
-              localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(properties));
-              console.log('💾 Real-time properties synced to localStorage');
-            } catch (storageError) {
-              console.warn('Failed to sync real-time properties to localStorage:', storageError);
+          try {
+            const properties = snapshot.docs.map(convertFirestoreToProperty);
+            console.log(`🔄 Real-time update: ${properties.length} properties received`);
+            
+            // Always sync with localStorage when we get real-time updates
+            if (typeof window !== 'undefined') {
+              try {
+                localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(properties));
+                console.log('💾 Real-time properties synced to localStorage');
+              } catch (storageError) {
+                console.warn('Failed to sync real-time properties to localStorage:', storageError);
+              }
             }
+            
+            // Call the callback with the updated properties
+            callback(properties);
+          } catch (docError) {
+            console.error('❌ Error processing real-time documents:', docError);
+            handleSubscriptionFallback(callback);
           }
-          
-          // Call the callback with the updated properties
-          callback(properties);
         },
         (error) => {
           console.error('❌ Real-time subscription error:', error);
@@ -498,6 +520,15 @@ export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) 
           
           // Fallback to localStorage on subscription error
           handleSubscriptionFallback(callback);
+          
+          // Attempt to reconnect after a delay
+          if (reconnectTimer) clearTimeout(reconnectTimer);
+          reconnectTimer = setTimeout(() => {
+            if (isSubscriptionActive) {
+              console.log('🔄 Attempting to reconnect subscription...');
+              setupFirestoreSubscription();
+            }
+          }, 5000);
         }
       );
       
@@ -518,6 +549,11 @@ export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) 
   return () => {
     console.log('🧹 Cleaning up properties subscription...');
     isSubscriptionActive = false;
+    
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
     
     if (unsubscribeFirestore) {
       unsubscribeFirestore();
