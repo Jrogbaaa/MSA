@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork, doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
 import { logFirebaseConfigDiagnostic, checkFirebaseHealth } from './firebaseConfig';
@@ -118,6 +118,82 @@ export const retryFirestoreConnection = async (maxRetries = 3): Promise<boolean>
   
   console.error('❌ All connection attempts failed');
   return false;
+};
+
+// Firebase Permissions Test
+export const testFirebasePermissions = async (): Promise<{
+  canRead: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+  errors: string[];
+  details: string[];
+}> => {
+  const results = {
+    canRead: false,
+    canWrite: false,
+    canDelete: false,
+    errors: [] as string[],
+    details: [] as string[]
+  };
+
+  const testDocId = `test_${Date.now()}`;
+  const testDocRef = doc(db, 'properties', testDocId);
+  
+  try {
+    console.log('🔍 Testing Firebase permissions...');
+    
+    // Test Write Permission
+    try {
+      await setDoc(testDocRef, {
+        title: 'Test Property',
+        createdAt: new Date(),
+        testDocument: true
+      });
+      results.canWrite = true;
+      results.details.push('✅ Write permission: SUCCESS');
+      console.log('✅ Firebase write permission: SUCCESS');
+    } catch (writeError: any) {
+      results.canWrite = false;
+      results.errors.push(`Write failed: ${writeError.message}`);
+      results.details.push(`❌ Write permission: FAILED (${writeError.code || 'unknown'})`);
+      console.error('❌ Firebase write permission: FAILED', writeError);
+    }
+    
+    // Test Read Permission
+    try {
+      const docSnapshot = await getDoc(testDocRef);
+      results.canRead = true;
+      results.details.push('✅ Read permission: SUCCESS');
+      console.log('✅ Firebase read permission: SUCCESS');
+    } catch (readError: any) {
+      results.canRead = false;
+      results.errors.push(`Read failed: ${readError.message}`);
+      results.details.push(`❌ Read permission: FAILED (${readError.code || 'unknown'})`);
+      console.error('❌ Firebase read permission: FAILED', readError);
+    }
+    
+    // Test Delete Permission (only if write succeeded)
+    if (results.canWrite) {
+      try {
+        await deleteDoc(testDocRef);
+        results.canDelete = true;
+        results.details.push('✅ Delete permission: SUCCESS');
+        console.log('✅ Firebase delete permission: SUCCESS');
+      } catch (deleteError: any) {
+        results.canDelete = false;
+        results.errors.push(`Delete failed: ${deleteError.message}`);
+        results.details.push(`❌ Delete permission: FAILED (${deleteError.code || 'unknown'})`);
+        console.error('❌ Firebase delete permission: FAILED', deleteError);
+      }
+    }
+    
+  } catch (generalError: any) {
+    results.errors.push(`General error: ${generalError.message}`);
+    results.details.push(`❌ General Firebase error: ${generalError.code || 'unknown'}`);
+    console.error('❌ General Firebase error:', generalError);
+  }
+  
+  return results;
 };
 
 // Initialize Analytics (disabled due to API key issues)

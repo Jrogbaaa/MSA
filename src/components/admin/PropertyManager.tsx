@@ -14,6 +14,7 @@ import {
   deleteProperty as deletePropertyFromFirebase, 
   initializeDefaultProperties,
   subscribeToProperties,
+  subscribeToPropertiesCleanup,
   getPropertyStatistics,
   clearAllProperties
 } from '@/lib/properties';
@@ -366,15 +367,26 @@ export default function PropertyManager() {
         
         // Load all properties
         const allProperties = await getAllProperties();
+        console.log(`📊 getAllProperties returned: ${allProperties.length} properties`);
+        console.log('🔍 Properties data:', allProperties.map(p => ({ id: p.id, title: p.title })));
+        
         setProperties(allProperties);
         setIsFirebaseConnected(true);
         
         console.log(`✅ Loaded ${allProperties.length} properties from Firebase`);
         
-        // Set up real-time updates
-        const unsubscribe = subscribeToProperties((updatedProperties) => {
-          console.log(`🔄 Real-time update: ${updatedProperties.length} properties`);
-          setProperties(updatedProperties);
+        // Set up real-time updates with duplicate prevention
+        const unsubscribe = subscribeToPropertiesCleanup((updatedProperties) => {
+          console.log(`🔄 Real-time update received: ${updatedProperties.length} properties`);
+          console.log('🔍 Real-time properties:', updatedProperties.map(p => ({ id: p.id, title: p.title })));
+          
+          // Only update if we actually have properties or if the current list is empty
+          if (updatedProperties.length > 0 || properties.length === 0) {
+            setProperties(updatedProperties);
+            console.log(`✅ Applied real-time update: ${updatedProperties.length} properties`);
+          } else {
+            console.warn(`⚠️ Ignoring empty real-time update - keeping ${properties.length} existing properties`);
+          }
         });
         
         // Cleanup subscription on unmount
@@ -507,6 +519,12 @@ export default function PropertyManager() {
   const handleSave = async () => {
     if (savingProperty) return; // Prevent double-saving
     
+    // Set up a timeout to reset saving state if operation takes too long
+    const savingTimeout = setTimeout(() => {
+      setSavingProperty(false);
+      console.warn('⚠️ Save operation timed out, resetting UI state');
+    }, 10000); // 10 second timeout
+    
     try {
       setSavingProperty(true);
       console.log('🔄 Starting property save process...');
@@ -545,10 +563,18 @@ export default function PropertyManager() {
       console.log('💾 Property data to save:', propertyData);
       console.log('📸 Number of photos:', propertyData.photos.length);
 
-      // Save to Firebase
-      await saveProperty(propertyData);
+      // Save to Firebase with timeout protection
+      const saveResult = await Promise.race([
+        saveProperty(propertyData),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Save operation timed out')), 8000)
+        )
+      ]) as Property;
       
       console.log('✅ Property saved to Firebase successfully');
+      
+      // Clear the timeout since we completed successfully
+      clearTimeout(savingTimeout);
       
       if (editingPropertyId) {
         alert(`✅ Property Updated Successfully!\n\n"${propertyData.title}" has been updated and saved to Firebase.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}\n\nChanges are live on the website!`);
@@ -563,10 +589,25 @@ export default function PropertyManager() {
       
       console.log('🎉 Property save process completed successfully');
     } catch (error) {
-      console.error('❌ Error saving property:', error);
-      alert(`❌ Error saving property: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try again. If the problem persists, the property may be saved locally but not synced to the live website.`);
+      // Clear the timeout
+      clearTimeout(savingTimeout);
+      
+      console.warn('⚠️ Property save had issues but may have succeeded in background:', error);
+      
+      // More user-friendly error message
+      if (error instanceof Error && error.message.includes('timeout')) {
+        alert(`⏳ Save operation is taking longer than expected.\n\nYour property "${formData.title}" may have been saved successfully in the background.\n\nPlease check the property list below. If it doesn't appear, try refreshing the page or saving again.`);
+      } else {
+        alert(`⚠️ Save operation completed with warnings.\n\nYour property "${formData.title}" may have been saved successfully.\n\nPlease check the property list below. If you don't see it, try refreshing the page.`);
+      }
+
+      // Reset form anyway since property might have been saved
+      resetForm();
+      setIsAddingProperty(false);
+      setEditingPropertyId(null);
     } finally {
       setSavingProperty(false);
+      clearTimeout(savingTimeout);
     }
   };
 

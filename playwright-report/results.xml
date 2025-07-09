@@ -1,2 +1,1341 @@
-<testsuites id="" name="" tests="0" failures="0" skipped="0" errors="0" time="0.01363900000000001">
+<testsuites id="" name="" tests="258" failures="6" skipped="48" errors="0" time="186.244158">
+<testsuite name="admin.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop" tests="13" failures="0" skipped="8" time="21.107" errors="0">
+<testcase name="Admin Panel Tests › Admin Authentication › should redirect to admin login when accessing admin dashboard without authentication" classname="admin.spec.ts" time="2.511">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should allow admin login with valid credentials" classname="admin.spec.ts" time="2.413">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle invalid admin credentials" classname="admin.spec.ts" time="2.38">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display dashboard overview" classname="admin.spec.ts" time="2.378">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should navigate between admin tabs" classname="admin.spec.ts" time="0.854">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display tenant management features" classname="admin.spec.ts" time="0.875">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should show property management interface" classname="admin.spec.ts" time="0.826">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle admin logout" classname="admin.spec.ts" time="0.759">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should require authentication for admin routes" classname="admin.spec.ts" time="1.904">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should maintain admin session across page reloads" classname="admin.spec.ts" time="0.911">
+<properties>
+<property name="skip" value="Cannot test session management - login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Contact Form Tests › should validate required fields" classname="admin.spec.ts" time="2.089">
+</testcase>
+<testcase name="Contact Form Tests › should submit contact form successfully" classname="admin.spec.ts" time="2.131">
+</testcase>
+<testcase name="Contact Form Mobile Tests › should handle contact form on mobile" classname="admin.spec.ts" time="1.076">
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop" tests="11" failures="0" skipped="0" time="19.036" errors="0">
+<testcase name="Authentication Tests › User Registration › should display registration form" classname="auth.spec.ts" time="1.727">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate form fields" classname="auth.spec.ts" time="1.657">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate password confirmation" classname="auth.spec.ts" time="1.663">
+</testcase>
+<testcase name="Authentication Tests › User Login › should display login form" classname="auth.spec.ts" time="1.447">
+</testcase>
+<testcase name="Authentication Tests › User Login › should handle invalid credentials gracefully" classname="auth.spec.ts" time="1.252">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should redirect to sign-in when accessing protected routes" classname="auth.spec.ts" time="2.438">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should maintain returnUrl after authentication" classname="auth.spec.ts" time="2.429">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should navigate between auth pages" classname="auth.spec.ts" time="2.832">
+</testcase>
+<testcase name="Authentication Tests › Password Visibility › should toggle password visibility" classname="auth.spec.ts" time="1.247">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should display auth forms properly on mobile" classname="auth.spec.ts" time="1.124">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should handle mobile keyboard properly" classname="auth.spec.ts" time="1.22">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop" tests="11" failures="0" skipped="0" time="22.349" errors="0">
+<testcase name="Homepage Tests › Desktop › should load homepage successfully" classname="homepage.spec.ts" time="1.301">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should display property cards" classname="homepage.spec.ts" time="1.416">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to property details" classname="homepage.spec.ts" time="1.478">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should show apply now functionality" classname="homepage.spec.ts" time="1.37">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to about page" classname="homepage.spec.ts" time="3.212">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to contact page" classname="homepage.spec.ts" time="3.638">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should load homepage on mobile" classname="homepage.spec.ts" time="2.458">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should display properties in mobile layout" classname="homepage.spec.ts" time="2.426">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should handle mobile property application" classname="homepage.spec.ts" time="0.773">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should maintain session across page reloads" classname="homepage.spec.ts" time="1.835">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should handle network interruptions gracefully" classname="homepage.spec.ts" time="2.442">
+</testcase>
+</testsuite>
+<testsuite name="property-upload.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop" tests="8" failures="0" skipped="0" time="40.324" errors="0">
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully login to admin panel" classname="property-upload.spec.ts" time="2.849">
+<system-out>
+<![CDATA[🔐 Testing admin login...
+✅ Admin login test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should test Firebase permissions and connection" classname="property-upload.spec.ts" time="2.713">
+<system-out>
+<![CDATA[🔥 Testing Firebase permissions and connection...
+✅ Firebase connection test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should display property management interface" classname="property-upload.spec.ts" time="3.201">
+<system-out>
+<![CDATA[🏠 Testing property management interface...
+✅ Property management interface test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should open add property form and validate required fields" classname="property-upload.spec.ts" time="3.243">
+<system-out>
+<![CDATA[📝 Testing add property form validation...
+✅ Form validation test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully create a test property with enhanced error handling" classname="property-upload.spec.ts" time="3.367">
+<system-out>
+<![CDATA[🏗️ Testing property creation with enhanced error handling...
+Browser: 🔍 Manually checking properties in Firebase...
+Browser: 📊 Manual property check results: {firebaseCount: 0, firebaseProperties: Array(0), localStorageCount: 0, localStorageProperties: Array(0), rawFirebaseData: Array(0)}
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should handle save timeout gracefully" classname="property-upload.spec.ts" time="3.315">
+<system-out>
+<![CDATA[⏱️ Testing save timeout handling...
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify localStorage persistence and real-time sync" classname="property-upload.spec.ts" time="8.441">
+<system-out>
+<![CDATA[💾 Testing enhanced localStorage persistence and real-time sync...
+Initial properties count in admin: 0
+✅ localStorage sync between admin and main site verified
+✅ Real-time sync and subscription management tested
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify no Firebase 400 errors or permission issues" classname="property-upload.spec.ts" time="13.195">
+<system-out>
+<![CDATA[🛡️ Testing Firebase error resolution...
+✅ No Firebase 400 errors detected
+✅ No Firebase permission errors detected
+✅ Firebase error resolution verification completed
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop-firefox" tests="13" failures="0" skipped="8" time="14.868" errors="0">
+<testcase name="Admin Panel Tests › Admin Authentication › should redirect to admin login when accessing admin dashboard without authentication" classname="admin.spec.ts" time="2.339">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should allow admin login with valid credentials" classname="admin.spec.ts" time="2.458">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle invalid admin credentials" classname="admin.spec.ts" time="1.027">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display dashboard overview" classname="admin.spec.ts" time="0.689">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should navigate between admin tabs" classname="admin.spec.ts" time="0.608">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display tenant management features" classname="admin.spec.ts" time="0.613">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should show property management interface" classname="admin.spec.ts" time="0.638">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle admin logout" classname="admin.spec.ts" time="0.649">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should require authentication for admin routes" classname="admin.spec.ts" time="1.062">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should maintain admin session across page reloads" classname="admin.spec.ts" time="1.611">
+<properties>
+<property name="skip" value="Cannot test session management - login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Contact Form Tests › should validate required fields" classname="admin.spec.ts" time="0.872">
+</testcase>
+<testcase name="Contact Form Tests › should submit contact form successfully" classname="admin.spec.ts" time="1.256">
+</testcase>
+<testcase name="Contact Form Mobile Tests › should handle contact form on mobile" classname="admin.spec.ts" time="1.046">
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop-firefox" tests="11" failures="0" skipped="0" time="17.377" errors="0">
+<testcase name="Authentication Tests › User Registration › should display registration form" classname="auth.spec.ts" time="1.117">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate form fields" classname="auth.spec.ts" time="1.051">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate password confirmation" classname="auth.spec.ts" time="1.251">
+</testcase>
+<testcase name="Authentication Tests › User Login › should display login form" classname="auth.spec.ts" time="1.594">
+</testcase>
+<testcase name="Authentication Tests › User Login › should handle invalid credentials gracefully" classname="auth.spec.ts" time="1.596">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should redirect to sign-in when accessing protected routes" classname="auth.spec.ts" time="1.299">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should maintain returnUrl after authentication" classname="auth.spec.ts" time="1.591">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should navigate between auth pages" classname="auth.spec.ts" time="1.827">
+</testcase>
+<testcase name="Authentication Tests › Password Visibility › should toggle password visibility" classname="auth.spec.ts" time="1.125">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should display auth forms properly on mobile" classname="auth.spec.ts" time="3.486">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should handle mobile keyboard properly" classname="auth.spec.ts" time="1.44">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop-firefox" tests="11" failures="0" skipped="0" time="24.128" errors="0">
+<testcase name="Homepage Tests › Desktop › should load homepage successfully" classname="homepage.spec.ts" time="1.616">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should display property cards" classname="homepage.spec.ts" time="1.542">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to property details" classname="homepage.spec.ts" time="2.171">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should show apply now functionality" classname="homepage.spec.ts" time="2.121">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to about page" classname="homepage.spec.ts" time="2.477">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to contact page" classname="homepage.spec.ts" time="2.519">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should load homepage on mobile" classname="homepage.spec.ts" time="1.858">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should display properties in mobile layout" classname="homepage.spec.ts" time="1.742">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should handle mobile property application" classname="homepage.spec.ts" time="1.463">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should maintain session across page reloads" classname="homepage.spec.ts" time="2.826">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should handle network interruptions gracefully" classname="homepage.spec.ts" time="3.793">
+</testcase>
+</testsuite>
+<testsuite name="property-upload.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop-firefox" tests="8" failures="0" skipped="0" time="46.8" errors="0">
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully login to admin panel" classname="property-upload.spec.ts" time="3.597">
+<system-out>
+<![CDATA[🔐 Testing admin login...
+✅ Admin login test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should test Firebase permissions and connection" classname="property-upload.spec.ts" time="3.574">
+<system-out>
+<![CDATA[🔥 Testing Firebase permissions and connection...
+✅ Firebase connection test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should display property management interface" classname="property-upload.spec.ts" time="3.883">
+<system-out>
+<![CDATA[🏠 Testing property management interface...
+✅ Property management interface test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should open add property form and validate required fields" classname="property-upload.spec.ts" time="4.239">
+<system-out>
+<![CDATA[📝 Testing add property form validation...
+✅ Form validation test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully create a test property with enhanced error handling" classname="property-upload.spec.ts" time="4.087">
+<system-out>
+<![CDATA[🏗️ Testing property creation with enhanced error handling...
+Browser: 🔍 Manually checking properties in Firebase...
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should handle save timeout gracefully" classname="property-upload.spec.ts" time="4.047">
+<system-out>
+<![CDATA[⏱️ Testing save timeout handling...
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify localStorage persistence and real-time sync" classname="property-upload.spec.ts" time="8.752">
+<system-out>
+<![CDATA[💾 Testing enhanced localStorage persistence and real-time sync...
+Initial properties count in admin: 0
+✅ localStorage sync between admin and main site verified
+✅ Real-time sync and subscription management tested
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify no Firebase 400 errors or permission issues" classname="property-upload.spec.ts" time="14.621">
+<system-out>
+<![CDATA[🛡️ Testing Firebase error resolution...
+✅ No Firebase 400 errors detected
+✅ No Firebase permission errors detected
+✅ Firebase error resolution verification completed
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop-safari" tests="13" failures="0" skipped="8" time="12.488" errors="0">
+<testcase name="Admin Panel Tests › Admin Authentication › should redirect to admin login when accessing admin dashboard without authentication" classname="admin.spec.ts" time="1.559">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should allow admin login with valid credentials" classname="admin.spec.ts" time="1.177">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle invalid admin credentials" classname="admin.spec.ts" time="0.61">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display dashboard overview" classname="admin.spec.ts" time="0.994">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should navigate between admin tabs" classname="admin.spec.ts" time="1.053">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display tenant management features" classname="admin.spec.ts" time="0.741">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should show property management interface" classname="admin.spec.ts" time="0.623">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle admin logout" classname="admin.spec.ts" time="0.637">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should require authentication for admin routes" classname="admin.spec.ts" time="0.969">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should maintain admin session across page reloads" classname="admin.spec.ts" time="0.71">
+<properties>
+<property name="skip" value="Cannot test session management - login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Contact Form Tests › should validate required fields" classname="admin.spec.ts" time="1.091">
+</testcase>
+<testcase name="Contact Form Tests › should submit contact form successfully" classname="admin.spec.ts" time="1.204">
+</testcase>
+<testcase name="Contact Form Mobile Tests › should handle contact form on mobile" classname="admin.spec.ts" time="1.12">
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop-safari" tests="11" failures="0" skipped="0" time="15.119" errors="0">
+<testcase name="Authentication Tests › User Registration › should display registration form" classname="auth.spec.ts" time="0.806">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate form fields" classname="auth.spec.ts" time="0.821">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate password confirmation" classname="auth.spec.ts" time="1.03">
+</testcase>
+<testcase name="Authentication Tests › User Login › should display login form" classname="auth.spec.ts" time="1.437">
+</testcase>
+<testcase name="Authentication Tests › User Login › should handle invalid credentials gracefully" classname="auth.spec.ts" time="1.243">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should redirect to sign-in when accessing protected routes" classname="auth.spec.ts" time="1.812">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should maintain returnUrl after authentication" classname="auth.spec.ts" time="1.706">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should navigate between auth pages" classname="auth.spec.ts" time="2.196">
+</testcase>
+<testcase name="Authentication Tests › Password Visibility › should toggle password visibility" classname="auth.spec.ts" time="1.171">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should display auth forms properly on mobile" classname="auth.spec.ts" time="1.17">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should handle mobile keyboard properly" classname="auth.spec.ts" time="1.727">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop-safari" tests="11" failures="0" skipped="0" time="21.968" errors="0">
+<testcase name="Homepage Tests › Desktop › should load homepage successfully" classname="homepage.spec.ts" time="1.098">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should display property cards" classname="homepage.spec.ts" time="1.152">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to property details" classname="homepage.spec.ts" time="1.347">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should show apply now functionality" classname="homepage.spec.ts" time="1.252">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to about page" classname="homepage.spec.ts" time="2.851">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to contact page" classname="homepage.spec.ts" time="2.252">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should load homepage on mobile" classname="homepage.spec.ts" time="1.851">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should display properties in mobile layout" classname="homepage.spec.ts" time="1.894">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should handle mobile property application" classname="homepage.spec.ts" time="1.415">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should maintain session across page reloads" classname="homepage.spec.ts" time="2.878">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should handle network interruptions gracefully" classname="homepage.spec.ts" time="3.978">
+</testcase>
+</testsuite>
+<testsuite name="property-upload.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="desktop-safari" tests="8" failures="0" skipped="0" time="46.556" errors="0">
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully login to admin panel" classname="property-upload.spec.ts" time="4.185">
+<system-out>
+<![CDATA[🔐 Testing admin login...
+✅ Admin login test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should test Firebase permissions and connection" classname="property-upload.spec.ts" time="3.391">
+<system-out>
+<![CDATA[🔥 Testing Firebase permissions and connection...
+✅ Firebase connection test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should display property management interface" classname="property-upload.spec.ts" time="4.255">
+<system-out>
+<![CDATA[🏠 Testing property management interface...
+✅ Property management interface test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should open add property form and validate required fields" classname="property-upload.spec.ts" time="2.998">
+<system-out>
+<![CDATA[📝 Testing add property form validation...
+✅ Form validation test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully create a test property with enhanced error handling" classname="property-upload.spec.ts" time="4.028">
+<system-out>
+<![CDATA[🏗️ Testing property creation with enhanced error handling...
+Browser: 🔍 Manually checking properties in Firebase...
+Browser: 📊 Manual property check results: {firebaseCount: 0, firebaseProperties: undefined, localStorageCount: 0, localStorageProperties: undefined, rawFirebaseData: undefined}
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should handle save timeout gracefully" classname="property-upload.spec.ts" time="3.034">
+<system-out>
+<![CDATA[⏱️ Testing save timeout handling...
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify localStorage persistence and real-time sync" classname="property-upload.spec.ts" time="9.858">
+<system-out>
+<![CDATA[💾 Testing enhanced localStorage persistence and real-time sync...
+Initial properties count in admin: 0
+✅ localStorage sync between admin and main site verified
+✅ Real-time sync and subscription management tested
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify no Firebase 400 errors or permission issues" classname="property-upload.spec.ts" time="14.807">
+<system-out>
+<![CDATA[🛡️ Testing Firebase error resolution...
+✅ No Firebase 400 errors detected
+✅ No Firebase permission errors detected
+✅ Firebase error resolution verification completed
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="mobile" tests="13" failures="0" skipped="8" time="13.055" errors="0">
+<testcase name="Admin Panel Tests › Admin Authentication › should redirect to admin login when accessing admin dashboard without authentication" classname="admin.spec.ts" time="1.168">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should allow admin login with valid credentials" classname="admin.spec.ts" time="1.629">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle invalid admin credentials" classname="admin.spec.ts" time="1.396">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display dashboard overview" classname="admin.spec.ts" time="0.871">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should navigate between admin tabs" classname="admin.spec.ts" time="0.784">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display tenant management features" classname="admin.spec.ts" time="0.635">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should show property management interface" classname="admin.spec.ts" time="0.656">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle admin logout" classname="admin.spec.ts" time="0.643">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should require authentication for admin routes" classname="admin.spec.ts" time="1.028">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should maintain admin session across page reloads" classname="admin.spec.ts" time="1.292">
+<properties>
+<property name="skip" value="Cannot test session management - login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Contact Form Tests › should validate required fields" classname="admin.spec.ts" time="1.091">
+</testcase>
+<testcase name="Contact Form Tests › should submit contact form successfully" classname="admin.spec.ts" time="1.057">
+</testcase>
+<testcase name="Contact Form Mobile Tests › should handle contact form on mobile" classname="admin.spec.ts" time="0.805">
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="mobile" tests="11" failures="0" skipped="0" time="15.997" errors="0">
+<testcase name="Authentication Tests › User Registration › should display registration form" classname="auth.spec.ts" time="0.797">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate form fields" classname="auth.spec.ts" time="0.795">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate password confirmation" classname="auth.spec.ts" time="0.924">
+</testcase>
+<testcase name="Authentication Tests › User Login › should display login form" classname="auth.spec.ts" time="1.205">
+</testcase>
+<testcase name="Authentication Tests › User Login › should handle invalid credentials gracefully" classname="auth.spec.ts" time="1.523">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should redirect to sign-in when accessing protected routes" classname="auth.spec.ts" time="2.811">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should maintain returnUrl after authentication" classname="auth.spec.ts" time="2.745">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should navigate between auth pages" classname="auth.spec.ts" time="1.88">
+</testcase>
+<testcase name="Authentication Tests › Password Visibility › should toggle password visibility" classname="auth.spec.ts" time="1.164">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should display auth forms properly on mobile" classname="auth.spec.ts" time="1.148">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should handle mobile keyboard properly" classname="auth.spec.ts" time="1.005">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="mobile" tests="11" failures="3" skipped="0" time="83.506" errors="0">
+<testcase name="Homepage Tests › Desktop › should load homepage successfully" classname="homepage.spec.ts" time="1.772">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should display property cards" classname="homepage.spec.ts" time="1.709">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to property details" classname="homepage.spec.ts" time="2.394">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should show apply now functionality" classname="homepage.spec.ts" time="1.684">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to about page" classname="homepage.spec.ts" time="30.118">
+<failure message="homepage.spec.ts:88:9 should navigate to about page" type="FAILURE">
+<![CDATA[  [mobile] › homepage.spec.ts:88:9 › Homepage Tests › Desktop › should navigate to about page ──────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('navigation').getByRole('link', { name: 'About' })
+
+
+      90 |       
+      91 |       // Use navigation-specific About link to avoid footer
+    > 92 |       await page.getByRole('navigation').getByRole('link', { name: 'About' }).click();
+         |                                                                               ^
+      93 |       await expect(page).toHaveURL(/\/about$/);
+      94 |       
+      95 |       // Check for about content
+        at /Users/JackEllis/MSA SITE/e2e/homepage.spec.ts:92:79
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile/video.webm]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to contact page" classname="homepage.spec.ts" time="30.133">
+<failure message="homepage.spec.ts:104:9 should navigate to contact page" type="FAILURE">
+<![CDATA[  [mobile] › homepage.spec.ts:104:9 › Homepage Tests › Desktop › should navigate to contact page ───
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('navigation').getByRole('link', { name: 'Contact' })
+
+
+      106 |       
+      107 |       // Use navigation-specific Contact link to avoid footer
+    > 108 |       await page.getByRole('navigation').getByRole('link', { name: 'Contact' }).click();
+          |                                                                                 ^
+      109 |       await expect(page).toHaveURL(/\/contact$/);
+      110 |       
+      111 |       // Check for contact content
+        at /Users/JackEllis/MSA SITE/e2e/homepage.spec.ts:108:81
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile/video.webm]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Homepage Tests › Mobile › should load homepage on mobile" classname="homepage.spec.ts" time="1.513">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should display properties in mobile layout" classname="homepage.spec.ts" time="1.045">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should handle mobile property application" classname="homepage.spec.ts" time="1.053">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should maintain session across page reloads" classname="homepage.spec.ts" time="1.27">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should handle network interruptions gracefully" classname="homepage.spec.ts" time="10.815">
+<failure message="homepage.spec.ts:226:9 should handle network interruptions gracefully" type="FAILURE">
+<![CDATA[  [mobile] › homepage.spec.ts:226:9 › Homepage Tests › Cross-device Features › should handle network interruptions gracefully 
+
+    TimeoutError: page.waitForLoadState: Timeout 10000ms exceeded.
+
+      244 |       
+      245 |       // Wait for page to be ready
+    > 246 |       await page.waitForLoadState('networkidle', { timeout: 10000 });
+          |                  ^
+      247 |       
+      248 |       // Should be able to navigate normally - use a more stable approach
+      249 |       await page.goto('/contact');
+        at /Users/JackEllis/MSA SITE/e2e/homepage.spec.ts:246:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile/video.webm]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="property-upload.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="mobile" tests="8" failures="0" skipped="0" time="41.488" errors="0">
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully login to admin panel" classname="property-upload.spec.ts" time="2.766">
+<system-out>
+<![CDATA[🔐 Testing admin login...
+✅ Admin login test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should test Firebase permissions and connection" classname="property-upload.spec.ts" time="2.667">
+<system-out>
+<![CDATA[🔥 Testing Firebase permissions and connection...
+✅ Firebase connection test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should display property management interface" classname="property-upload.spec.ts" time="3.76">
+<system-out>
+<![CDATA[🏠 Testing property management interface...
+✅ Property management interface test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should open add property form and validate required fields" classname="property-upload.spec.ts" time="3.822">
+<system-out>
+<![CDATA[📝 Testing add property form validation...
+✅ Form validation test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully create a test property with enhanced error handling" classname="property-upload.spec.ts" time="4.039">
+<system-out>
+<![CDATA[🏗️ Testing property creation with enhanced error handling...
+Browser: 🔍 Manually checking properties in Firebase...
+Browser: 📊 Manual property check results: {firebaseCount: 0, firebaseProperties: undefined, localStorageCount: 0, localStorageProperties: undefined, rawFirebaseData: undefined}
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should handle save timeout gracefully" classname="property-upload.spec.ts" time="2.728">
+<system-out>
+<![CDATA[⏱️ Testing save timeout handling...
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify localStorage persistence and real-time sync" classname="property-upload.spec.ts" time="8.326">
+<system-out>
+<![CDATA[💾 Testing enhanced localStorage persistence and real-time sync...
+Initial properties count in admin: 0
+✅ localStorage sync between admin and main site verified
+✅ Real-time sync and subscription management tested
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify no Firebase 400 errors or permission issues" classname="property-upload.spec.ts" time="13.38">
+<system-out>
+<![CDATA[🛡️ Testing Firebase error resolution...
+✅ No Firebase 400 errors detected
+✅ No Firebase permission errors detected
+✅ Firebase error resolution verification completed
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="mobile-android" tests="13" failures="0" skipped="8" time="8.781" errors="0">
+<testcase name="Admin Panel Tests › Admin Authentication › should redirect to admin login when accessing admin dashboard without authentication" classname="admin.spec.ts" time="0.859">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should allow admin login with valid credentials" classname="admin.spec.ts" time="0.415">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle invalid admin credentials" classname="admin.spec.ts" time="0.406">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display dashboard overview" classname="admin.spec.ts" time="0.387">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should navigate between admin tabs" classname="admin.spec.ts" time="0.413">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display tenant management features" classname="admin.spec.ts" time="0.399">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should show property management interface" classname="admin.spec.ts" time="0.787">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle admin logout" classname="admin.spec.ts" time="0.516">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should require authentication for admin routes" classname="admin.spec.ts" time="1.216">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should maintain admin session across page reloads" classname="admin.spec.ts" time="0.692">
+<properties>
+<property name="skip" value="Cannot test session management - login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Contact Form Tests › should validate required fields" classname="admin.spec.ts" time="0.977">
+</testcase>
+<testcase name="Contact Form Tests › should submit contact form successfully" classname="admin.spec.ts" time="0.953">
+</testcase>
+<testcase name="Contact Form Mobile Tests › should handle contact form on mobile" classname="admin.spec.ts" time="0.761">
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="mobile-android" tests="11" failures="0" skipped="0" time="14.136" errors="0">
+<testcase name="Authentication Tests › User Registration › should display registration form" classname="auth.spec.ts" time="0.734">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate form fields" classname="auth.spec.ts" time="0.743">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate password confirmation" classname="auth.spec.ts" time="1.064">
+</testcase>
+<testcase name="Authentication Tests › User Login › should display login form" classname="auth.spec.ts" time="1.218">
+</testcase>
+<testcase name="Authentication Tests › User Login › should handle invalid credentials gracefully" classname="auth.spec.ts" time="1.065">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should redirect to sign-in when accessing protected routes" classname="auth.spec.ts" time="2.028">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should maintain returnUrl after authentication" classname="auth.spec.ts" time="1.458">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should navigate between auth pages" classname="auth.spec.ts" time="2.255">
+</testcase>
+<testcase name="Authentication Tests › Password Visibility › should toggle password visibility" classname="auth.spec.ts" time="1.429">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should display auth forms properly on mobile" classname="auth.spec.ts" time="1.213">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should handle mobile keyboard properly" classname="auth.spec.ts" time="0.929">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="mobile-android" tests="11" failures="3" skipped="0" time="83.528" errors="0">
+<testcase name="Homepage Tests › Desktop › should load homepage successfully" classname="homepage.spec.ts" time="1.582">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should display property cards" classname="homepage.spec.ts" time="1.482">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to property details" classname="homepage.spec.ts" time="1.384">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should show apply now functionality" classname="homepage.spec.ts" time="1.481">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to about page" classname="homepage.spec.ts" time="30.242">
+<failure message="homepage.spec.ts:88:9 should navigate to about page" type="FAILURE">
+<![CDATA[  [mobile-android] › homepage.spec.ts:88:9 › Homepage Tests › Desktop › should navigate to about page 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('navigation').getByRole('link', { name: 'About' })
+
+
+      90 |       
+      91 |       // Use navigation-specific About link to avoid footer
+    > 92 |       await page.getByRole('navigation').getByRole('link', { name: 'About' }).click();
+         |                                                                               ^
+      93 |       await expect(page).toHaveURL(/\/about$/);
+      94 |       
+      95 |       // Check for about content
+        at /Users/JackEllis/MSA SITE/e2e/homepage.spec.ts:92:79
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile-android/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile-android/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile-android/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile-android/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile-android/video.webm]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-43140-ould-navigate-to-about-page-mobile-android/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to contact page" classname="homepage.spec.ts" time="30.293">
+<failure message="homepage.spec.ts:104:9 should navigate to contact page" type="FAILURE">
+<![CDATA[  [mobile-android] › homepage.spec.ts:104:9 › Homepage Tests › Desktop › should navigate to contact page 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('navigation').getByRole('link', { name: 'Contact' })
+
+
+      106 |       
+      107 |       // Use navigation-specific Contact link to avoid footer
+    > 108 |       await page.getByRole('navigation').getByRole('link', { name: 'Contact' }).click();
+          |                                                                                 ^
+      109 |       await expect(page).toHaveURL(/\/contact$/);
+      110 |       
+      111 |       // Check for contact content
+        at /Users/JackEllis/MSA SITE/e2e/homepage.spec.ts:108:81
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile-android/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile-android/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile-android/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile-android/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile-android/video.webm]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-De-9afca-ld-navigate-to-contact-page-mobile-android/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Homepage Tests › Mobile › should load homepage on mobile" classname="homepage.spec.ts" time="1.829">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should display properties in mobile layout" classname="homepage.spec.ts" time="1.73">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should handle mobile property application" classname="homepage.spec.ts" time="1.12">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should maintain session across page reloads" classname="homepage.spec.ts" time="1.642">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should handle network interruptions gracefully" classname="homepage.spec.ts" time="10.743">
+<failure message="homepage.spec.ts:226:9 should handle network interruptions gracefully" type="FAILURE">
+<![CDATA[  [mobile-android] › homepage.spec.ts:226:9 › Homepage Tests › Cross-device Features › should handle network interruptions gracefully 
+
+    TimeoutError: page.waitForLoadState: Timeout 10000ms exceeded.
+
+      244 |       
+      245 |       // Wait for page to be ready
+    > 246 |       await page.waitForLoadState('networkidle', { timeout: 10000 });
+          |                  ^
+      247 |       
+      248 |       // Should be able to navigate normally - use a more stable approach
+      249 |       await page.goto('/contact');
+        at /Users/JackEllis/MSA SITE/e2e/homepage.spec.ts:246:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile-android/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile-android/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile-android/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile-android/test-failed-1.png]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile-android/video.webm]]
+
+[[ATTACHMENT|../test-results/homepage-Homepage-Tests-Cr-16f3f-rk-interruptions-gracefully-mobile-android/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="property-upload.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="mobile-android" tests="8" failures="0" skipped="0" time="42.714" errors="0">
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully login to admin panel" classname="property-upload.spec.ts" time="2.84">
+<system-out>
+<![CDATA[🔐 Testing admin login...
+✅ Admin login test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should test Firebase permissions and connection" classname="property-upload.spec.ts" time="2.683">
+<system-out>
+<![CDATA[🔥 Testing Firebase permissions and connection...
+✅ Firebase connection test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should display property management interface" classname="property-upload.spec.ts" time="3.742">
+<system-out>
+<![CDATA[🏠 Testing property management interface...
+✅ Property management interface test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should open add property form and validate required fields" classname="property-upload.spec.ts" time="3.706">
+<system-out>
+<![CDATA[📝 Testing add property form validation...
+✅ Form validation test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully create a test property with enhanced error handling" classname="property-upload.spec.ts" time="3.936">
+<system-out>
+<![CDATA[🏗️ Testing property creation with enhanced error handling...
+Browser: 🔍 Manually checking properties in Firebase...
+Browser: 📊 Manual property check results: {firebaseCount: 0, firebaseProperties: Array(0), localStorageCount: 0, localStorageProperties: Array(0), rawFirebaseData: Array(0)}
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should handle save timeout gracefully" classname="property-upload.spec.ts" time="3.893">
+<system-out>
+<![CDATA[⏱️ Testing save timeout handling...
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify localStorage persistence and real-time sync" classname="property-upload.spec.ts" time="8.393">
+<system-out>
+<![CDATA[💾 Testing enhanced localStorage persistence and real-time sync...
+Initial properties count in admin: 0
+✅ localStorage sync between admin and main site verified
+✅ Real-time sync and subscription management tested
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify no Firebase 400 errors or permission issues" classname="property-upload.spec.ts" time="13.521">
+<system-out>
+<![CDATA[🛡️ Testing Firebase error resolution...
+✅ No Firebase 400 errors detected
+✅ No Firebase permission errors detected
+✅ Firebase error resolution verification completed
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="tablet" tests="13" failures="0" skipped="8" time="6.909" errors="0">
+<testcase name="Admin Panel Tests › Admin Authentication › should redirect to admin login when accessing admin dashboard without authentication" classname="admin.spec.ts" time="0.586">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should allow admin login with valid credentials" classname="admin.spec.ts" time="0.376">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle invalid admin credentials" classname="admin.spec.ts" time="0.364">
+<properties>
+<property name="skip" value="Admin login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display dashboard overview" classname="admin.spec.ts" time="0.363">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should navigate between admin tabs" classname="admin.spec.ts" time="0.349">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should display tenant management features" classname="admin.spec.ts" time="0.347">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should show property management interface" classname="admin.spec.ts" time="0.365">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Authentication › should handle admin logout" classname="admin.spec.ts" time="0.379">
+<properties>
+<property name="skip" value="Cannot login to admin panel">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should require authentication for admin routes" classname="admin.spec.ts" time="0.585">
+</testcase>
+<testcase name="Admin Panel Tests › Admin Session Management › should maintain admin session across page reloads" classname="admin.spec.ts" time="0.67">
+<properties>
+<property name="skip" value="Cannot test session management - login form not accessible">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Contact Form Tests › should validate required fields" classname="admin.spec.ts" time="0.842">
+</testcase>
+<testcase name="Contact Form Tests › should submit contact form successfully" classname="admin.spec.ts" time="0.85">
+</testcase>
+<testcase name="Contact Form Mobile Tests › should handle contact form on mobile" classname="admin.spec.ts" time="0.833">
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="tablet" tests="11" failures="0" skipped="0" time="13.12" errors="0">
+<testcase name="Authentication Tests › User Registration › should display registration form" classname="auth.spec.ts" time="0.794">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate form fields" classname="auth.spec.ts" time="0.698">
+</testcase>
+<testcase name="Authentication Tests › User Registration › should validate password confirmation" classname="auth.spec.ts" time="1.03">
+</testcase>
+<testcase name="Authentication Tests › User Login › should display login form" classname="auth.spec.ts" time="0.9">
+</testcase>
+<testcase name="Authentication Tests › User Login › should handle invalid credentials gracefully" classname="auth.spec.ts" time="0.922">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should redirect to sign-in when accessing protected routes" classname="auth.spec.ts" time="1.775">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should maintain returnUrl after authentication" classname="auth.spec.ts" time="1.755">
+</testcase>
+<testcase name="Authentication Tests › Authentication Navigation › should navigate between auth pages" classname="auth.spec.ts" time="2.007">
+</testcase>
+<testcase name="Authentication Tests › Password Visibility › should toggle password visibility" classname="auth.spec.ts" time="1.136">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should display auth forms properly on mobile" classname="auth.spec.ts" time="1.051">
+</testcase>
+<testcase name="Authentication Tests › Mobile Authentication › should handle mobile keyboard properly" classname="auth.spec.ts" time="1.052">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="tablet" tests="11" failures="0" skipped="0" time="19.503" errors="0">
+<testcase name="Homepage Tests › Desktop › should load homepage successfully" classname="homepage.spec.ts" time="1.218">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should display property cards" classname="homepage.spec.ts" time="1.997">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to property details" classname="homepage.spec.ts" time="1.924">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should show apply now functionality" classname="homepage.spec.ts" time="1.98">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to about page" classname="homepage.spec.ts" time="2.694">
+</testcase>
+<testcase name="Homepage Tests › Desktop › should navigate to contact page" classname="homepage.spec.ts" time="1.62">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should load homepage on mobile" classname="homepage.spec.ts" time="1.252">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should display properties in mobile layout" classname="homepage.spec.ts" time="1.185">
+</testcase>
+<testcase name="Homepage Tests › Mobile › should handle mobile property application" classname="homepage.spec.ts" time="1.246">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should maintain session across page reloads" classname="homepage.spec.ts" time="1.904">
+</testcase>
+<testcase name="Homepage Tests › Cross-device Features › should handle network interruptions gracefully" classname="homepage.spec.ts" time="2.483">
+</testcase>
+</testsuite>
+<testsuite name="property-upload.spec.ts" timestamp="2025-07-09T12:57:29.739Z" hostname="tablet" tests="8" failures="0" skipped="0" time="39.381" errors="0">
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully login to admin panel" classname="property-upload.spec.ts" time="2.724">
+<system-out>
+<![CDATA[🔐 Testing admin login...
+✅ Admin login test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should test Firebase permissions and connection" classname="property-upload.spec.ts" time="2.43">
+<system-out>
+<![CDATA[🔥 Testing Firebase permissions and connection...
+✅ Firebase connection test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should display property management interface" classname="property-upload.spec.ts" time="3.38">
+<system-out>
+<![CDATA[🏠 Testing property management interface...
+✅ Property management interface test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should open add property form and validate required fields" classname="property-upload.spec.ts" time="3.152">
+<system-out>
+<![CDATA[📝 Testing add property form validation...
+✅ Form validation test passed
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should successfully create a test property with enhanced error handling" classname="property-upload.spec.ts" time="3.273">
+<system-out>
+<![CDATA[🏗️ Testing property creation with enhanced error handling...
+Browser: 🔍 Manually checking properties in Firebase...
+Browser: 📊 Manual property check results: {firebaseCount: 0, firebaseProperties: Array(0), localStorageCount: 0, localStorageProperties: Array(0), rawFirebaseData: Array(0)}
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should handle save timeout gracefully" classname="property-upload.spec.ts" time="3.242">
+<system-out>
+<![CDATA[⏱️ Testing save timeout handling...
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify localStorage persistence and real-time sync" classname="property-upload.spec.ts" time="8.123">
+<system-out>
+<![CDATA[💾 Testing enhanced localStorage persistence and real-time sync...
+Initial properties count in admin: 0
+✅ localStorage sync between admin and main site verified
+✅ Real-time sync and subscription management tested
+]]>
+</system-out>
+</testcase>
+<testcase name="Property Upload Tests - Enhanced with Firebase Fixes › should verify no Firebase 400 errors or permission issues" classname="property-upload.spec.ts" time="13.057">
+<system-out>
+<![CDATA[🛡️ Testing Firebase error resolution...
+✅ No Firebase 400 errors detected
+✅ No Firebase permission errors detected
+✅ Firebase error resolution verification completed
+]]>
+</system-out>
+</testcase>
+</testsuite>
 </testsuites>

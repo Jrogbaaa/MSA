@@ -15,7 +15,10 @@
     "test:e2e:debug": "playwright test --debug",
     "test:mobile": "playwright test --project=mobile",
     "test:desktop": "playwright test --project=desktop",
-    "test:all": "npm run test && npm run test:e2e"
+    "test:all": "node scripts/test-all.js",
+    "test:all:jest": "node scripts/test-all.js --jest-only",
+    "test:all:e2e": "node scripts/test-all.js --e2e-only",
+    "test:property-upload": "npm run test -- --testNamePattern=\"Property Management\" && npm run test:e2e -- property-upload"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

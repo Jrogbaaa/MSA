@@ -1,0 +1,37 @@
+{
+  "name": "MSA Real Estate",
+  "short_name": "MSA Properties",
+  "description": "Find your perfect property with MSA Real Estate. Modern, mobile-first platform for property hunting in England.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "real estate", "property"],
+  "lang": "en-GB",
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "Browse Properties",
+      "short_name": "Properties",
+      "description": "View available properties",
+      "url": "/#properties-section",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Access your tenant dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
+  ]
+} 

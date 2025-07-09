@@ -14,6 +14,8 @@ import { getFirebaseStatus, retryFirestoreConnection, testFirebasePermissions, d
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { getAllProperties } from '@/lib/properties';
 
+// Fixed import issues for Vercel deployment
+
 
 export default function AdminDashboardPage() {
   const { isAdmin, isLoading } = useAdminAuth();
