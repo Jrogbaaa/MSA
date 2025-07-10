@@ -1,7 +1,24 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon, CheckCircle, Cloud, CloudOff } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon, CheckCircle, Cloud, CloudOff, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,7 +45,7 @@ interface PropertyFormData {
   squareFootage: number;
   description: string;
   amenities: string[];
-  photos: string[];
+  photos: { id: string; src: string }[];
   availability: 'available' | 'occupied' | 'maintenance';
 }
 
@@ -45,16 +62,86 @@ const defaultFormData: PropertyFormData = {
   availability: 'available'
 };
 
+interface SortableImageProps {
+  image: { id: string; src: string };
+  index: number;
+  onRemove: (id: string) => void;
+}
+
+const SortableImage: React.FC<SortableImageProps> = ({ image, index, onRemove }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: image.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 'auto',
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="relative group aspect-square border rounded-lg overflow-hidden"
+    >
+      <img src={image.src} alt={`Property photo ${index + 1}`} className="w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <Button
+          size="icon"
+          variant="destructive"
+          className="absolute top-1 right-1 h-7 w-7"
+          onClick={() => onRemove(image.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+        <div {...attributes} {...listeners} className="cursor-grab text-white">
+          <GripVertical className="h-6 w-6" />
+        </div>
+      </div>
+      {index === 0 && (
+        <div className="absolute bottom-0 left-0 bg-blue-600 text-white text-xs font-bold px-2 py-1">
+          Main
+        </div>
+      )}
+    </div>
+  );
+};
+
+
 // Image Upload Component
 interface ImageUploadProps {
-  images: string[];
-  onImagesChange: (images: string[]) => void;
+  images: { id: string; src: string }[];
+  onImagesChange: (images: { id: string; src: string }[]) => void;
 }
 
 const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChange }) => {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = images.findIndex((img) => img.id === active.id);
+      const newIndex = images.findIndex((img) => img.id === over.id);
+      onImagesChange(arrayMove(images, oldIndex, newIndex));
+    }
+  };
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -150,7 +237,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
       return;
     }
     
-    const newImages: string[] = [];
+    const newImages: { id: string; src: string }[] = [];
     
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -187,7 +274,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
         const processedImageUrl = await compressImage(file, 120); // Target 120KB
         const compressedSize = ((processedImageUrl.length / 1024) * 0.75).toFixed(1);
         
-        newImages.push(processedImageUrl);
+        newImages.push({ id: `img_${Date.now()}_${i}`, src: processedImageUrl });
         console.log(`Processed ${file.name} - Original: ${originalSize}KB, Compressed: ${compressedSize}KB`);
         
       } catch (error) {
@@ -205,8 +292,8 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
     setUploading(false);
   }, [images, onImagesChange]);
 
-  const removeImage = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
+  const removeImage = (id: string) => {
+    const newImages = images.filter((img) => img.id !== id);
     onImagesChange(newImages);
   };
 
@@ -229,104 +316,34 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
           multiple
           accept="image/*,.heic,.heif"
           onChange={handleChange}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          className="hidden"
+          id="image-upload"
         />
-        
-        <div className="text-center">
-          <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <p className="text-lg font-medium text-white mb-2">
-            Drop images here or click to upload
-          </p>
-          <p className="text-sm text-gray-400">
-            Supports PNG, JPG, JPEG, HEIC, HEIF, WebP, AVIF up to 10MB each • Max 20 images per property
-          </p>
-          <p className="text-xs text-blue-400 mt-1">
-            Images are automatically compressed to optimize storage space
-          </p>
-          {uploading && (
-            <div className="mt-4 space-y-2">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400 mx-auto"></div>
-              <p className="text-sm text-blue-400">Converting images to secure format...</p>
-              <p className="text-xs text-gray-500">This may take a moment for larger images</p>
-            </div>
-          )}
-          {uploadSuccess && (
-            <div className="mt-4">
-              <div className="flex items-center justify-center space-x-2 text-green-400 text-sm">
-                <CheckCircle className="h-5 w-5" />
-                <span>Images successfully uploaded!</span>
-              </div>
-              <p className="text-xs text-green-300 mt-1">Ready to display on live website</p>
-            </div>
-          )}
-        </div>
+        <label htmlFor="image-upload" className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
+          <Upload className="h-10 w-10 text-gray-400 mb-2" />
+          <p className="text-gray-400 text-center">Drag & drop images here, or click to select files</p>
+          <p className="text-xs text-gray-500 mt-1">Maximum 20 images, 10MB each. HEIC supported.</p>
+          {uploading && <p className="text-blue-400 mt-2">Uploading...</p>}
+          {uploadSuccess && <p className="text-green-400 mt-2">Upload successful!</p>}
+        </label>
       </div>
 
       {/* Image Preview Grid */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((image, index) => (
-            <div key={index} className="relative group">
-              <div className="aspect-square bg-gray-700 rounded-lg overflow-hidden border border-gray-600">
-                <img
-                  src={image}
-                  alt={`Property image ${index + 1}`}
-                  className="w-full h-full object-cover transition-opacity duration-200"
-                  onLoad={(e) => {
-                    // Image loaded successfully
-                    const target = e.target as HTMLImageElement;
-                    target.style.opacity = '1';
-                  }}
-                  onError={(e) => {
-                    // Fallback for broken images
-                    const target = e.target as HTMLImageElement;
-                    target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23374151"/><text x="100" y="90" text-anchor="middle" fill="%239CA3AF" font-size="12" font-family="Arial">Image Error</text><text x="100" y="110" text-anchor="middle" fill="%236B7280" font-size="10" font-family="Arial">Failed to Load</text></svg>';
-                    console.error('Failed to load image:', image.substring(0, 50) + '...');
-                  }}
-                  style={{ opacity: 0 }}
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+              {images.map((image, index) => (
+                <SortableImage
+                  key={image.id}
+                  image={image}
+                  index={index}
+                  onRemove={removeImage}
                 />
-                
-                {/* Loading overlay for base64 images */}
-                {image.startsWith('data:') && (
-                  <div className="absolute inset-0 bg-gray-800/50 flex items-center justify-center opacity-0 transition-opacity">
-                    <div className="text-center">
-                      <div className="animate-pulse text-blue-400 text-xs">
-                        Processing...
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <button
-                onClick={() => removeImage(index)}
-                className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
-                title="Remove image"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              
-              {index === 0 && (
-                <div className="absolute bottom-2 left-2">
-                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow-md">
-                    Main Photo
-                  </span>
-                </div>
-              )}
-              
-              {/* Image type indicator */}
-              <div className="absolute top-2 left-2">
-                <span className={`text-xs px-2 py-1 rounded shadow-md ${
-                  image.startsWith('data:') 
-                    ? 'bg-green-600 text-white' 
-                    : 'bg-gray-600 text-gray-200'
-                }`}>
-                  {image.startsWith('data:') ? 'Uploaded' : 'URL'}
-                </span>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {/* Enhanced Image Count and Status */}
@@ -338,11 +355,11 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
         {images.length > 0 && (
           <div className="flex items-center space-x-2">
             <span className="text-green-400">
-              {images.filter(img => img.startsWith('data:')).length} uploaded files
+              {images.filter(img => img.src.startsWith('data:')).length} uploaded files
             </span>
             <span className="text-gray-500">•</span>
             <span className="text-blue-400">
-              {images.filter(img => !img.startsWith('data:')).length} URL links
+              {images.filter(img => !img.src.startsWith('data:')).length} URL links
             </span>
           </div>
         )}
@@ -485,7 +502,7 @@ export default function PropertyManager() {
       squareFootage: property.squareFootage,
       description: property.description,
       amenities: property.amenities,
-      photos: property.photos,
+      photos: property.photos.map((p, index) => ({ id: `prop_${property.id}_photo_${index}`, src: p })),
       availability: property.availability
     });
     setAmenitiesInput(property.amenities.join(', '));
@@ -529,16 +546,24 @@ export default function PropertyManager() {
     }
     setSavingProperty(true);
     
-    const propertyData: Property = {
+    const propertyData: Omit<Property, 'photos'> & { photos: string[] } = {
       id: editingPropertyId || `prop_${Date.now()}`,
-      ...formData,
+      title: formData.title,
+      address: formData.address,
+      rent: formData.rent,
+      bedrooms: formData.bedrooms,
+      bathrooms: formData.bathrooms,
+      squareFootage: formData.squareFootage,
+      description: formData.description,
       amenities: amenitiesInput.split(',').map(s => s.trim()).filter(Boolean),
+      photos: formData.photos.map(p => p.src),
+      availability: formData.availability,
       createdAt: editingPropertyId ? (properties.find(p => p.id === editingPropertyId)?.createdAt || new Date()) : new Date(),
       updatedAt: new Date(),
     };
 
     // New: Calculate document size before saving
-    const estimateDocumentSize = (prop: Property): number => {
+    const estimateDocumentSize = (prop: Omit<Property, 'photos'> & { photos: string[] }): number => {
       // Rough estimation in bytes by stringifying the object
       return new TextEncoder().encode(JSON.stringify(prop)).length;
     };
@@ -566,10 +591,15 @@ export default function PropertyManager() {
       await saveProperty(propertyData);
       
       // Manually add/update property in local state for immediate feedback
+      const updatedPropertyForState: Property = {
+        ...propertyData,
+        photos: formData.photos.map(p => p.src) // for local state, it still expects string[]
+      };
+
       if (editingPropertyId) {
-        setProperties(properties.map(p => p.id === editingPropertyId ? propertyData : p));
+        setProperties(properties.map(p => p.id === editingPropertyId ? updatedPropertyForState : p));
       } else {
-        setProperties([propertyData, ...properties]);
+        setProperties([updatedPropertyForState, ...properties]);
       }
       
       resetForm();
@@ -924,11 +954,16 @@ export default function PropertyManager() {
                     Square Feet
                   </label>
                   <Input
-                    type="number"
-                    value={formData.squareFootage}
-                    onChange={(e) => handleInputChange('squareFootage', parseInt(e.target.value) || 0)}
+                    type="text"
+                    value={formData.squareFootage || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || /^\d+$/.test(value)) {
+                        handleInputChange('squareFootage', value === '' ? 0 : parseInt(value));
+                      }
+                    }}
                     placeholder="450"
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-700 border-gray-600 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <div>

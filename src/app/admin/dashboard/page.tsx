@@ -292,13 +292,13 @@ export default function AdminDashboardPage() {
           </div>
         )}
         
-        <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between">
           <div className="text-sm text-gray-400">
             {(!isHealthy || !firestoreConnected) 
               ? "Connection issues detected. Properties may load from cache."
               : "Firebase connection is healthy. Test permissions to troubleshoot save issues."
             }
-          </div>
+            </div>
           <div className="flex space-x-2">
             <Button
               onClick={handleTestPermissions}
@@ -339,25 +339,25 @@ export default function AdminDashboardPage() {
               )}
             </Button>
             {(!isHealthy || !firestoreConnected) && (
-              <Button
-                onClick={handleRetryConnection}
-                disabled={connectionRetrying}
-                variant="outline"
-                size="sm"
-                className="border-blue-600 text-blue-400 hover:bg-blue-900/20"
-              >
-                {connectionRetrying ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Retrying...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Retry Connection
-                  </>
-                )}
-              </Button>
+            <Button
+              onClick={handleRetryConnection}
+              disabled={connectionRetrying}
+              variant="outline"
+              size="sm"
+              className="border-blue-600 text-blue-400 hover:bg-blue-900/20"
+            >
+              {connectionRetrying ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Retrying...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Retry Connection
+                </>
+              )}
+            </Button>
             )}
           </div>
         </div>

@@ -18,6 +18,11 @@ The application recently underwent significant updates to resolve critical stabi
 -   **UI Data-Loading & Race Condition Fix**: Resolved a UI bug where properties would "flicker" and disappear upon page load. The issue was traced to a race condition between an initial data fetch and the real-time listener. The data loading logic was refactored to use a single, reliable subscription model.
     -   [Read the detailed fix documentation](./UI_FLICKER_FIX.md)
 
+## ✨ Recent Quality-of-Life Improvements
+
+-   **Drag-and-Drop Image Reordering**: Fixed a bug in the property management form where reordering images was visually jarring and produced console errors. The component now uses stable, unique IDs for each image, resulting in a smooth, error-free experience.
+-   **Flexible Square Footage Input**: The "Square Feet" input in the property form has been changed from a number selector to a standard text field, allowing administrators to type in precise values more easily.
+
 ## 🚀 Live Site
 
 **Production**: [msaproperties.co.uk](https://msaproperties.co.uk)  

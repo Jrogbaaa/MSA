@@ -493,45 +493,45 @@ export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) 
         handleSubscriptionFallback(callback);
         return;
       }
-      
-      const propertiesCollection = collection(db, PROPERTIES_COLLECTION);
-      const propertiesQuery = query(propertiesCollection, orderBy('createdAt', 'desc'));
-      
+    
+    const propertiesCollection = collection(db, PROPERTIES_COLLECTION);
+    const propertiesQuery = query(propertiesCollection, orderBy('createdAt', 'desc'));
+    
       unsubscribeFirestore = onSnapshot(
         propertiesQuery,
-        (snapshot) => {
+      (snapshot) => {
           if (!isSubscriptionActive) {
             console.log('🛑 Subscription inactive, ignoring update');
             return;
           }
           
           try {
-            const properties = snapshot.docs.map(convertFirestoreToProperty);
+        const properties = snapshot.docs.map(convertFirestoreToProperty);
             console.log(`🔄 Real-time update: ${properties.length} properties received`);
-            
+        
             // Always sync with localStorage when we get real-time updates
-            if (typeof window !== 'undefined') {
-              try {
-                localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(properties));
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(properties));
                 console.log('💾 Real-time properties synced to localStorage');
-              } catch (storageError) {
+          } catch (storageError) {
                 console.warn('Failed to sync real-time properties to localStorage:', storageError);
-              }
-            }
-            
+          }
+        }
+        
             // Call the callback with the updated properties
-            callback(properties);
+        callback(properties);
           } catch (docError) {
             console.error('❌ Error processing real-time documents:', docError);
             handleSubscriptionFallback(callback);
           }
-        },
-        (error) => {
+      }, 
+      (error) => {
           console.error('❌ Real-time subscription error:', error);
           if (!isSubscriptionActive) return;
           
           // Fallback to localStorage on subscription error
-          handleSubscriptionFallback(callback);
+        handleSubscriptionFallback(callback);
           
           // Attempt to reconnect after a delay
           if (reconnectTimer) clearTimeout(reconnectTimer);
@@ -541,16 +541,16 @@ export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) 
               setupFirestoreSubscription();
             }
           }, 5000);
-        }
-      );
-      
+      }
+    );
+    
       console.log('✅ Real-time subscription established');
-    } catch (error) {
+  } catch (error) {
       console.error('❌ Failed to establish real-time subscription:', error);
       if (!isSubscriptionActive) return;
       
       // Use fallback method
-      handleSubscriptionFallback(callback);
+    handleSubscriptionFallback(callback);
     }
   };
   
@@ -558,7 +558,7 @@ export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) 
   setupFirestoreSubscription();
   
   // Return cleanup function
-  return () => {
+    return () => {
     console.log('🧹 Cleaning up properties subscription...');
     isSubscriptionActive = false;
     
@@ -573,7 +573,7 @@ export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) 
     }
     
     console.log('✅ Properties subscription cleanup complete');
-  };
+    };
 };
 
 // Get property statistics
@@ -632,7 +632,7 @@ export const clearAllProperties = async (): Promise<void> => {
 
 
 // Export localStorage key for compatibility
-export { LOCALSTORAGE_KEY };
+export { LOCALSTORAGE_KEY }; 
 
 // Alias for backward compatibility
 export const subscribeToProperties = subscribeToPropertiesCleanup; 

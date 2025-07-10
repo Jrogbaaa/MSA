@@ -290,7 +290,7 @@ test.describe('Property Upload Tests - Enhanced with Firebase Fixes', () => {
             
             if (savedProperty) {
               console.log('✅ Property found in localStorage:', savedProperty.title);
-              expect(savedProperty).toBeTruthy();
+            expect(savedProperty).toBeTruthy();
               expect(savedProperty.address).toBe('123 Enhanced Test Street, Test City, TE1 2ST');
               expect(savedProperty.rent).toBe(1250);
               saveCompleted = true;
