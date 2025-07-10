@@ -546,29 +546,22 @@ export default function PropertyManager() {
     }
     setSavingProperty(true);
     
-    const propertyData: Omit<Property, 'photos'> & { photos: string[] } = {
+    const propertyDataForFirebase: Property = {
       id: editingPropertyId || `prop_${Date.now()}`,
-      title: formData.title,
-      address: formData.address,
-      rent: formData.rent,
-      bedrooms: formData.bedrooms,
-      bathrooms: formData.bathrooms,
-      squareFootage: formData.squareFootage,
-      description: formData.description,
+      ...formData,
       amenities: amenitiesInput.split(',').map(s => s.trim()).filter(Boolean),
-      photos: formData.photos.map(p => p.src),
-      availability: formData.availability,
+      photos: formData.photos.map(p => p.src), // Convert back to string[] for Firebase
       createdAt: editingPropertyId ? (properties.find(p => p.id === editingPropertyId)?.createdAt || new Date()) : new Date(),
       updatedAt: new Date(),
     };
 
     // New: Calculate document size before saving
-    const estimateDocumentSize = (prop: Omit<Property, 'photos'> & { photos: string[] }): number => {
+    const estimateDocumentSize = (prop: Property): number => {
       // Rough estimation in bytes by stringifying the object
       return new TextEncoder().encode(JSON.stringify(prop)).length;
     };
     
-    const documentSize = estimateDocumentSize(propertyData);
+    const documentSize = estimateDocumentSize(propertyDataForFirebase);
     const documentSizeMB = (documentSize / (1024 * 1024)).toFixed(2);
     console.log(`📊 Property document size: ${documentSizeMB}MB`);
 
@@ -588,18 +581,13 @@ export default function PropertyManager() {
     }
 
     try {
-      await saveProperty(propertyData);
+      await saveProperty(propertyDataForFirebase);
       
       // Manually add/update property in local state for immediate feedback
-      const updatedPropertyForState: Property = {
-        ...propertyData,
-        photos: formData.photos.map(p => p.src) // for local state, it still expects string[]
-      };
-
       if (editingPropertyId) {
-        setProperties(properties.map(p => p.id === editingPropertyId ? updatedPropertyForState : p));
+        setProperties(properties.map(p => p.id === editingPropertyId ? propertyDataForFirebase : p));
       } else {
-        setProperties([updatedPropertyForState, ...properties]);
+        setProperties([propertyDataForFirebase, ...properties]);
       }
       
       resetForm();
