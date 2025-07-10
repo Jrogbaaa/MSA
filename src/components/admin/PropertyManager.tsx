@@ -84,54 +84,57 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
   }, []);
 
   // Enhanced image compression to actually reduce file sizes
-  const compressImage = (file: File, targetSizeKB: number = 150): Promise<string> => {
+  const compressImage = (file: File, targetSizeKB: number = 150, maxDimension: number = 1200): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      
-      img.onload = () => {
-        // Start with aggressive sizing for large images
-        let maxWidth = 800;
-        if (file.size > 2 * 1024 * 1024) maxWidth = 600;  // 2MB+: 600px max
-        if (file.size > 5 * 1024 * 1024) maxWidth = 400;  // 5MB+: 400px max
-        
-        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
-        const newWidth = Math.floor(img.width * ratio);
-        const newHeight = Math.floor(img.height * ratio);
-        
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-        
-        // Draw image with high quality
-        if (ctx) {
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img, 0, 0, newWidth, newHeight);
-        }
-        
-        // Progressive quality reduction to hit target size
-        let quality = 0.9;
-        let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-        let attempts = 0;
-        
-        // Keep reducing quality until we hit target size or max attempts
-        while (compressedDataUrl.length > targetSizeKB * 1024 * 1.33 && quality > 0.1 && attempts < 8) {
-          quality -= 0.1;
-          compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-          attempts++;
-        }
-        
-                 // Final safety check - if still too large, use very aggressive compression
-         if (compressedDataUrl.length > targetSizeKB * 1024 * 1.33 && quality > 0.3) {
-           compressedDataUrl = canvas.toDataURL('image/jpeg', 0.3);
-         }
-        
-        resolve(compressedDataUrl);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          let { width, height } = img;
+          
+          // Adjust dimensions if they exceed the max
+          if (width > height) {
+            if (width > maxDimension) {
+              height *= maxDimension / width;
+              width = maxDimension;
+            }
+          } else {
+            if (height > maxDimension) {
+              width *= maxDimension / height;
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          if (!ctx) {
+            return reject(new Error('Failed to get canvas context'));
+          }
+          
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Progressive quality reduction
+          let quality = 0.9;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          
+          const checkSize = () => (dataUrl.length / 1024) * 0.75; // Base64 encoding adds ~33% size
+
+          while (checkSize() > targetSizeKB && quality > 0.1) {
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
       };
-      
-      img.onerror = () => reject(new Error('Image load error'));
-      img.src = URL.createObjectURL(file);
+      reader.onerror = reject;
     });
   };
 
@@ -152,7 +155,6 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       
-      // Enhanced file type validation - support HEIC and more formats
       const validImageTypes = [
         'image/jpeg',
         'image/jpg', 
@@ -174,38 +176,19 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
         continue;
       }
       
-      // Validate file size (10MB limit - increased for HEIC files which are larger)
       if (file.size > 10 * 1024 * 1024) {
         alert(`${file.name} is too large. Please use images under 10MB.`);
         continue;
       }
 
       try {
-        let processedImageUrl: string;
+        console.log(`Compressing ${file.name} to reduce storage usage...`);
+        const originalSize = (file.size / 1024).toFixed(1);
+        const processedImageUrl = await compressImage(file, 120); // Target 120KB
+        const compressedSize = ((processedImageUrl.length / 1024) * 0.75).toFixed(1);
         
-        // For HEIC files or very large images, convert to File first then compress
-        if (file.type.includes('heic') || file.type.includes('heif') || file.size > 2 * 1024 * 1024) {
-          console.log(`Compressing ${file.name} to reduce storage usage...`);
-          processedImageUrl = await compressImage(file, 120); // Target 120KB for large images
-        } else {
-          // For smaller images, use direct base64 conversion
-          processedImageUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              if (e.target?.result) {
-                resolve(e.target.result as string);
-              } else {
-                reject(new Error('Failed to read file'));
-              }
-            };
-            reader.onerror = () => reject(new Error('File reading error'));
-            reader.readAsDataURL(file);
-          });
-        }
-        
-        // Add the processed image URL to the images array
         newImages.push(processedImageUrl);
-        console.log(`Processed ${file.name} - Original: ${(file.size / 1024).toFixed(1)}KB, Compressed: ${(processedImageUrl.length / 1024).toFixed(1)}KB`);
+        console.log(`Processed ${file.name} - Original: ${originalSize}KB, Compressed: ${compressedSize}KB`);
         
       } catch (error) {
         console.error(`Error processing ${file.name}:`, error);
@@ -213,16 +196,13 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
       }
     }
     
-    // IMPORTANT: Append new images to existing ones, don't replace
-    onImagesChange([...images, ...newImages]);
-    setUploading(false);
-    
     if (newImages.length > 0) {
+      onImagesChange([...images, ...newImages]);
       console.log(`Successfully uploaded ${newImages.length} image(s) with compression`);
       setUploadSuccess(true);
-      // Hide success message after 3 seconds
       setTimeout(() => setUploadSuccess(false), 3000);
     }
+    setUploading(false);
   }, [images, onImagesChange]);
 
   const removeImage = (index: number) => {
@@ -542,131 +522,74 @@ export default function PropertyManager() {
   };
 
   const handleSave = async () => {
-    if (savingProperty) return; // Prevent double-saving
+    // Basic validation
+    if (!formData.title || !formData.address || formData.rent <= 0) {
+      alert('Please fill in at least Title, Address, and a valid Rent amount.');
+      return;
+    }
+    setSavingProperty(true);
     
-    // Set up a timeout to reset saving state if operation takes too long
-    const savingTimeout = setTimeout(() => {
-      setSavingProperty(false);
-      console.warn('⚠️ Save operation timed out, resetting UI state');
-    }, 10000); // 10 second timeout
+    const propertyData: Property = {
+      id: editingPropertyId || `prop_${Date.now()}`,
+      ...formData,
+      amenities: amenitiesInput.split(',').map(s => s.trim()).filter(Boolean),
+      createdAt: editingPropertyId ? (properties.find(p => p.id === editingPropertyId)?.createdAt || new Date()) : new Date(),
+      updatedAt: new Date(),
+    };
+
+    // New: Calculate document size before saving
+    const estimateDocumentSize = (prop: Property): number => {
+      // Rough estimation in bytes by stringifying the object
+      return new TextEncoder().encode(JSON.stringify(prop)).length;
+    };
     
+    const documentSize = estimateDocumentSize(propertyData);
+    const documentSizeMB = (documentSize / (1024 * 1024)).toFixed(2);
+    console.log(`📊 Property document size: ${documentSizeMB}MB`);
+
+    // New: Safeguard against exceeding Firebase 1MB limit
+    // We use 800KB as a safe threshold to account for any overhead
+    if (documentSize > 800 * 1024) {
+      const userConfirmed = window.confirm(
+        `⚠️ Document size is large (${documentSizeMB}MB) and may fail to save. ` +
+        `Firebase has a 1MB limit.\n\n` +
+        `It is highly recommended to reduce the number of images.\n\n` +
+        `Do you want to proceed with saving anyway?`
+      );
+      if (!userConfirmed) {
+        setSavingProperty(false);
+        return; // User cancelled the save
+      }
+    }
+
     try {
-      setSavingProperty(true);
-      console.log('🔄 Starting property save process...');
-      console.log('Current form data:', formData);
-      console.log('Current properties count:', properties.length);
+      await saveProperty(propertyData);
       
-      // Validate required fields
-      if (!formData.title.trim()) {
-        alert('❌ Property title is required!');
-        return;
-      }
-      if (!formData.address.trim()) {
-        alert('❌ Property address is required!');
-        return;
-      }
-      if (formData.rent <= 0) {
-        alert('❌ Monthly rent must be greater than £0!');
-        return;
-      }
-
-      // Parse amenities from comma-separated strings
-      const amenitiesList = amenitiesInput.split(',').map(item => item.trim()).filter(item => item.length > 0);
-
-      const now = new Date();
-      const propertyData: Property = {
-        ...formData,
-        id: editingPropertyId || `property_${now.getTime()}`, // Generate unique ID
-        amenities: amenitiesList,
-        photos: formData.photos,
-        createdAt: editingPropertyId ? 
-          properties.find(p => p.id === editingPropertyId)?.createdAt || now : 
-          now,
-        updatedAt: now
-      };
-
-      console.log('💾 Property data to save:', propertyData);
-      console.log('📸 Number of photos:', propertyData.photos.length);
-
-      // Calculate document size to prevent Firebase 1MB limit
-      const propertyDataSize = JSON.stringify(propertyData).length;
-      const sizeMB = (propertyDataSize / (1024 * 1024)).toFixed(2);
-      console.log(`📊 Property document size: ${sizeMB}MB`);
-      
-      // Firebase document limit is ~1MB, warn if approaching limit
-      if (propertyDataSize > 800 * 1024) { // 800KB warning threshold
-        const confirmation = window.confirm(
-          `⚠️ LARGE PROPERTY DOCUMENT\n\n` +
-          `Document size: ${sizeMB}MB\n` +
-          `Photos: ${propertyData.photos.length}\n\n` +
-          `This property has many images and may hit Firebase storage limits.\n\n` +
-          `Consider:\n` +
-          `• Removing some photos\n` +
-          `• Using fewer high-resolution images\n\n` +
-          `Continue saving anyway?`
-        );
-        
-        if (!confirmation) {
-          console.log('❌ User cancelled save due to large document size');
-          return;
-        }
-      }
-
-      // Save to Firebase with timeout protection
-      const saveResult = await Promise.race([
-        saveProperty(propertyData),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Save operation timed out')), 8000)
-        )
-      ]) as Property;
-      
-      console.log('✅ Property saved to Firebase successfully');
-      
-      // Clear the timeout since we completed successfully
-      clearTimeout(savingTimeout);
-      
+      // Manually add/update property in local state for immediate feedback
       if (editingPropertyId) {
-        alert(`✅ Property Updated Successfully!\n\n"${propertyData.title}" has been updated and saved to Firebase.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}\n\nChanges are live on the website!`);
+        setProperties(properties.map(p => p.id === editingPropertyId ? propertyData : p));
       } else {
-        alert(`✅ Property Added Successfully!\n\n"${propertyData.title}" has been added to Firebase.\n\nRent: £${propertyData.rent}/month\nLocation: ${propertyData.address}\nProperty ID: ${propertyData.id}\n\nProperty is now live on the website!`);
+        setProperties([propertyData, ...properties]);
       }
-
-      // Reset form and close modals
-      resetForm();
-      setIsAddingProperty(false);
-      setEditingPropertyId(null);
       
-      console.log('🎉 Property save process completed successfully');
+      resetForm();
+
     } catch (error) {
-      // Clear the timeout
-      clearTimeout(savingTimeout);
-      
-      console.warn('⚠️ Property save had issues but may have succeeded in background:', error);
-      
-      // Handle specific error types with appropriate messaging
-      if (error instanceof Error) {
-        if (error.message.includes('Firebase Document Too Large')) {
-          alert(`🚫 Property Too Large!\n\n${error.message}\n\nSuggestions:\n• Remove some photos\n• Use the image compression feature\n• Upload smaller/lower quality images\n\nPlease try again with fewer or smaller images.`);
-          // Don't reset form so user can adjust images
-          return;
-        } else if (error.message.includes('timeout')) {
-          alert(`⏳ Save operation is taking longer than expected.\n\nYour property "${formData.title}" may have been saved successfully in the background.\n\nPlease check the property list below. If it doesn't appear, try refreshing the page or saving again.`);
-        } else if (error.message.includes('network') || error.message.includes('connection')) {
-          alert(`🌐 Network Error\n\nUnable to connect to Firebase. Your property "${formData.title}" has been saved locally and will sync when connection is restored.\n\nYou can continue working offline.`);
-        } else {
-          alert(`⚠️ Save operation completed with warnings.\n\nYour property "${formData.title}" may have been saved successfully.\n\nPlease check the property list below. If you don't see it, try refreshing the page.`);
-        }
-      } else {
-        alert(`⚠️ Save operation completed with warnings.\n\nYour property "${formData.title}" may have been saved successfully.\n\nPlease check the property list below. If you don't see it, try refreshing the page.`);
-      }
+      console.error('Failed to save property:', error);
 
-      // Reset form anyway since property might have been saved (except for document size errors)
-      resetForm();
-      setIsAddingProperty(false);
-      setEditingPropertyId(null);
+      // New: Specific error handling for document size limit
+      if (error instanceof Error && error.message.includes('document is too large')) {
+        alert(
+          '🚫 Save Failed: Document Too Large\n\n' +
+          'The property data, including images, exceeds Firebase\'s 1MB size limit. ' +
+          'Please remove one or more images and try saving again.\n\n' +
+          'Your form data has not been cleared.'
+        );
+      } else {
+        alert(`There was an issue saving the property. Please check the console for details. The property has been saved to your local browser storage as a backup.`);
+      }
     } finally {
       setSavingProperty(false);
-      clearTimeout(savingTimeout);
     }
   };
 

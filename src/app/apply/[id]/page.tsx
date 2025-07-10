@@ -38,92 +38,25 @@ export default function ApplicationPage() {
 
   // Load properties from Firebase with localStorage fallback
   useEffect(() => {
-    const loadProperties = async () => {
-      try {
-        console.log('🔥 Loading properties from Firebase...');
-        
-        // Load all properties from Firebase
-        const allProperties = await getAllProperties();
-        setProperties(allProperties);
-        
-        console.log(`✅ Loaded ${allProperties.length} properties from Firebase`);
-        
-        // Set up real-time updates
-        const unsubscribe = subscribeToProperties((updatedProperties) => {
-          console.log(`🔄 Real-time update: ${updatedProperties.length} properties`);
-          setProperties(updatedProperties);
-        });
-        
-        setIsLoading(false);
-        
-        // Cleanup subscription on unmount
-        return () => {
-          unsubscribe();
-        };
-      } catch (error) {
-        console.error('❌ Error loading properties from Firebase:', error);
-        
-        // Fallback to localStorage
-        try {
-          const savedProperties = localStorage.getItem('msa_admin_properties');
-          if (savedProperties) {
-            const parsedProperties = JSON.parse(savedProperties);
-            const propertiesWithDates = parsedProperties.map((property: any) => ({
-              ...property,
-              createdAt: new Date(property.createdAt),
-              updatedAt: new Date(property.updatedAt)
-            }));
-            setProperties(propertiesWithDates);
-            console.log(`📱 Loaded ${propertiesWithDates.length} properties from localStorage fallback`);
-          } else {
-            setProperties(initialProperties);
-            console.log(`📦 Using ${initialProperties.length} default properties`);
-          }
-        } catch (storageError) {
-          console.error('localStorage fallback error:', storageError);
-          setProperties(initialProperties);
-        }
-        
+    console.log(`🔄 Setting up real-time properties subscription for apply page: ${propertyId}`);
+
+    const unsubscribe = subscribeToProperties((updatedProperties) => {
+      console.log(`🏠 ApplyPage real-time update: ${updatedProperties.length} properties`);
+      setProperties(updatedProperties);
+      
+      const foundProperty = updatedProperties.find(p => p.id === propertyId);
+      setProperty(foundProperty || null);
+      
+      if (isLoading) {
         setIsLoading(false);
       }
+    });
+
+    return () => {
+      console.log(`🧹 Cleaning up apply page subscription for: ${propertyId}`);
+      unsubscribe();
     };
-
-    loadProperties();
-
-    // Also listen for storage changes as backup
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'msa_admin_properties' && e.newValue) {
-        try {
-          const parsedProperties = JSON.parse(e.newValue);
-          const propertiesWithDates = parsedProperties.map((property: any) => ({
-            ...property,
-            createdAt: new Date(property.createdAt),
-            updatedAt: new Date(property.updatedAt)
-          }));
-          setProperties(propertiesWithDates);
-          console.log('Properties updated from localStorage - auto-refreshed');
-        } catch (error) {
-          console.error('Error parsing updated properties:', error);
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  // Find and set current property when properties are loaded
-  useEffect(() => {
-    if (!isLoading && properties.length > 0) {
-      const foundProperty = properties.find(p => p.id === propertyId);
-      if (foundProperty) {
-        setProperty(foundProperty);
-      } else {
-        console.error('Property not found:', propertyId);
-        router.push('/');
-      }
-    }
-  }, [propertyId, properties, isLoading, router]);
+  }, [propertyId]);
 
   // Pre-fill user data if authenticated
   useEffect(() => {

@@ -2,6 +2,22 @@
 
 A comprehensive real estate platform built with Next.js, Firebase, and TypeScript, featuring property management, user authentication, and automated workflows.
 
+## MSA Real Estate
+
+This is a comprehensive real estate management platform designed for MSA, a UK-based property management company. This application provides a seamless experience for both administrators managing properties and tenants searching for their next home.
+
+Built with Next.js, TypeScript, and Firebase, the platform offers real-time data synchronization, robust property management tools, and a user-friendly interface.
+
+## Recent Critical Fixes (July 2024)
+
+The application recently underwent significant updates to resolve critical stability and data integrity issues. These improvements have made the platform substantially more reliable.
+
+-   **Image Compression & Storage Overhaul**: Fixed a critical bug where the image compression algorithm was increasing file sizes, causing property saves to fail by exceeding Firebase's 1MB document limit. The system is now resilient with a new compression engine and pre-save size warnings.
+    -   [Read the detailed fix documentation](./IMAGE_COMPRESSION_FIXES.md)
+
+-   **UI Data-Loading & Race Condition Fix**: Resolved a UI bug where properties would "flicker" and disappear upon page load. The issue was traced to a race condition between an initial data fetch and the real-time listener. The data loading logic was refactored to use a single, reliable subscription model.
+    -   [Read the detailed fix documentation](./UI_FLICKER_FIX.md)
+
 ## 🚀 Live Site
 
 **Production**: [msaproperties.co.uk](https://msaproperties.co.uk)  
