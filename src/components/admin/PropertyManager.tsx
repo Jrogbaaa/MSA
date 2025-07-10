@@ -377,6 +377,14 @@ export default function PropertyManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFirebaseConnected, setIsFirebaseConnected] = useState(false);
   const [savingProperty, setSavingProperty] = useState(false);
+  const [showSizeWarning, setShowSizeWarning] = useState(false);
+  const [propertyToSave, setPropertyToSave] = useState<Property | null>(null);
+
+  // Function to estimate document size
+  const estimateDocumentSize = (prop: Property): number => {
+    // Rough estimation in bytes by stringifying the object
+    return new TextEncoder().encode(JSON.stringify(prop)).length;
+  };
 
   // Load properties from Firebase with localStorage fallback
   useEffect(() => {
@@ -555,12 +563,6 @@ export default function PropertyManager() {
       updatedAt: new Date(),
     };
 
-    // New: Calculate document size before saving
-    const estimateDocumentSize = (prop: Property): number => {
-      // Rough estimation in bytes by stringifying the object
-      return new TextEncoder().encode(JSON.stringify(prop)).length;
-    };
-    
     const documentSize = estimateDocumentSize(propertyDataForFirebase);
     const documentSizeMB = (documentSize / (1024 * 1024)).toFixed(2);
     console.log(`📊 Property document size: ${documentSizeMB}MB`);
@@ -568,29 +570,31 @@ export default function PropertyManager() {
     // New: Safeguard against exceeding Firebase 1MB limit
     // We use 800KB as a safe threshold to account for any overhead
     if (documentSize > 800 * 1024) {
-      const userConfirmed = window.confirm(
-        `⚠️ Document size is large (${documentSizeMB}MB) and may fail to save. ` +
-        `Firebase has a 1MB limit.\n\n` +
-        `It is highly recommended to reduce the number of images.\n\n` +
-        `Do you want to proceed with saving anyway?`
-      );
-      if (!userConfirmed) {
-        setSavingProperty(false);
-        return; // User cancelled the save
-      }
+      setPropertyToSave(propertyDataForFirebase);
+      setShowSizeWarning(true);
+      setSavingProperty(false);
+      return;
     }
 
+    await proceedWithSave(propertyDataForFirebase);
+  };
+
+  const proceedWithSave = async (propertyData: Property) => {
+    setSavingProperty(true);
+    setShowSizeWarning(false);
+
     try {
-      await saveProperty(propertyDataForFirebase);
+      await saveProperty(propertyData);
       
       // Manually add/update property in local state for immediate feedback
       if (editingPropertyId) {
-        setProperties(properties.map(p => p.id === editingPropertyId ? propertyDataForFirebase : p));
+        setProperties(properties.map(p => p.id === editingPropertyId ? propertyData : p));
       } else {
-        setProperties([propertyDataForFirebase, ...properties]);
+        setProperties([propertyData, ...properties]);
       }
       
       resetForm();
+      setPropertyToSave(null);
 
     } catch (error) {
       console.error('Failed to save property:', error);
@@ -1034,6 +1038,47 @@ export default function PropertyManager() {
                 >
                   <X className="mr-2 h-4 w-4" />
                   Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Document Size Warning Modal */}
+      {showSizeWarning && propertyToSave && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <Card className="bg-gray-800 border-yellow-500 max-w-lg w-full">
+            <CardHeader>
+              <CardTitle className="text-yellow-400 flex items-center">
+                <Upload className="mr-2" />
+                Large Property Size Warning
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-gray-300">
+                The total size of this property's data is approximately <strong>{(estimateDocumentSize(propertyToSave) / (1024 * 1024)).toFixed(2)}MB</strong>, which is close to Firebase's 1MB limit.
+              </p>
+              <p className="text-gray-400">
+                Saving a document this large may fail or cause performance issues. It is highly recommended to reduce the number of uploaded images.
+              </p>
+              <div className="flex space-x-4 pt-4">
+                <Button
+                  onClick={() => proceedWithSave(propertyToSave)}
+                  className="flex-1 bg-yellow-600 hover:bg-yellow-700"
+                  disabled={savingProperty}
+                >
+                  {savingProperty ? 'Saving...' : 'Proceed Anyway'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowSizeWarning(false);
+                    setPropertyToSave(null);
+                  }}
+                  variant="outline"
+                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  Cancel and Review
                 </Button>
               </div>
             </CardContent>
