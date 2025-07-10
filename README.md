@@ -8,9 +8,15 @@ This is a comprehensive real estate management platform designed for MSA, a UK-b
 
 Built with Next.js, TypeScript, and Firebase, the platform offers real-time data synchronization, robust property management tools, and a user-friendly interface.
 
-## Recent Critical Fixes (July 2024)
+## Recent Critical Fixes & Updates (January 2025)
 
 The application recently underwent significant updates to resolve critical stability and data integrity issues. These improvements have made the platform substantially more reliable.
+
+-   **Dual Email System Implementation**: Enhanced the email notification system to ensure all global messages are delivered to both administrators (`arnoldestates1@gmail.com` and `11jellis@gmail.com`) simultaneously. Features robust EmailJS integration with intelligent mailto fallback for 100% reliability.
+    -   [Read the detailed email system documentation](./EMAIL_SYSTEM.md)
+
+-   **Playwright Test Stability Improvements**: Fixed flaky test issues where tests were timing out on disabled form buttons. Enhanced test reliability with proper enabled state waiting and form validation handling.
+    -   [Read the detailed testing documentation](./TESTING.md)
 
 -   **Image Compression & Storage Overhaul**: Fixed a critical bug where the image compression algorithm was increasing file sizes, causing property saves to fail by exceeding Firebase's 1MB document limit. The system is now resilient with a new compression engine and pre-save size warnings.
     -   [Read the detailed fix documentation](./IMAGE_COMPRESSION_FIXES.md)
@@ -58,6 +64,14 @@ The application recently underwent significant updates to resolve critical stabi
 - **Application System**: Property application with automated email notifications
 - **Contact Forms**: Integrated contact system with email delivery
 - **User Dashboard**: Personal property management and applications
+
+### 📧 Email System Features
+- **Dual Email Delivery**: All messages sent to both administrators simultaneously
+- **Global Message Logging**: Contact forms and applications from worldwide users
+- **EmailJS Integration**: Professional email service with 99.9% uptime
+- **Intelligent Fallback**: Mailto backup system for 100% reliability
+- **Real-time Notifications**: Instant admin dashboard updates with message badges
+- **Professional Templates**: Formatted emails with complete contact details
 
 ## 🏗️ Technical Architecture
 

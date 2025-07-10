@@ -12,6 +12,7 @@ import { formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { properties as initialProperties } from '@/data/properties';
 import { getAllProperties, subscribeToProperties } from '@/lib/properties';
+import { saveApplication } from '@/lib/applications';
 
 interface ApplicationFormData {
   name: string;
@@ -80,27 +81,19 @@ export default function ApplicationPage() {
     setIsSubmitting(true);
     
     try {
-      const applicationData = {
-        id: `app_${Date.now()}`,
-        propertyId,
-        propertyTitle: property?.title,
-        propertyAddress: property?.address,
-        propertyRent: property?.rent,
+      if (!property) {
+        throw new Error("Property details not loaded.");
+      }
+
+      await saveApplication({
+        propertyTitle: property.title,
+        propertyAddress: property.address,
         applicantName: formData.name,
         applicantEmail: formData.email,
         applicantPhone: formData.phone,
-        userId: user?.id,
-        status: 'pending',
-        submissionDate: new Date().toISOString(),
-        createdAt: new Date().toISOString()
-      };
+      });
       
-      // Store application in localStorage for admin tracking
-      const existingApplications = JSON.parse(localStorage.getItem('msa_applications') || '[]');
-      const updatedApplications = [applicationData, ...existingApplications];
-      localStorage.setItem('msa_applications', JSON.stringify(updatedApplications));
-      
-      console.log('Application saved to localStorage:', applicationData);
+      console.log('Application saved to Firestore');
       
       // Simulate processing time
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -141,7 +134,7 @@ MSA Real Estate Application System
       `;
       
       // Open email client with pre-filled content
-      const mailtoLink = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      const mailtoLink = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       window.open(mailtoLink, '_blank');
       
       setIsSubmitted(true);

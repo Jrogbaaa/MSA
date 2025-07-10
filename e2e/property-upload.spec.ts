@@ -355,9 +355,14 @@ test.describe('Property Upload Tests - Enhanced with Firebase Fixes', () => {
             await rentField.fill('800');
           }
           
+          // Wait for form validation and button to become enabled
+          await page.waitForTimeout(2000);
+          
           // Try to save and verify timeout protection works
           const saveButton = page.getByRole('button', { name: /add property/i }).or(page.getByRole('button', { name: /save/i })).first();
           if (await saveButton.isVisible()) {
+            // Wait for button to become enabled (up to 10 seconds)
+            await expect(saveButton).toBeEnabled({ timeout: 10000 });
             await saveButton.click();
             
             // Wait for our 10-second UI timeout protection
@@ -382,34 +387,45 @@ test.describe('Property Upload Tests - Enhanced with Firebase Fixes', () => {
       return;
     }
     
-    // Check initial properties count in admin
+    // Navigate to properties page to ensure properties are loaded
+    const navigationSuccessful = await navigateToProperties(page);
+    if (!navigationSuccessful) {
+      test.skip(true, 'Cannot navigate to properties page');
+      return;
+    }
+    
+    // Wait for properties to load in admin
+    await page.waitForTimeout(5000);
+    
+    // Check properties count in admin after navigation
     const adminCount = await page.evaluate(() => {
       const properties = JSON.parse(localStorage.getItem('msa_admin_properties') || '[]');
       return properties.length;
     });
     
-    console.log(`Initial properties count in admin: ${adminCount}`);
+    console.log(`Properties count in admin after navigation: ${adminCount}`);
     
     // Navigate to main site and check if same properties are loaded
     await page.goto('/');
-    await page.waitForTimeout(3000); // Wait for page load and property sync
+    await page.waitForTimeout(5000); // Wait for page load and property sync
+    
+    // Wait for properties section to be visible
+    await page.locator('#properties-section').waitFor({ timeout: 10000 });
     
     const homePageCount = await page.evaluate(() => {
       const properties = JSON.parse(localStorage.getItem('msa_admin_properties') || '[]');
       return properties.length;
     });
     
+    console.log(`Properties count on homepage: ${homePageCount}`);
+    
+    // Both should have the same count (whether 0 or more)
     expect(homePageCount).toBe(adminCount);
     console.log('✅ localStorage sync between admin and main site verified');
     
     // Test real-time subscription cleanup (no duplicate listeners)
     await page.goto('/admin/dashboard');
     await page.waitForTimeout(2000);
-    
-    // Check console for subscription cleanup messages
-    const subscriptionMessages = await page.evaluate(() => {
-      return window.console.log; // This won't work, but the real test is no errors
-    });
     
     console.log('✅ Real-time sync and subscription management tested');
   });

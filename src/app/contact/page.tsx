@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import Image from 'next/image';
 import { sendContactEmail, initEmailJS } from '@/lib/emailjs';
+import { saveMessage } from '@/lib/messages';
 import { checkEnvironmentVariables } from '@/lib/emailjs-test';
 
 
@@ -36,22 +37,14 @@ export default function ContactPage() {
     setSubmitError(null);
     
     try {
-      // Create contact message object for storage
-      const contactMessage = {
-        id: Date.now().toString(),
+      // Save message to Firestore
+      await saveMessage({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         subject: formData.subject,
         message: formData.message,
-        submittedAt: new Date().toISOString(),
-        status: 'new' // 'new', 'read', 'replied'
-      };
-
-      // Store message in localStorage for admin dashboard
-      const existingMessages = JSON.parse(localStorage.getItem('msa_contact_messages') || '[]');
-      existingMessages.unshift(contactMessage); // Add to beginning
-      localStorage.setItem('msa_contact_messages', JSON.stringify(existingMessages));
+      });
 
       // Try to send email directly via EmailJS
       const emailResult = await sendContactEmail({
@@ -83,7 +76,7 @@ ${formData.message}
 Submitted: ${new Date().toLocaleString('en-GB')}
         `;
         
-        const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        const mailtoUrl = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
         window.open(mailtoUrl, '_blank');
         
         setIsSubmitted(true);
@@ -98,21 +91,14 @@ Submitted: ${new Date().toLocaleString('en-GB')}
     } catch (error) {
       console.error('Contact form submission error:', error);
       
-      // Still store message even if email fails
-      const contactMessage = {
-        id: Date.now().toString(),
+      // Still try to save message even if email fails
+      await saveMessage({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         subject: formData.subject,
         message: formData.message,
-        submittedAt: new Date().toISOString(),
-        status: 'new'
-      };
-
-      const existingMessages = JSON.parse(localStorage.getItem('msa_contact_messages') || '[]');
-      existingMessages.unshift(contactMessage);
-      localStorage.setItem('msa_contact_messages', JSON.stringify(existingMessages));
+      });
       
       // Fallback to mailto even on catch
       const emailSubject = `MSA Contact: ${formData.subject}`;
@@ -127,7 +113,7 @@ ${formData.message}
 Submitted: ${new Date().toLocaleString('en-GB')}
       `;
       
-      const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      const mailtoUrl = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       window.open(mailtoUrl, '_blank');
       
       setIsSubmitted(true);

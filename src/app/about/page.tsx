@@ -40,7 +40,7 @@ ${formData.message}
 Submitted: ${new Date().toLocaleString('en-GB')}
     `;
     
-    const mailtoUrl = `mailto:arnoldestates1@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    const mailtoUrl = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
     
     // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 2000));
