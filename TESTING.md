@@ -18,6 +18,13 @@ The MSA Properties platform features a robust end-to-end testing suite built wit
 - **Error Handling**: Clear error messages when buttons don't become enabled
 - **Playwright Best Practices**: Using `toBeEnabled()` instead of clicking disabled elements
 
+### **Live Site Testing Implementation**
+- **Challenge**: Testing production environment at msaproperties.co.uk
+- **Solution**: Replaced `networkidle` with `domcontentloaded` for Firebase real-time connections
+- **Form Selectors**: Updated to use `getByLabel()` for production form structure
+- **Result**: All 5 production tests passing with Firebase integration verified
+- **Global Verification**: Confirmed worldwide accessibility and message system functionality
+
 ## 📊 **Test Results Overview**
 
 ### **Latest Test Run Statistics**
