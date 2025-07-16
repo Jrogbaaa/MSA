@@ -33,6 +33,12 @@ service cloud.firestore {
       allow read, write: if true; // Temporary - allow all access
     }
     
+    // Messages collection - CRITICAL for admin dashboard notifications
+    match /messages/{messageId} {
+      allow read, write: if true; // Allow all access for now
+      allow create: if true; // Allow contact form submissions
+    }
+    
     // Documents collection - allow read/write for authenticated users
     match /documents/{documentId} {
       allow read, write: if true; // Temporary - allow all access
@@ -54,10 +60,10 @@ service cloud.firestore {
 1. Click **Publish** in the Firebase Console
 2. Wait for rules to deploy (should take a few seconds)
 
-### Step 4: Test Property Upload
+### Step 4: Test Message System
 1. Go back to your admin dashboard
-2. Click "Test Permissions" to verify the fix
-3. Try uploading a property again
+2. The unread message count should now appear
+3. Try submitting a contact form to test
 
 ---
 
@@ -81,6 +87,16 @@ service cloud.firestore {
         ];
     }
     
+    // Messages collection - public create, admin read/manage
+    match /messages/{messageId} {
+      allow create: if true; // Anyone can submit contact forms
+      allow read, update, delete: if request.auth != null 
+        && request.auth.token.email in [
+          "11jellis@gmail.com", 
+          "arnoldestatesmsa@gmail.com"
+        ];
+    }
+    
     // Applications - authenticated users can create, admins can read all
     match /applications/{applicationId} {
       allow create: if request.auth != null;
@@ -91,7 +107,29 @@ service cloud.firestore {
         ];
     }
     
-    // Other collections remain the same...
+    // Users collection - user can read/write own data, admins can read all
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null 
+        && request.auth.token.email in [
+          "11jellis@gmail.com", 
+          "arnoldestatesmsa@gmail.com"
+        ];
+    }
+    
+    // Documents collection - users can manage own, admins can read all
+    match /documents/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Admin collection - restricted to admin emails only
+    match /admin/{document} {
+      allow read, write: if request.auth != null 
+        && request.auth.token.email in [
+          "11jellis@gmail.com", 
+          "arnoldestatesmsa@gmail.com"
+        ];
+    }
   }
 }
 ```
@@ -112,6 +150,14 @@ service cloud.firestore {
 - `Permission denied` → Rules are too restrictive
 - `Invalid token` → Authentication issues
 - `Project not found` → Wrong project ID in environment variables
+- `Missing or insufficient permissions` → Missing collection rules (like messages)
+
+### Quick Test for Messages:
+
+1. Go to your admin dashboard
+2. Check if unread message counts appear
+3. Submit a contact form
+4. Verify the message appears in the admin dashboard
 
 ---
 

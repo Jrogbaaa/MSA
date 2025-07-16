@@ -75,10 +75,16 @@ export const checkFirestoreConnection = async (): Promise<boolean> => {
   } catch (error: any) {
     console.error('🔥 Firestore connection issue:', error);
     
-    // Handle Firestore internal assertion failures
+    // Handle specific Firebase errors
     if (error?.message?.includes('INTERNAL ASSERTION FAILED')) {
       console.warn('🔄 Firestore internal error detected, attempting recovery...');
       await attemptFirestoreRecovery();
+    } else if (error?.message?.includes('Target ID already exists')) {
+      console.warn('🔄 Firebase Target ID conflict detected, clearing connection...');
+      await clearFirebaseConnections();
+    } else if (error?.message?.includes('Missing or insufficient permissions')) {
+      console.warn('🔒 Firebase permissions error detected, checking auth state...');
+      await refreshFirebaseAuth();
     }
     
     isConnectionHealthy = false;
@@ -87,25 +93,67 @@ export const checkFirestoreConnection = async (): Promise<boolean> => {
   }
 };
 
-// Attempt to recover from Firestore internal assertion failures
+// Clear Firebase connections to resolve Target ID conflicts
+const clearFirebaseConnections = async (): Promise<void> => {
+  try {
+    console.log('🔄 Clearing Firebase connections...');
+    await disableNetwork(db);
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait longer for cleanup
+    await enableNetwork(db);
+    console.log('✅ Firebase connections cleared successfully');
+  } catch (error) {
+    console.error('❌ Failed to clear Firebase connections:', error);
+  }
+};
+
+// Refresh Firebase authentication state
+const refreshFirebaseAuth = async (): Promise<void> => {
+  try {
+    console.log('🔄 Refreshing Firebase auth state...');
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      // Force token refresh
+      await currentUser.getIdToken(true);
+      console.log('✅ Firebase auth token refreshed');
+    } else {
+      console.log('ℹ️ No authenticated user to refresh');
+    }
+  } catch (error) {
+    console.error('❌ Failed to refresh Firebase auth:', error);
+  }
+};
+
+// Enhanced recovery mechanism
 export const attemptFirestoreRecovery = async (): Promise<void> => {
+  if (firestoreResetCount >= 3) {
+    console.warn('🚨 Maximum Firestore reset attempts reached, falling back to localStorage');
+    return;
+  }
+  
   try {
     firestoreResetCount++;
-    console.log(`🔄 Attempting Firestore recovery (attempt ${firestoreResetCount})...`);
+    console.log(`🔄 Attempting Firestore recovery (attempt ${firestoreResetCount}/3)...`);
     
-    // Disable and re-enable network to force reconnection
+    // Disable network
     await disableNetwork(db);
+    console.log('📴 Firestore network disabled');
     
-    // Wait a moment before re-enabling
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Wait for cleanup
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
+    // Re-enable network
     await enableNetwork(db);
+    console.log('📶 Firestore network re-enabled');
+    
+    // Reset counter on successful recovery
+    setTimeout(() => {
+      firestoreResetCount = 0;
+      console.log('🔄 Recovery counter reset');
+    }, 10000); // Reset after 10 seconds
     
     console.log('✅ Firestore recovery completed');
-    isConnectionHealthy = true;
-  } catch (recoveryError) {
-    console.error('❌ Firestore recovery failed:', recoveryError);
-    isConnectionHealthy = false;
+  } catch (error) {
+    console.error('❌ Firestore recovery failed:', error);
   }
 };
 
@@ -155,6 +203,7 @@ export const testFirebasePermissions = async (): Promise<{
   canRead: boolean;
   canWrite: boolean;
   canDelete: boolean;
+  messagesPermission: boolean;
   errors: string[];
   details: string[];
 }> => {
@@ -162,12 +211,14 @@ export const testFirebasePermissions = async (): Promise<{
     canRead: false,
     canWrite: false,
     canDelete: false,
+    messagesPermission: false,
     errors: [] as string[],
     details: [] as string[]
   };
 
   const testDocId = `test_${Date.now()}`;
   const testDocRef = doc(db, 'properties', testDocId);
+  const testMessageRef = doc(db, 'messages', `test_message_${Date.now()}`);
   
   try {
     console.log('🔍 Testing Firebase permissions...');
@@ -214,6 +265,37 @@ export const testFirebasePermissions = async (): Promise<{
         results.errors.push(`Delete failed: ${deleteError.message}`);
         results.details.push(`❌ Delete permission: FAILED (${deleteError.code || 'unknown'})`);
         console.error('❌ Firebase delete permission: FAILED', deleteError);
+      }
+    }
+    
+    // Test Messages Collection Permission - CRITICAL for admin dashboard
+    try {
+      await setDoc(testMessageRef, {
+        name: 'Test User',
+        email: 'test@example.com',
+        message: 'Test message for permissions',
+        createdAt: new Date(),
+        isRead: false
+      });
+      
+      // Try to read the message
+      const messageSnapshot = await getDoc(testMessageRef);
+      
+      // Try to delete the test message
+      await deleteDoc(testMessageRef);
+      
+      results.messagesPermission = true;
+      results.details.push('✅ Messages collection: SUCCESS');
+      console.log('✅ Firebase messages permission: SUCCESS');
+    } catch (messageError: any) {
+      results.messagesPermission = false;
+      results.errors.push(`Messages collection failed: ${messageError.message}`);
+      results.details.push(`❌ Messages collection: FAILED (${messageError.code || 'unknown'})`);
+      console.error('❌ Firebase messages permission: FAILED', messageError);
+      
+      if (messageError.code === 'permission-denied') {
+        results.details.push('🔧 FIX: Add messages collection rules to Firestore');
+        results.details.push('📋 See FIREBASE_RULES.md for complete rules');
       }
     }
     

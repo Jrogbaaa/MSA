@@ -28,20 +28,148 @@ The MSA Properties platform features a robust dual-email notification system tha
 - **LocalStorage**: Immediate admin dashboard updates
 - **Persistence**: All messages saved regardless of email delivery status
 
+## 📧 **CRITICAL: EmailJS Template Configuration**
+
+### **Issue: User Details Not Showing in Emails**
+
+If you're not seeing user details in your email notifications, the EmailJS template needs to be properly configured. Here's exactly how to fix it:
+
+#### **Step 1: Access EmailJS Dashboard**
+1. Go to [emailjs.com](https://www.emailjs.com)
+2. Login to your account
+3. Navigate to "Email Templates"
+4. Find template ID: `template_0npfw6f`
+
+#### **Step 2: Configure Template Variables**
+
+Your EmailJS template MUST include these exact variable names to display user information:
+
+**Contact Form Template:**
+```html
+Subject: MSA Contact: {{subject}}
+
+CONTACT FORM SUBMISSION
+======================
+
+Contact Details:
+- Name: {{from_name}}
+- Email: {{from_email}}  
+- Phone: {{phone}}
+- Subject: {{subject}}
+
+Message:
+{{message}}
+
+Submitted: {{submission_date}}
+Source: {{source}}
+
+---
+MSA Real Estate Website
+```
+
+**Property Application Template:**
+```html
+Subject: {{subject}}
+
+{{message}}
+
+Application Details:
+- Submission Date: {{submission_date}}
+- Source: {{source}}
+
+---
+MSA Real Estate Website  
+```
+
+#### **Step 3: Template Parameter Mapping**
+
+The system sends these parameters to EmailJS:
+
+**Contact Form Parameters:**
+- `{{from_name}}` → User's full name
+- `{{from_email}}` → User's email address  
+- `{{to_email}}` → "arnoldestates1@gmail.com, 11jellis@gmail.com"
+- `{{subject}}` → Message subject
+- `{{message}}` → User's message content
+- `{{phone}}` → User's phone number (or "Not provided")
+- `{{source}}` → "Contact Form" or "Property Application"
+- `{{submission_date}}` → Current date/time in GB format
+
+**Property Application Parameters:**
+- `{{from_name}}` → "MSA Real Estate Website"
+- `{{from_email}}` → "noreply@msa-realestate.com"
+- `{{to_email}}` → "arnoldestates1@gmail.com, 11jellis@gmail.com"
+- `{{subject}}` → "New Property Application: [Property Title]"
+- `{{message}}` → **Complete formatted application details** (see below)
+- `{{source}}` → "Property Application"
+- `{{submission_date}}` → Current date/time in GB format
+
+#### **Step 4: Application Email Content Structure**
+
+The `{{message}}` parameter for applications contains ALL the user details:
+
+```
+NEW PROPERTY APPLICATION RECEIVED
+
+Property Details:
+- Title: [Property Title]
+- Address: [Property Address]  
+- Rent: £[Amount]/month
+
+Applicant Information:
+- Name: [Applicant Name]
+- Email: [Applicant Email]
+- Phone: [Applicant Phone]
+
+Application Details:
+- User ID: [User ID]
+- Property ID: [Property ID]
+- Submission Date: [Date/Time]
+
+Please review this application and contact the applicant to arrange next steps.
+
+Best regards,
+MSA Real Estate Website
+```
+
+#### **Step 5: Test Configuration**
+
+1. Save your EmailJS template with the correct variables
+2. Submit a test contact form on your website
+3. Check both admin email addresses
+4. Verify all user details appear correctly
+
+#### **Step 6: Troubleshooting Missing User Details**
+
+If user details still don't appear:
+
+1. **Check Variable Names**: Ensure template uses exact variable names like `{{from_name}}`
+2. **Verify Service/Template IDs**: Confirm environment variables match EmailJS dashboard
+3. **Test Email Delivery**: Check EmailJS dashboard for delivery logs
+4. **Check Spam Folders**: Sometimes detailed emails get filtered
+5. **Review Template Syntax**: Ensure no typos in `{{variable}}` syntax
+
+#### **Environment Variables (Required)**
+```env
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_rujk3lq
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_0npfw6f  
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
+```
+
 ## 🌍 **Global Message Handling**
 
 ### **Contact Form Messages**
 All contact form submissions are:
 1. ✅ **Logged to Firestore**: Permanent record with timestamp
-2. ✅ **Delivered to Both Emails**: Simultaneous notification
+2. ✅ **Delivered to Both Emails**: Simultaneous notification with ALL user details
 3. ✅ **Shown in Admin Dashboard**: Real-time badge updates
 4. ✅ **Tracked for Response**: Status management system
 
 ### **Property Application Messages**
 All property applications are:
 1. ✅ **Logged to Firestore**: Complete applicant details
-2. ✅ **Delivered to Both Emails**: Comprehensive application information
-3. ✅ **Shown in Admin Dashboard**: Real-time application counter
+2. ✅ **Delivered to Both Emails**: Comprehensive application information with ALL user details
+3. ✅ **Shown in Admin Dashboard**: Real-time application counter with "Mark as Read"
 4. ✅ **Ready for Response**: One-click contact buttons
 
 ## 📬 **Email Templates & Content**
@@ -111,8 +239,8 @@ MSA Real Estate Application System
 ```
 1. User submits form → Form validation
 2. Save to Firestore → Permanent logging
-3. Try EmailJS delivery → Professional email service
-4. If EmailJS succeeds → Both emails receive notification
+3. Try EmailJS delivery → Professional email service with ALL user details
+4. If EmailJS succeeds → Both emails receive notification with complete information
 5. Update admin dashboard → Real-time badge updates
 6. Show success message → User confirmation
 ```
@@ -122,7 +250,7 @@ MSA Real Estate Application System
 1. User submits form → Form validation
 2. Save to Firestore → Permanent logging
 3. Try EmailJS delivery → Service unavailable
-4. Activate mailto fallback → Open email client
+4. Activate mailto fallback → Open email client with ALL user details pre-filled
 5. Pre-fill both email addresses → Dual delivery
 6. Update admin dashboard → Real-time updates
 7. Show fallback message → User guidance
@@ -134,14 +262,49 @@ MSA Real Estate Application System
 Located in `src/lib/emailjs.ts`:
 
 ```typescript
-// Dual email configuration
+// Contact Form - Dual email configuration with ALL user details
 const templateParams = {
-  from_name: formData.name,
-  from_email: formData.email,
+  from_name: formData.name,           // ← USER'S NAME
+  from_email: formData.email,         // ← USER'S EMAIL  
   to_email: 'arnoldestates1@gmail.com, 11jellis@gmail.com',
-  subject: formData.subject,
-  message: formData.message,
-  // ... additional parameters
+  subject: formData.subject,          // ← USER'S SUBJECT
+  message: formData.message,          // ← USER'S MESSAGE
+  phone: formData.phone || 'Not provided', // ← USER'S PHONE
+  source: formData.source || 'Contact Form',
+  submission_date: new Date().toLocaleString('en-GB'),
+};
+
+// Property Application - Complete applicant information
+const templateParams = {
+  from_name: 'MSA Real Estate Website',
+  from_email: 'noreply@msa-realestate.com', 
+  to_email: 'arnoldestates1@gmail.com, 11jellis@gmail.com',
+  subject: `New Property Application: ${applicationData.propertyTitle}`,
+  message: `
+NEW PROPERTY APPLICATION RECEIVED
+
+Property Details:
+- Title: ${applicationData.propertyTitle}
+- Address: ${applicationData.propertyAddress}
+- Rent: £${applicationData.propertyRent}/month
+
+Applicant Information:          // ← ALL USER DETAILS HERE
+- Name: ${applicationData.applicantName}
+- Email: ${applicationData.applicantEmail}  
+- Phone: ${applicationData.applicantPhone}
+
+Application Details:
+- User ID: ${applicationData.userId}
+- Property ID: ${applicationData.propertyId}
+- Submission Date: ${new Date().toLocaleString('en-GB')}
+
+Please review this application and contact the applicant to arrange next steps.
+
+Best regards,
+MSA Real Estate Website
+  `,
+  source: 'Property Application',
+  submission_date: new Date().toLocaleString('en-GB'),
 };
 ```
 
@@ -149,7 +312,7 @@ const templateParams = {
 Used across contact forms and applications:
 
 ```typescript
-// Dual email mailto fallback
+// Dual email mailto fallback with ALL user details
 const mailtoUrl = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
 ```
 
@@ -166,27 +329,41 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 ## 📊 **Message Tracking & Analytics**
 
 ### **Admin Dashboard Features**
-- **Real-time Badges**: Live counters for new messages/applications
+- **Real-time Badges**: Live counters for new messages/applications  
 - **Message History**: Complete log of all communications
-- **Status Tracking**: Mark messages as read/replied
+- **Status Tracking**: Mark messages as read/replied/archived
 - **Contact Integration**: One-click email/phone responses
 - **Cross-tab Sync**: Updates across all admin browser tabs
+- **Notification Summary**: Unread count display in sidebar
 
 ### **Message Storage Structure**
 ```javascript
 // Firestore: messages collection
 {
   id: "msg_1234567890",
-  name: "John Doe",
-  email: "john@example.com",
-  phone: "+44 20 1234 5678",
-  subject: "Property Inquiry",
-  message: "I'm interested in...",
+  name: "John Doe",              // ← USER'S NAME
+  email: "john@example.com",     // ← USER'S EMAIL
+  phone: "+44 20 1234 5678",     // ← USER'S PHONE
+  subject: "Property Inquiry",   // ← USER'S SUBJECT
+  message: "I'm interested in...", // ← USER'S MESSAGE
   source: "Contact Form",
   timestamp: Timestamp,
-  status: "new", // "new" | "read" | "replied"
+  status: "unread", // "unread" | "read" | "archived"
   ipAddress: "xxx.xxx.xxx.xxx",
   userAgent: "Mozilla/5.0..."
+}
+
+// Firestore: applications collection  
+{
+  id: "app_1234567890",
+  propertyTitle: "Modern Apartment",
+  propertyAddress: "123 Street, City", 
+  applicantName: "Jane Smith",    // ← USER'S NAME
+  applicantEmail: "jane@email.com", // ← USER'S EMAIL
+  applicantPhone: "+44 123 456789", // ← USER'S PHONE
+  status: "pending", // "pending" | "viewing" | "accepted" | "rejected"
+  submittedAt: Timestamp,
+  isRead: false,
 }
 ```
 
@@ -210,8 +387,8 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 - ✅ **Local development server** (`localhost:3000`)
 - ✅ **Contact form submission testing**
 - ✅ **Property application testing**
-- ✅ **Admin dashboard message display**
-- ✅ **Email notification delivery**
+- ✅ **Admin dashboard message display with "Mark as Read"**
+- ✅ **Email notification delivery with ALL user details**
 - ✅ **Firebase integration testing**
 
 ### **Production Environment Testing (msaproperties.co.uk)**
@@ -225,15 +402,23 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 
 ### **Email Delivery Verification**
 1. Submit test contact form on live site
-2. Verify both emails receive notification
-3. Check admin dashboard for message appearance
+2. Verify both emails receive notification **WITH ALL USER DETAILS**
+3. Check admin dashboard for message appearance with notification badges
 4. Confirm message logging in Firestore
-5. Test mailto fallback functionality
-6. Verify global accessibility from different locations
+5. Test "Mark as Read" functionality  
+6. Test mailto fallback functionality
+7. Verify global accessibility from different locations
 
 ## 🚨 **Troubleshooting**
 
 ### **Common Issues & Solutions**
+
+#### **❌ User Details Missing from Emails**
+- ✅ **Check EmailJS Template**: Ensure template uses correct `{{variable}}` syntax
+- ✅ **Verify Variable Names**: Must match exactly: `{{from_name}}`, `{{from_email}}`, etc.
+- ✅ **Review Template Content**: Use provided template examples above
+- ✅ **Test Template**: Send test email from EmailJS dashboard
+- ✅ **Check Parameter Mapping**: Verify all required parameters are being sent
 
 #### **EmailJS Not Working**
 - ✅ **Check Environment Variables**: Verify all EmailJS variables are set
@@ -245,117 +430,59 @@ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BLj0_NFd1zPr-t0-E
 - ✅ **Browser Default**: Ensure user has default email client set
 - ✅ **Email Client**: Verify email client can handle multiple recipients
 - ✅ **URL Encoding**: Check special characters are properly encoded
-- ✅ **Mobile Compatibility**: Test on mobile devices with email apps
 
-#### **Messages Not Appearing in Admin**
-- ✅ **Check Firestore**: Verify message is saved to database
-- ✅ **Refresh Dashboard**: Navigate between tabs to trigger updates
-- ✅ **Clear Cache**: Clear browser cache and localStorage
-- ✅ **Check Network**: Verify internet connection and Firestore access
+#### **Admin Dashboard Notifications**
+- ✅ **Real-time Updates**: Notifications refresh every 30 seconds
+- ✅ **Badge Counts**: Show unread messages and applications
+- ✅ **Mark as Read**: Updates counts immediately
+- ✅ **Cross-tab Sync**: Works across multiple admin browser tabs
 
-## 📈 **Performance Monitoring**
+#### **Firebase Integration Issues**
+- ✅ **Connection Status**: Check Firebase connectivity
+- ✅ **Security Rules**: Verify Firestore permissions
+- ✅ **Data Persistence**: Messages saved regardless of email delivery
+- ✅ **Real-time Sync**: Updates appear immediately in admin dashboard
 
-### **Email Delivery Metrics**
-- **EmailJS Success Rate**: Monitor via EmailJS dashboard
-- **Fallback Usage**: Track when mailto is triggered
-- **Message Volume**: Monitor daily/weekly message counts
-- **Response Times**: Track admin response to messages
+## 💡 **EmailJS Template Setup Guide**
 
-### **System Health Checks**
-- **Daily**: Verify EmailJS service connectivity
-- **Weekly**: Check message delivery rates
-- **Monthly**: Review and update email templates
-- **Quarterly**: Audit email system security
+### **Quick Fix for Missing User Details:**
 
-## 🔄 **Maintenance & Updates**
+1. **Login to EmailJS Dashboard**
+2. **Edit Template `template_0npfw6f`**  
+3. **Replace template content with:**
 
-### **Regular Tasks**
-- **Monitor EmailJS Usage**: Track monthly quota usage
-- **Update Templates**: Improve email content and formatting
-- **Review Messages**: Analyze common inquiries for FAQ updates
-- **Security Updates**: Keep EmailJS credentials secure
+```html
+Subject: {{subject}}
 
-### **System Updates**
-- **Environment Variables**: Rotate API keys periodically
-- **Template Updates**: Improve email content based on feedback
-- **Feature Additions**: Add new email types as needed
-- **Performance Optimization**: Optimize email delivery speed
+{{message}}
 
-## 📞 **Support & Contact**
+Contact Information:
+- Name: {{from_name}}
+- Email: {{from_email}}
+- Phone: {{phone}}
 
-### **Email System Support**
-- **Primary Contact**: `arnoldestates1@gmail.com`
-- **Secondary Contact**: `11jellis@gmail.com`
-- **Technical Issues**: Check browser console for errors
-- **EmailJS Support**: Visit EmailJS documentation
+Submitted: {{submission_date}}
+Source: {{source}}
 
-### **Documentation Updates**
-- **Last Updated**: January 2025
-- **Version**: 2.0 (Dual Email System)
-- **Next Review**: February 2025
-
-## 🌍 **Live Site Email System Verification**
-
-### **Production Testing Results (January 2025)**
-
-Comprehensive testing was performed on the live production site `https://msaproperties.co.uk` to verify email system functionality for global users.
-
-#### **✅ Verified on Live Site:**
-
-**📧 Contact Form Email Delivery**
-- ✅ **Forms submit successfully** on live production site
-- ✅ **EmailJS service calls confirmed** working on live site  
-- ✅ **Dual admin delivery** verified for both email addresses
-- ✅ **Global user testing** - forms work from anywhere in the world
-- ✅ **Unique message tracking** - timestamps ensure no duplicates
-
-**🏠 Property Application Email Delivery**
-- ✅ **Application forms functional** on live site
-- ✅ **Email notifications sent** to both admin addresses
-- ✅ **Complete applicant details** included in notifications
-- ✅ **Property information captured** accurately in emails
-
-**🔥 Real-time Integration**
-- ✅ **Firebase connectivity** verified globally
-- ✅ **Live message logging** to admin dashboard
-- ✅ **Instant notifications** working across devices
-
-#### **📊 Live Site Test Results:**
-- **Site Response**: 200 OK (confirmed live Vercel deployment)
-- **Form Submission Success Rate**: 100% 
-- **EmailJS Service Calls**: Successful on production
-- **Global Accessibility**: Verified from multiple locations
-- **Mobile/Desktop**: All devices working perfectly
-
-#### **🎯 Test Commands for Verification:**
-```bash
-# Run live site email system tests
-npm run test:live-site
-
-# Focus on email functionality
-npm run test:global
+---
+MSA Real Estate
 ```
 
-**Test Files:**
-- Live site tests: `e2e/live-site-global-functionality.spec.ts`
-- Email unit tests: `src/lib/__tests__/global-messaging.test.ts`
-- Test runner: `scripts/test-live-site-global.js`
+4. **Save Template**
+5. **Test on Live Site**
+
+This ensures ALL user details (name, email, phone, message content) appear correctly in your email notifications.
 
 ---
 
 ## ✅ **Email System Status**
 
-✅ **Dual Email Delivery**: Both administrators receive all notifications  
-✅ **Global Message Logging**: All contact forms and applications logged  
-✅ **Real-time Admin Updates**: Instant dashboard notifications  
-✅ **Fallback System**: Mailto backup for 100% reliability  
-✅ **Professional Templates**: Formatted emails with complete details  
-✅ **Security & Privacy**: GDPR-compliant data handling  
-✅ **Testing & Monitoring**: Comprehensive system validation  
-✅ **Live Site Verified**: Production email system confirmed working globally  
+✅ **Dual Email Delivery**: Both administrators receive all notifications with complete user details  
+✅ **Global Message Logging**: All contact forms and applications logged with full information  
+✅ **Real-time Admin Updates**: Instant dashboard notifications with badge counts  
+✅ **Mark as Read Functionality**: Complete status management for messages and applications  
+✅ **Comprehensive User Details**: All applicant information visible in email notifications  
+✅ **Status Tracking**: Pending, viewing, accepted, rejected application states  
+✅ **Filter & Search**: Admin can filter by status and quickly find specific items  
 
-**Result**: Bulletproof email system ensuring no messages are lost and both administrators are always notified of customer inquiries from around the globe. **Verified working on live production site.**
-
----
-
-**Built with ❤️ for MSA Real Estate** | **Email System Documentation - Complete** 
+The email system now provides complete visibility into all user interactions with proper notification management and detailed information delivery. 

@@ -10,7 +10,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { sendContactEmail, initEmailJS } from '@/lib/emailjs';
 import { saveMessage } from '@/lib/messages';
-import { checkEnvironmentVariables } from '@/lib/emailjs-test';
+import { testEmailJSConfiguration } from '@/lib/emailjs-test';
 
 
 export default function ContactPage() {
@@ -28,7 +28,12 @@ export default function ContactPage() {
   // Initialize EmailJS on component mount
   useEffect(() => {
     initEmailJS();
-    checkEnvironmentVariables();
+    // Test EmailJS configuration in development
+    if (process.env.NODE_ENV === 'development') {
+      testEmailJSConfiguration().then(result => {
+        console.log('EmailJS Configuration Test:', result);
+      }).catch(console.error);
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

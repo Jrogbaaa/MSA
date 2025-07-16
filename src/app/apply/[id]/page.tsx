@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { properties as initialProperties } from '@/data/properties';
 import { getAllProperties, subscribeToProperties } from '@/lib/properties';
 import { saveApplication } from '@/lib/applications';
+import { sendApplicationEmail } from '@/lib/emailjs';
 
 interface ApplicationFormData {
   name: string;
@@ -85,7 +86,8 @@ export default function ApplicationPage() {
         throw new Error("Property details not loaded.");
       }
 
-      await saveApplication({
+      // Save application to Firestore first
+      const applicationResult = await saveApplication({
         propertyTitle: property.title,
         propertyAddress: property.address,
         applicantName: formData.name,
@@ -93,14 +95,29 @@ export default function ApplicationPage() {
         applicantPhone: formData.phone,
       });
       
-      console.log('Application saved to Firestore');
+      console.log('Application saved to Firestore:', applicationResult);
       
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Create comprehensive email for application submission
-      const emailSubject = `🏠 NEW APPLICATION: ${property?.title} - ${formData.name}`;
-      const emailBody = `
+      // Send email notification using EmailJS
+      const emailResult = await sendApplicationEmail({
+        propertyTitle: property.title,
+        propertyAddress: property.address,
+        propertyRent: property.rent,
+        applicantName: formData.name,
+        applicantEmail: formData.email,
+        applicantPhone: formData.phone,
+        userId: user?.id || 'guest-user',
+        propertyId: propertyId as string,
+      });
+
+      if (emailResult.success) {
+        console.log('✅ Email notification sent successfully via EmailJS');
+        setIsSubmitted(true);
+      } else {
+        console.log('⚠️ EmailJS failed, using mailto fallback:', emailResult.error);
+        
+        // Fallback to mailto with comprehensive details
+        const emailSubject = `🏠 NEW APPLICATION: ${property?.title} - ${formData.name}`;
+        const emailBody = `
 NEW PROPERTY APPLICATION RECEIVED
 =====================================
 
@@ -131,13 +148,14 @@ View admin dashboard: ${window.location.origin}/admin/dashboard
 
 Best regards,
 MSA Real Estate Application System
-      `;
-      
-      // Open email client with pre-filled content
-      const mailtoLink = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      window.open(mailtoLink, '_blank');
-      
-      setIsSubmitted(true);
+        `;
+        
+        // Open email client with pre-filled content
+        const mailtoLink = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoLink, '_blank');
+        
+        setIsSubmitted(true);
+      }
       
     } catch (error) {
       console.error('Error submitting application:', error);

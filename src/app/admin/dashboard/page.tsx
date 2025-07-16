@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, LogOut, Home, Users, Mail, Settings, BarChart3, Database, RefreshCw, Loader2 } from 'lucide-react';
+import { Shield, LogOut, Home, Users, Mail, Settings, BarChart3, Database, RefreshCw, Loader2, Briefcase, FileText, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
@@ -10,1096 +10,207 @@ import { useAdminAuth, logoutAdmin, getAdminSession } from '@/lib/adminAuth';
 import PropertyManager from '@/components/admin/PropertyManager';
 import DocumentManager from '@/components/admin/DocumentManager';
 import TenantManager from '@/components/admin/TenantManager';
+import ApplicationManager from '@/components/admin/ApplicationManager';
+import MessageManager from '@/components/admin/MessageManager';
 import { getFirebaseStatus, retryFirestoreConnection, testFirebasePermissions, db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { getAllProperties } from '@/lib/properties';
+import { getUnreadMessagesCount } from '@/lib/messages';
+import { getUnreadApplicationsCount } from '@/lib/applications';
 
 // Fixed import issues for Vercel deployment
 
+type AdminView = 'properties' | 'tenants' | 'documents' | 'applications' | 'messages';
 
 export default function AdminDashboardPage() {
-  const { isAdmin, isLoading } = useAdminAuth();
+  const [activeView, setActiveView] = useState<AdminView>('properties');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [unreadApplications, setUnreadApplications] = useState(0);
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'applications' | 'messages' | 'tenants' | 'documents' | 'activity'>('overview');
-  const [applications, setApplications] = useState<any[]>([]);
-  const [contactMessages, setContactMessages] = useState<any[]>([]);
-  const [firebaseStatus, setFirebaseStatus] = useState<any>(null);
-  const [connectionRetrying, setConnectionRetrying] = useState(false);
-  const [permissionsTest, setPermissionsTest] = useState<any>(null);
-  const [testingPermissions, setTestingPermissions] = useState(false);
-  const [manualPropertiesCheck, setManualPropertiesCheck] = useState<any>(null);
-  const [checkingProperties, setCheckingProperties] = useState(false);
-  const [propertyStats, setPropertyStats] = useState({ 
-    totalProperties: 0, 
-    availableProperties: 0, 
-    totalRevenue: 0 
-  });
 
   useEffect(() => {
-    if (!isLoading && !isAdmin) {
+    const session = getAdminSession();
+    if (!session) {
       router.push('/admin/login');
+    } else {
+      setIsAuthenticated(true);
+      loadNotificationCounts();
     }
-  }, [isAdmin, isLoading, router]);
+  }, [router]);
 
-  // Load property statistics
+  // Load notification counts and set up periodic refresh
   useEffect(() => {
-    const loadPropertyStats = async () => {
-      try {
-        const properties = await getAllProperties();
-        const stats = {
-          totalProperties: properties.length,
-          availableProperties: properties.filter(p => p.availability === 'available').length,
-          totalRevenue: properties.reduce((sum, p) => sum + p.rent, 0)
-        };
-        setPropertyStats(stats);
-        console.log('📊 Property statistics loaded:', stats);
-      } catch (error) {
-        console.error('❌ Failed to load property statistics:', error);
-      }
-    };
-
-    if (isAdmin) {
-      loadPropertyStats();
+    if (isAuthenticated) {
+      loadNotificationCounts();
+      
+      // Refresh counts every 30 seconds
+      const interval = setInterval(loadNotificationCounts, 30000);
+      
+      return () => clearInterval(interval);
     }
-  }, [isAdmin]);
+  }, [isAuthenticated]);
 
-  // Load applications and contact messages from localStorage
-  useEffect(() => {
-    const loadApplications = () => {
-      try {
-        const savedApplications = localStorage.getItem('msa_applications');
-        if (savedApplications) {
-          const parsedApplications = JSON.parse(savedApplications);
-          setApplications(parsedApplications);
-        }
-      } catch (error) {
-        console.error('Error loading applications:', error);
-      }
-    };
-
-    const loadContactMessages = () => {
-      try {
-        const savedMessages = localStorage.getItem('msa_contact_messages');
-        if (savedMessages) {
-          const parsedMessages = JSON.parse(savedMessages);
-          setContactMessages(parsedMessages);
-        }
-      } catch (error) {
-        console.error('Error loading contact messages:', error);
-      }
-    };
-
-    loadApplications();
-    loadContactMessages();
-
-    // Listen for storage changes (when new applications or messages are submitted)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'msa_applications' && e.newValue) {
-        try {
-          const parsedApplications = JSON.parse(e.newValue);
-          setApplications(parsedApplications);
-        } catch (error) {
-          console.error('Error parsing updated applications:', error);
-        }
-      }
-      if (e.key === 'msa_contact_messages' && e.newValue) {
-        try {
-          const parsedMessages = JSON.parse(e.newValue);
-          setContactMessages(parsedMessages);
-        } catch (error) {
-          console.error('Error parsing updated contact messages:', error);
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  useEffect(() => {
-    const checkFirebaseStatus = async () => {
-      try {
-        const status = await getFirebaseStatus();
-        setFirebaseStatus(status);
-      } catch (error) {
-        console.error('Error checking Firebase status:', error);
-      }
-    };
-
-    checkFirebaseStatus();
-    
-    // Check status every 30 seconds
-    const statusInterval = setInterval(checkFirebaseStatus, 30000);
-    
-    return () => clearInterval(statusInterval);
-  }, []);
-
-  const handleRetryConnection = async () => {
-    setConnectionRetrying(true);
+  const loadNotificationCounts = async () => {
     try {
-      console.log('🔄 Retrying Firebase connection...');
-      const success = await retryFirestoreConnection();
-      if (success) {
-        console.log('✅ Connection restored successfully');
-        // Refresh Firebase status
-        const status = await getFirebaseStatus();
-        setFirebaseStatus(status);
-      }
+      const [messagesCount, applicationsCount] = await Promise.all([
+        getUnreadMessagesCount(),
+        getUnreadApplicationsCount()
+      ]);
+      setUnreadMessages(messagesCount);
+      setUnreadApplications(applicationsCount);
     } catch (error) {
-      console.error('❌ Failed to restore connection:', error);
-    } finally {
-      setConnectionRetrying(false);
+      console.error('Error loading notification counts:', error);
     }
   };
 
-  const handleTestPermissions = async () => {
-    setTestingPermissions(true);
-    try {
-      console.log('🔍 Testing Firebase permissions...');
-      const results = await testFirebasePermissions();
-      setPermissionsTest(results);
-      
-      if (results.canWrite && results.canRead && results.canDelete) {
-        console.log('✅ All Firebase permissions working correctly');
-      } else {
-        console.error('❌ Firebase permissions issues detected:', results.errors);
-      }
-    } catch (error) {
-      console.error('❌ Failed to test permissions:', error);
-      setPermissionsTest({
-        canRead: false,
-        canWrite: false,
-        canDelete: false,
-        errors: [`Test failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
-        details: ['❌ Permission test failed to execute']
-      });
-    } finally {
-      setTestingPermissions(false);
-    }
+  // Refresh counts when view changes
+  const handleViewChange = (view: AdminView) => {
+    setActiveView(view);
+    // Refresh counts after a short delay to allow for any updates
+    setTimeout(loadNotificationCounts, 1000);
   };
 
-  const handleCheckProperties = async () => {
-    setCheckingProperties(true);
-    try {
-      console.log('🔍 Manually checking properties in Firebase...');
-      
-      // Direct Firebase query to see what's actually in the database
-      const propertiesCollection = collection(db, 'properties');
-      const propertiesQuery = query(propertiesCollection, orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(propertiesQuery);
-      
-      const propertiesData = snapshot.docs.map(doc => {
-        const data = doc.data() as any;
-        return {
-          id: doc.id,
-          ...data,
-          docExists: doc.exists()
-        };
-      });
-      
-      // Also check localStorage
-      const localStorageData = localStorage.getItem('msa_admin_properties');
-      const localProperties = localStorageData ? JSON.parse(localStorageData) : [];
-      
-      const results = {
-        firebaseCount: propertiesData.length,
-        firebaseProperties: propertiesData.map((p: any) => ({ id: p.id, title: p.title || 'No title' })),
-        localStorageCount: localProperties.length,
-        localStorageProperties: localProperties.map((p: any) => ({ id: p.id, title: p.title || 'No title' })),
-        rawFirebaseData: propertiesData,
-        timestamp: new Date().toISOString()
-      };
-      
-      setManualPropertiesCheck(results);
-      console.log('📊 Manual property check results:', results);
-      
-    } catch (error) {
-      console.error('❌ Failed to check properties:', error);
-      setManualPropertiesCheck({
-        error: error instanceof Error ? error.message : 'Unknown error',
-        firebaseCount: 0,
-        firebaseProperties: [],
-        localStorageCount: 0,
-        localStorageProperties: [],
-        timestamp: new Date().toISOString()
-      });
-    } finally {
-      setCheckingProperties(false);
-    }
-  };
-
-  const handleLogout = () => {
-    logoutAdmin();
-    router.push('/admin/login');
-  };
-
-  const adminSession = getAdminSession();
-
-  if (isLoading) {
+  if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
-  if (!isAdmin) {
-    return null; // Will redirect via useEffect
-  }
-
-  const renderFirebaseStatus = () => {
-    if (!firebaseStatus) return null;
-
-    const { isHealthy, firestoreConnected, projectId, timestamp, error } = firebaseStatus;
-
-    return (
-      <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white flex items-center">
-            <Database className="mr-2 h-5 w-5" />
-            Firebase Status
-          </h3>
-          <div className="flex items-center space-x-2">
-            <div className={`w-3 h-3 rounded-full ${isHealthy && firestoreConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className={`text-sm font-medium ${isHealthy && firestoreConnected ? 'text-green-400' : 'text-red-400'}`}>
-              {isHealthy && firestoreConnected ? 'Connected' : 'Disconnected'}
-            </span>
-          </div>
-        </div>
-        
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gray-700 rounded-lg p-3">
-            <div className="text-sm text-gray-400">Project ID</div>
-            <div className="text-white font-mono text-sm">{projectId}</div>
-          </div>
-          
-          <div className="bg-gray-700 rounded-lg p-3">
-            <div className="text-sm text-gray-400">Firestore</div>
-            <div className={`text-sm font-medium ${firestoreConnected ? 'text-green-400' : 'text-red-400'}`}>
-              {firestoreConnected ? 'Connected' : 'Disconnected'}
-            </div>
-          </div>
-          
-          <div className="bg-gray-700 rounded-lg p-3">
-            <div className="text-sm text-gray-400">Last Check</div>
-            <div className="text-white text-sm">{timestamp.toLocaleTimeString()}</div>
-          </div>
-        </div>
-        
-        {error && (
-          <div className="mt-4 p-3 bg-red-900/20 border border-red-800 rounded-lg">
-            <div className="text-sm text-red-400">Error: {error}</div>
-          </div>
-        )}
-        
-          <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-400">
-            {(!isHealthy || !firestoreConnected) 
-              ? "Connection issues detected. Properties may load from cache."
-              : "Firebase connection is healthy. Test permissions to troubleshoot save issues."
-            }
-            </div>
-          <div className="flex space-x-2">
-            <Button
-              onClick={handleTestPermissions}
-              disabled={testingPermissions}
-              variant="outline"
-              size="sm"
-              className="border-purple-600 text-purple-400 hover:bg-purple-900/20"
-            >
-              {testingPermissions ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Testing...
-                </>
-              ) : (
-                <>
-                  <Shield className="mr-2 h-4 w-4" />
-                  Test Permissions
-                </>
-              )}
-            </Button>
-            <Button
-              onClick={handleCheckProperties}
-              disabled={checkingProperties}
-              variant="outline"
-              size="sm"
-              className="border-orange-600 text-orange-400 hover:bg-orange-900/20"
-            >
-              {checkingProperties ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Checking...
-                </>
-              ) : (
-                <>
-                  <Database className="mr-2 h-4 w-4" />
-                  Check Properties
-                </>
-              )}
-            </Button>
-            {(!isHealthy || !firestoreConnected) && (
-            <Button
-              onClick={handleRetryConnection}
-              disabled={connectionRetrying}
-              variant="outline"
-              size="sm"
-              className="border-blue-600 text-blue-400 hover:bg-blue-900/20"
-            >
-              {connectionRetrying ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Retrying...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Retry Connection
-                </>
-              )}
-            </Button>
-            )}
-          </div>
-        </div>
-
-        {permissionsTest && (
-          <div className="mt-4 p-4 bg-gray-700 rounded-lg">
-            <h4 className="text-white font-medium mb-3">🔍 Firebase Permissions Test Results</h4>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-              <div className={`p-3 rounded-lg ${permissionsTest.canRead ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'}`}>
-                <div className="text-sm font-medium text-white">Read Access</div>
-                <div className={`text-sm ${permissionsTest.canRead ? 'text-green-400' : 'text-red-400'}`}>
-                  {permissionsTest.canRead ? '✅ Working' : '❌ Failed'}
-                </div>
-              </div>
-              
-              <div className={`p-3 rounded-lg ${permissionsTest.canWrite ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'}`}>
-                <div className="text-sm font-medium text-white">Write Access</div>
-                <div className={`text-sm ${permissionsTest.canWrite ? 'text-green-400' : 'text-red-400'}`}>
-                  {permissionsTest.canWrite ? '✅ Working' : '❌ Failed'}
-                </div>
-              </div>
-              
-              <div className={`p-3 rounded-lg ${permissionsTest.canDelete ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'}`}>
-                <div className="text-sm font-medium text-white">Delete Access</div>
-                <div className={`text-sm ${permissionsTest.canDelete ? 'text-green-400' : 'text-red-400'}`}>
-                  {permissionsTest.canDelete ? '✅ Working' : '❌ Failed'}
-                </div>
-              </div>
-            </div>
-
-            {permissionsTest.errors.length > 0 && (
-              <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
-                <div className="text-sm font-medium text-red-400 mb-2">❌ Errors Detected:</div>
-                {permissionsTest.errors.map((error: string, index: number) => (
-                  <div key={index} className="text-sm text-red-300">• {error}</div>
-                ))}
-              </div>
-            )}
-
-            <div className="text-xs text-gray-400">
-              <div className="mb-1">📋 Test Details:</div>
-              {permissionsTest.details.map((detail: string, index: number) => (
-                <div key={index} className="ml-2">• {detail}</div>
-              ))}
-            </div>
-
-            {permissionsTest.errors.length > 0 && (
-              <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">
-                <div className="text-sm font-medium text-yellow-400 mb-2">💡 Solution:</div>
-                <div className="text-sm text-yellow-300">
-                  Your Firebase Firestore security rules are blocking write operations. 
-                  Please update your security rules in the Firebase Console to allow property uploads.
-                </div>
-                <div className="text-xs text-yellow-400 mt-2">
-                  Go to Firebase Console → Firestore Database → Rules → Update rules to allow authenticated writes
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {manualPropertiesCheck && (
-          <div className="mt-4 p-4 bg-gray-700 rounded-lg">
-            <h4 className="text-white font-medium mb-3">🔍 Property Database Check Results</h4>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="p-3 bg-blue-900/30 border border-blue-700 rounded-lg">
-                <div className="text-sm font-medium text-white">Firebase Database</div>
-                <div className="text-blue-400 text-lg font-bold">{manualPropertiesCheck.firebaseCount} properties</div>
-                {manualPropertiesCheck.firebaseProperties.length > 0 && (
-                  <div className="mt-2 text-xs text-blue-300">
-                    {manualPropertiesCheck.firebaseProperties.map((prop: any, index: number) => (
-                      <div key={index}>• {prop.title} (ID: {prop.id})</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <div className="p-3 bg-green-900/30 border border-green-700 rounded-lg">
-                <div className="text-sm font-medium text-white">Browser Storage</div>
-                <div className="text-green-400 text-lg font-bold">{manualPropertiesCheck.localStorageCount} properties</div>
-                {manualPropertiesCheck.localStorageProperties.length > 0 && (
-                  <div className="mt-2 text-xs text-green-300">
-                    {manualPropertiesCheck.localStorageProperties.map((prop: any, index: number) => (
-                      <div key={index}>• {prop.title} (ID: {prop.id})</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {manualPropertiesCheck.error && (
-              <div className="mb-3 p-3 bg-red-900/20 border border-red-800 rounded-lg">
-                <div className="text-sm font-medium text-red-400">❌ Error:</div>
-                <div className="text-sm text-red-300">{manualPropertiesCheck.error}</div>
-              </div>
-            )}
-
-            <div className="text-xs text-gray-400 mb-3">
-              Last checked: {new Date(manualPropertiesCheck.timestamp).toLocaleString()}
-            </div>
-
-            {manualPropertiesCheck.firebaseCount === 0 && manualPropertiesCheck.localStorageCount > 0 && (
-              <div className="p-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">
-                <div className="text-sm font-medium text-yellow-400 mb-2">🔄 Sync Issue Detected:</div>
-                <div className="text-sm text-yellow-300">
-                  Properties exist in browser storage but not in Firebase. This explains why they disappear on refresh.
-                </div>
-                <div className="text-xs text-yellow-400 mt-2">
-                  Solution: Try re-uploading a property or check Firebase security rules.
-                </div>
-              </div>
-            )}
-
-            {manualPropertiesCheck.firebaseCount > 0 && manualPropertiesCheck.localStorageCount === 0 && (
-              <div className="p-3 bg-blue-900/20 border border-blue-700 rounded-lg">
-                <div className="text-sm font-medium text-blue-400 mb-2">📱 Storage Issue:</div>
-                <div className="text-sm text-blue-300">
-                  Properties exist in Firebase but not in browser storage. The real-time sync may not be working.
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
+  const renderView = () => {
+    switch (activeView) {
+      case 'properties':
+        return <PropertyManager />;
+      case 'tenants':
+        return <TenantManager />;
+      case 'documents':
+        return <DocumentManager />;
+      case 'applications':
+        return <ApplicationManager />;
+      case 'messages':
+        return <MessageManager />;
+      default:
+        return <PropertyManager />;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Shield className="h-8 w-8 text-red-500" />
-              <h1 className="text-xl font-bold">MSA Admin Panel</h1>
-            </div>
+    <div className="min-h-screen bg-gray-800 text-gray-100">
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-gray-900 p-6 min-h-screen">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+            <Button
+              onClick={loadNotificationCounts}
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-white"
+              title="Refresh notifications"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <nav className="space-y-4">
+            <Button
+              onClick={() => handleViewChange('properties')}
+              variant={activeView === 'properties' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Home className="mr-2 h-4 w-4" /> Properties
+            </Button>
             
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-300">
-                Welcome, {adminSession?.username}
-              </span>
-              <Button 
-                onClick={handleLogout} 
-                variant="outline" 
-                size="sm"
-                className="border-gray-600 text-gray-300 hover:bg-gray-700"
-              >
-                <LogOut size={16} className="mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+            <Button
+              onClick={() => handleViewChange('applications')}
+              variant={activeView === 'applications' ? 'secondary' : 'ghost'}
+              className="w-full justify-start relative"
+            >
+              <Briefcase className="mr-2 h-4 w-4" /> Applications
+              {unreadApplications > 0 && (
+                <span className="absolute right-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
+                  {unreadApplications > 99 ? '99+' : unreadApplications}
+                </span>
+              )}
+            </Button>
+            
+            <Button
+              onClick={() => handleViewChange('messages')}
+              variant={activeView === 'messages' ? 'secondary' : 'ghost'}
+              className="w-full justify-start relative"
+            >
+              <MessageSquare className="mr-2 h-4 w-4" /> Messages
+              {unreadMessages > 0 && (
+                <span className="absolute right-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
+                  {unreadMessages > 99 ? '99+' : unreadMessages}
+                </span>
+              )}
+            </Button>
+            
+            <Button
+              onClick={() => handleViewChange('tenants')}
+              variant={activeView === 'tenants' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Users className="mr-2 h-4 w-4" /> Tenants
+            </Button>
+            
+            <Button
+              onClick={() => handleViewChange('documents')}
+              variant={activeView === 'documents' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <FileText className="mr-2 h-4 w-4" /> Documents
+            </Button>
+          </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Firebase Status */}
-        {renderFirebaseStatus()}
-
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'overview'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab('properties')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'properties'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Properties
-          </button>
-          <button
-            onClick={() => setActiveTab('applications')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'applications'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Applications {applications.length > 0 && (
-              <span className="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                {applications.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('messages')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'messages'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Messages {contactMessages.filter(msg => msg.status === 'new').length > 0 && (
-              <span className="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                {contactMessages.filter(msg => msg.status === 'new').length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('tenants')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'tenants'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Tenants
-          </button>
-          <button
-            onClick={() => setActiveTab('documents')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'documents'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Documents
-          </button>
-          <button
-            onClick={() => setActiveTab('activity')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'activity'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            Activity
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <>
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Total Properties</CardTitle>
-                  <Home className="h-4 w-4 text-blue-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-white">{propertyStats.totalProperties}</div>
-                  <p className="text-xs text-gray-400">{propertyStats.availableProperties} available</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Applications</CardTitle>
-                  <Users className="h-4 w-4 text-green-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-white">{applications.length}</div>
-                  <p className="text-xs text-gray-400">Pending review</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Messages</CardTitle>
-                  <Mail className="h-4 w-4 text-yellow-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-white">{contactMessages.filter(msg => msg.status === 'new').length}</div>
-                  <p className="text-xs text-gray-400">New inquiries</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Revenue</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-purple-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-white">£{propertyStats.totalRevenue.toLocaleString()}</div>
-                  <p className="text-xs text-gray-400">Monthly potential</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Main Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Property Overview */}
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Home className="mr-2 h-5 w-5" />
-                    Property Overview
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="bg-gray-700 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium text-white">Gold Street Studio Flat</h3>
-                      <span className="text-green-400 text-sm">Available</span>
-                    </div>
-                    <p className="text-gray-400 text-sm">Gold Street, Northampton, NN1 1RS</p>
-                    <p className="text-white font-bold">£825/month</p>
+          {/* Notification Summary */}
+          {(unreadMessages > 0 || unreadApplications > 0) && (
+            <div className="mt-8 p-4 bg-gray-800 rounded-lg border border-gray-700">
+              <h3 className="text-sm font-medium text-gray-300 mb-3">Notifications</h3>
+              <div className="space-y-2">
+                {unreadApplications > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">New Applications</span>
+                    <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs">
+                      {unreadApplications}
+                    </span>
                   </div>
-                  
-                  <Button 
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                    onClick={() => setActiveTab('properties')}
-                  >
-                    Manage Properties
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <BarChart3 className="mr-2 h-5 w-5" />
-                    Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Recent Contact Messages */}
-                    {contactMessages.slice(0, 3).map((message, index) => (
-                      <div key={message.id || index} className="bg-gray-700 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Mail className="h-4 w-4 text-yellow-400" />
-                              <h4 className="font-medium text-white text-sm">{message.name}</h4>
-                              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                                message.status === 'new' ? 'bg-blue-900 text-blue-300' : 'bg-gray-600 text-gray-300'
-                              }`}>
-                                {message.status}
-                              </span>
-                            </div>
-                            <p className="text-gray-400 text-xs">{message.subject}</p>
-                            <p className="text-gray-500 text-xs mt-1">
-                              {new Date(message.submittedAt).toLocaleDateString('en-GB')} at {new Date(message.submittedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Recent Applications */}
-                    {applications.slice(0, 2).map((application, index) => (
-                      <div key={application.id || index} className="bg-gray-700 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Users className="h-4 w-4 text-green-400" />
-                              <h4 className="font-medium text-white text-sm">{application.applicantName}</h4>
-                              <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-900 text-yellow-300">
-                                Application
-                              </span>
-                            </div>
-                            <p className="text-gray-400 text-xs">{application.propertyTitle}</p>
-                            <p className="text-gray-500 text-xs mt-1">
-                              {new Date(application.submissionDate).toLocaleDateString('en-GB')} at {new Date(application.submissionDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {contactMessages.length === 0 && applications.length === 0 && (
-                      <div className="text-center py-8">
-                        <p className="text-gray-400">No recent activity</p>
-                        <p className="text-gray-500 text-sm mt-2">
-                          Activity will appear here as users interact with your properties
-                        </p>
-                      </div>
-                    )}
-
-                    {(contactMessages.length > 0 || applications.length > 0) && (
-                      <div className="pt-2">
-                        <Button 
-                          size="sm"
-                          variant="outline"
-                          className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
-                          onClick={() => setActiveTab(contactMessages.length > 0 ? 'messages' : 'applications')}
-                        >
-                          View All Activity
-                        </Button>
-                      </div>
-                    )}
+                )}
+                {unreadMessages > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">New Messages</span>
+                    <span className="bg-red-600 text-white px-2 py-1 rounded-full text-xs">
+                      {unreadMessages}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </>
-        )}
-
-        {activeTab === 'properties' && (
-          <PropertyManager />
-        )}
-
-        {activeTab === 'applications' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Property Applications</h2>
-              <p className="text-gray-400">{applications.length} total applications</p>
-            </div>
-
-            {applications.length === 0 ? (
-              <Card className="bg-gray-800 border-gray-700">
-                <CardContent className="p-8 text-center">
-                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">No Applications Yet</h3>
-                  <p className="text-gray-400">Applications will appear here when users apply for properties.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4">
-                {applications.map((application, index) => (
-                  <Card key={application.id || index} className="bg-gray-800 border-gray-700">
-                    <CardContent className="p-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Application Details */}
-                        <div className="lg:col-span-2">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h3 className="text-lg font-semibold text-white mb-1">
-                                {application.applicantName}
-                              </h3>
-                              <p className="text-gray-400 text-sm">
-                                Applied {new Date(application.submissionDate).toLocaleDateString('en-GB')} at {new Date(application.submissionDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                              </p>
-                            </div>
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              application.status === 'pending' 
-                                ? 'bg-yellow-900 text-yellow-300 border border-yellow-700'
-                                : application.status === 'approved'
-                                ? 'bg-green-900 text-green-300 border border-green-700'
-                                : 'bg-red-900 text-red-300 border border-red-700'
-                            }`}>
-                              {application.status?.charAt(0).toUpperCase() + application.status?.slice(1) || 'Pending'}
-                            </span>
-                          </div>
-
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <p className="text-gray-400 text-sm">Email</p>
-                                <p className="text-white">{application.applicantEmail}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Phone</p>
-                                <p className="text-white">{application.applicantPhone}</p>
-                              </div>
-                            </div>
-
-                            {application.userId && (
-                              <div>
-                                <p className="text-gray-400 text-sm">User ID</p>
-                                <p className="text-white text-xs font-mono">{application.userId}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Property Details */}
-                        <div className="lg:col-span-1">
-                          <div className="bg-gray-700 rounded-lg p-4">
-                            <h4 className="text-white font-medium mb-2">Property Details</h4>
-                            <div className="space-y-2">
-                              <div>
-                                <p className="text-gray-400 text-sm">Property</p>
-                                <p className="text-white text-sm">{application.propertyTitle}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Address</p>
-                                <p className="text-white text-sm">{application.propertyAddress}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Rent</p>
-                                <p className="text-white font-semibold">£{application.propertyRent}/mo</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Property ID</p>
-                                <p className="text-white text-xs font-mono">{application.propertyId}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-700">
-                        <Button
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700"
-                          onClick={() => {
-                            const mailtoLink = `mailto:${application.applicantEmail}?subject=Re: Your Application for ${application.propertyTitle}&body=Hi ${application.applicantName},%0A%0AThank you for your interest in ${application.propertyTitle}.%0A%0A`;
-                            window.open(mailtoLink, '_blank');
-                          }}
-                        >
-                          <Mail className="h-4 w-4 mr-1" />
-                          Email Applicant
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                          onClick={() => {
-                            const phoneNumber = application.applicantPhone.replace(/\D/g, '');
-                            window.open(`tel:${phoneNumber}`, '_self');
-                          }}
-                        >
-                          📞 Call {application.applicantPhone}
-                        </Button>
-                        <div className="flex-1"></div>
-                        <p className="text-xs text-gray-500 self-center">
-                          Application ID: {application.id}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                )}
               </div>
-            )}
+            </div>
+          )}
+
+          {/* Logout Button */}
+          <div className="mt-8 pt-4 border-t border-gray-700">
+            <Button
+              onClick={() => {
+                logoutAdmin();
+                router.push('/admin/login');
+              }}
+              variant="outline"
+              className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
           </div>
-        )}
+        </aside>
 
-        {activeTab === 'messages' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Contact Messages</h2>
-              <p className="text-gray-400">{contactMessages.length} total messages</p>
-            </div>
-
-            {contactMessages.length === 0 ? (
-              <Card className="bg-gray-800 border-gray-700">
-                <CardContent className="p-8 text-center">
-                  <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">No Messages Yet</h3>
-                  <p className="text-gray-400">Contact messages will appear here when users submit the contact form.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4">
-                {contactMessages.map((message, index) => (
-                  <Card key={message.id || index} className="bg-gray-800 border-gray-700">
-                    <CardContent className="p-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Message Details */}
-                        <div className="lg:col-span-2">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h3 className="text-lg font-semibold text-white mb-1">
-                                {message.name}
-                              </h3>
-                              <p className="text-gray-400 text-sm">
-                                Sent {new Date(message.submittedAt).toLocaleDateString('en-GB')} at {new Date(message.submittedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                              </p>
-                            </div>
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              message.status === 'new' 
-                                ? 'bg-blue-900 text-blue-300 border border-blue-700'
-                                : message.status === 'read'
-                                ? 'bg-yellow-900 text-yellow-300 border border-yellow-700'
-                                : 'bg-green-900 text-green-300 border border-green-700'
-                            }`}>
-                              {message.status?.charAt(0).toUpperCase() + message.status?.slice(1) || 'New'}
-                            </span>
-                          </div>
-
-                          <div className="space-y-3">
-                            <div>
-                              <p className="text-gray-400 text-sm">Subject</p>
-                              <p className="text-white font-medium">{message.subject}</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <p className="text-gray-400 text-sm">Email</p>
-                                <p className="text-white">{message.email}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-400 text-sm">Phone</p>
-                                <p className="text-white">{message.phone || 'Not provided'}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Message Content */}
-                        <div className="lg:col-span-1">
-                          <div className="bg-gray-700 rounded-lg p-4">
-                            <h4 className="text-white font-medium mb-2">Message</h4>
-                            <div className="max-h-40 overflow-y-auto">
-                              <p className="text-gray-300 text-sm whitespace-pre-wrap">
-                                {message.message}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-700">
-                        <Button
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700"
-                          onClick={() => {
-                            const mailtoLink = `mailto:${message.email}?subject=Re: ${message.subject}&body=Hi ${message.name},%0A%0AThank you for contacting MSA Real Estate.%0A%0A`;
-                            window.open(mailtoLink, '_blank');
-                            
-                            // Mark as read
-                            const updatedMessages = contactMessages.map(msg => 
-                              msg.id === message.id ? { ...msg, status: 'read' } : msg
-                            );
-                            setContactMessages(updatedMessages);
-                            localStorage.setItem('msa_contact_messages', JSON.stringify(updatedMessages));
-                          }}
-                        >
-                          <Mail className="h-4 w-4 mr-1" />
-                          Reply
-                        </Button>
-                        
-                        {message.phone && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                            onClick={() => {
-                              const phoneNumber = message.phone.replace(/\D/g, '');
-                              window.open(`tel:${phoneNumber}`, '_self');
-                            }}
-                          >
-                            📞 Call {message.phone}
-                          </Button>
-                        )}
-
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                          onClick={() => {
-                            const updatedMessages = contactMessages.map(msg => 
-                              msg.id === message.id 
-                                ? { ...msg, status: msg.status === 'new' ? 'read' : 'new' }
-                                : msg
-                            );
-                            setContactMessages(updatedMessages);
-                            localStorage.setItem('msa_contact_messages', JSON.stringify(updatedMessages));
-                          }}
-                        >
-                          Mark as {message.status === 'new' ? 'Read' : 'Unread'}
-                        </Button>
-
-                        <div className="flex-1"></div>
-                        <p className="text-xs text-gray-500 self-center">
-                          Message ID: {message.id}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'tenants' && (
-          <TenantManager />
-        )}
-
-        {activeTab === 'documents' && (
-          <DocumentManager />
-        )}
-
-        {activeTab === 'activity' && (
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center">
-                <BarChart3 className="mr-2 h-5 w-5" />
-                Activity Log
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <p className="text-gray-400 mb-2">No activity to display</p>
-                <p className="text-gray-500 text-sm">
-                  User interactions, property applications, and system events will appear here
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Quick Actions */}
-        <Card className="bg-gray-800 border-gray-700 mt-8">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Settings className="mr-2 h-5 w-5" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Link href="/">
-                <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-700">
-                  View Live Site
-                </Button>
-              </Link>
-              <Button 
-                variant="outline" 
-                className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
-                onClick={() => window.open('mailto:arnoldestates1@gmail.com')}
-              >
-                Check Email
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
-                onClick={() => alert('Coming soon: Export data functionality')}
-              >
-                Export Data
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Session Info */}
-        <div className="mt-8 text-center">
-          <p className="text-gray-500 text-sm">
-            Logged in as administrator since {adminSession?.loginTime && new Date(adminSession.loginTime).toLocaleString('en-GB')}
-          </p>
-        </div>
+        {/* Main Content */}
+        <main className="flex-1 p-8">
+          {renderView()}
+        </main>
       </div>
     </div>
   );
