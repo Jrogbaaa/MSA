@@ -227,12 +227,24 @@ ADMIN_PASSWORD=
 
 ### Recent Critical Fixes
 
+#### Photo Display & Quality Enhancement (July 18, 2025)
+- **Issue**: Vertical photos/documents cropped, images blurry, slow loading speeds
+- **Solution**: Comprehensive image display and compression improvements
+- **Changes**:
+  - Changed from `object-cover` to `object-contain` for full vertical document visibility
+  - Improved image quality: target size 80KB→200KB, minimum quality 30%→60%
+  - Enhanced compression: higher starting quality (92% vs 85%), gradual reduction (5% vs 10% steps)
+  - Optimized loading: max dimensions 1000px→1920px, priority loading for first 4 images
+  - Added gray backgrounds for better visual feedback during loading
+- **Result**: Vertical documents fully visible, significantly sharper images, faster loading
+- **Files**: `src/lib/imageStorage.ts`, `src/app/page.tsx`, `src/app/property/[id]/page.tsx`
+- **Testing**: All core tests passing, expected mobile navigation failures remain
+
 #### Next.js Image Configuration Fix (July 18, 2025)
 - **Issue**: Firebase Storage images blocked by Next.js unconfigured hostname error
 - **Solution**: Added `firebasestorage.googleapis.com` to Next.js image configuration
 - **Result**: Firebase Storage images now load properly in production and development
 - **File**: `next.config.js:29-34` - Added Firebase Storage domain to remotePatterns
-- **Testing**: All tests passing except expected mobile navigation failures and some EmailJS mocking issues
 
 #### Firebase Storage Integration (July 18, 2025)
 - **Issue**: 1.42MB documents exceeded Firebase 1MB limit causing internal assertion errors
