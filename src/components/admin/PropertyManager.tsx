@@ -35,6 +35,12 @@ import {
   getPropertyStatistics,
   clearAllProperties
 } from '@/lib/properties';
+import { 
+  uploadPropertyImages, 
+  deletePropertyImages,
+  isFirebaseStorageUrl,
+  isBase64Url 
+} from '@/lib/imageStorage';
 
 interface PropertyFormData {
   title: string;
@@ -47,6 +53,8 @@ interface PropertyFormData {
   amenities: string[];
   photos: { id: string; src: string }[];
   availability: 'available' | 'occupied' | 'maintenance';
+  epcRating: string;
+  councilTaxBand: string;
 }
 
 const defaultFormData: PropertyFormData = {
@@ -59,7 +67,9 @@ const defaultFormData: PropertyFormData = {
   description: '',
   amenities: [],
   photos: [],
-  availability: 'available'
+  availability: 'available',
+  epcRating: '',
+  councilTaxBand: ''
 };
 
 interface SortableImageProps {
@@ -119,12 +129,14 @@ const SortableImage: React.FC<SortableImageProps> = ({ image, index, onRemove })
 interface ImageUploadProps {
   images: { id: string; src: string }[];
   onImagesChange: (images: { id: string; src: string }[]) => void;
+  propertyId?: string; // For Firebase Storage upload path
 }
 
-const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChange }) => {
+const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChange, propertyId }) => {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ completed: 0, total: 0 });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -228,6 +240,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
   const handleFiles = useCallback(async (files: FileList) => {
     setUploading(true);
     setUploadSuccess(false);
+    setUploadProgress({ completed: 0, total: files.length });
     
     // Check if adding new files would exceed the 20-image limit
     const totalImages = images.length + files.length;
@@ -237,8 +250,8 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
       return;
     }
     
-    const newImages: { id: string; src: string }[] = [];
-    
+    // Validate files
+    const validFiles: File[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       
@@ -267,30 +280,80 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
         alert(`${file.name} is too large. Please use images under 10MB.`);
         continue;
       }
-
-      try {
-        console.log(`Compressing ${file.name} to reduce storage usage...`);
-        const originalSize = (file.size / 1024).toFixed(1);
-        const processedImageUrl = await compressImage(file, 120); // Target 120KB
-        const compressedSize = ((processedImageUrl.length / 1024) * 0.75).toFixed(1);
-        
-        newImages.push({ id: `img_${Date.now()}_${i}`, src: processedImageUrl });
-        console.log(`Processed ${file.name} - Original: ${originalSize}KB, Compressed: ${compressedSize}KB`);
-        
-      } catch (error) {
-        console.error(`Error processing ${file.name}:`, error);
-        alert(`Failed to process ${file.name}. Please try again.`);
-      }
+      
+      validFiles.push(file);
     }
     
-    if (newImages.length > 0) {
-      onImagesChange([...images, ...newImages]);
-      console.log(`Successfully uploaded ${newImages.length} image(s) with compression`);
+    if (validFiles.length === 0) {
+      setUploading(false);
+      return;
+    }
+    
+    try {
+      // Use Firebase Storage if propertyId is available, otherwise fallback to base64
+      if (propertyId) {
+        console.log(`🔥 Uploading ${validFiles.length} image(s) to Firebase Storage...`);
+        
+        const uploadedUrls = await uploadPropertyImages(
+          propertyId,
+          validFiles,
+          (completed, total) => {
+            setUploadProgress({ completed, total });
+            console.log(`Progress: ${completed}/${total} images uploaded`);
+          }
+        );
+        
+        // Create image objects from URLs
+        const newImages = uploadedUrls.map((url, index) => ({
+          id: `img_${Date.now()}_${index}`,
+          src: url
+        }));
+        
+        onImagesChange([...images, ...newImages]);
+        console.log(`✅ Successfully uploaded ${newImages.length} image(s) to Firebase Storage`);
+        
+      } else {
+        console.log(`📱 Using base64 fallback for ${validFiles.length} image(s)...`);
+        
+        // Fallback to base64 (original method)
+        const newImages: { id: string; src: string }[] = [];
+        
+        for (let i = 0; i < validFiles.length; i++) {
+          const file = validFiles[i];
+          
+          try {
+            const originalSize = (file.size / 1024).toFixed(1);
+            const processedImageUrl = await compressImage(file, 120); // Target 120KB
+            const compressedSize = ((processedImageUrl.length / 1024) * 0.75).toFixed(1);
+            
+            newImages.push({ id: `img_${Date.now()}_${i}`, src: processedImageUrl });
+            console.log(`Processed ${file.name} - Original: ${originalSize}KB, Compressed: ${compressedSize}KB`);
+            
+            setUploadProgress({ completed: i + 1, total: validFiles.length });
+            
+          } catch (error) {
+            console.error(`Error processing ${file.name}:`, error);
+            alert(`Failed to process ${file.name}. Please try again.`);
+          }
+        }
+        
+        if (newImages.length > 0) {
+          onImagesChange([...images, ...newImages]);
+          console.log(`Successfully processed ${newImages.length} image(s) with compression`);
+        }
+      }
+      
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
+      
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert('Failed to upload images. Please try again.');
+    } finally {
+      setUploading(false);
+      setUploadProgress({ completed: 0, total: 0 });
     }
-    setUploading(false);
-  }, [images, onImagesChange]);
+  }, [images, onImagesChange, propertyId]);
 
   const removeImage = (id: string) => {
     const newImages = images.filter((img) => img.id !== id);
@@ -322,9 +385,26 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ images, onImagesChan
         <label htmlFor="image-upload" className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
           <Upload className="h-10 w-10 text-gray-400 mb-2" />
           <p className="text-gray-400 text-center">Drag & drop images here, or click to select files</p>
-          <p className="text-xs text-gray-500 mt-1">Maximum 20 images, 10MB each. HEIC supported.</p>
-          {uploading && <p className="text-blue-400 mt-2">Uploading...</p>}
-          {uploadSuccess && <p className="text-green-400 mt-2">Upload successful!</p>}
+          <p className="text-xs text-gray-500 mt-1">
+            Maximum 20 images, 10MB each. Using Firebase Storage for smaller documents.
+          </p>
+          {uploading && (
+            <div className="mt-2 text-center">
+              <p className="text-blue-400">
+                {propertyId ? 'Uploading to Firebase Storage...' : 'Processing images...'}
+              </p>
+              {uploadProgress.total > 0 && (
+                <p className="text-xs text-blue-300">
+                  {uploadProgress.completed}/{uploadProgress.total} images processed
+                </p>
+              )}
+            </div>
+          )}
+          {uploadSuccess && (
+            <p className="text-green-400 mt-2">
+              {propertyId ? 'Uploaded to Firebase Storage!' : 'Images processed successfully!'}
+            </p>
+          )}
         </label>
       </div>
 
@@ -511,7 +591,9 @@ export default function PropertyManager() {
       description: property.description,
       amenities: property.amenities,
       photos: property.photos.map((p, index) => ({ id: `prop_${property.id}_photo_${index}`, src: p })),
-      availability: property.availability
+      availability: property.availability,
+      epcRating: property.epcRating || '',
+      councilTaxBand: property.councilTaxBand || ''
     });
     setAmenitiesInput(property.amenities.join(', '));
     setIsAddingProperty(false);
@@ -527,13 +609,22 @@ export default function PropertyManager() {
       try {
         console.log(`🗑️ Deleting property "${propertyToDelete.title}" (ID: ${propertyId})`);
         
+        // Delete Firebase Storage images first
+        try {
+          await deletePropertyImages(propertyId);
+          console.log(`✅ Deleted Firebase Storage images for property ${propertyId}`);
+        } catch (storageError) {
+          console.warn(`⚠️ Could not delete Firebase Storage images for property ${propertyId}:`, storageError);
+          // Continue with property deletion even if image cleanup fails
+        }
+        
         // Delete from Firebase
         await deletePropertyFromFirebase(propertyId);
         
         console.log(`✅ Property "${propertyToDelete.title}" deleted from Firebase`);
         
         // Show success message with property details
-        alert(`✅ Property Successfully Deleted!\n\n"${propertyToDelete.title}" has been removed from Firebase and the live website.\n\nThe property list has been updated.`);
+        alert(`✅ Property Successfully Deleted!\n\n"${propertyToDelete.title}" and all associated images have been removed from Firebase and the live website.\n\nThe property list has been updated.`);
         
         // If we were editing this property, close the edit form
         if (editingPropertyId === propertyId) {
@@ -559,6 +650,8 @@ export default function PropertyManager() {
       ...formData,
       amenities: amenitiesInput.split(',').map(s => s.trim()).filter(Boolean),
       photos: formData.photos.map(p => p.src), // Convert back to string[] for Firebase
+      epcRating: formData.epcRating || undefined,
+      councilTaxBand: formData.councilTaxBand || undefined,
       createdAt: editingPropertyId ? (properties.find(p => p.id === editingPropertyId)?.createdAt || new Date()) : new Date(),
       updatedAt: new Date(),
     };
@@ -567,13 +660,24 @@ export default function PropertyManager() {
     const documentSizeMB = (documentSize / (1024 * 1024)).toFixed(2);
     console.log(`📊 Property document size: ${documentSizeMB}MB`);
 
-    // New: Safeguard against exceeding Firebase 1MB limit
-    // We use 800KB as a safe threshold to account for any overhead
-    if (documentSize > 800 * 1024) {
+    // Check if using Firebase Storage (URLs) vs base64 images
+    const hasBase64Images = propertyDataForFirebase.photos.some(photo => 
+      typeof photo === 'string' && photo.startsWith('data:image/')
+    );
+    
+    // Only check size limit for base64 images (Firebase Storage URLs are small)
+    if (hasBase64Images && documentSize > 800 * 1024) {
       setPropertyToSave(propertyDataForFirebase);
       setShowSizeWarning(true);
       setSavingProperty(false);
       return;
+    }
+    
+    // Log document info for debugging
+    if (hasBase64Images) {
+      console.log(`📊 Property using base64 images - Document size: ${documentSizeMB}MB`);
+    } else {
+      console.log(`📊 Property using Firebase Storage URLs - Document size: ${documentSizeMB}MB`);
     }
 
     await proceedWithSave(propertyDataForFirebase);
@@ -595,11 +699,14 @@ export default function PropertyManager() {
       
       resetForm();
       setPropertyToSave(null);
+      
+      // Success feedback
+      alert(`✅ Property "${propertyData.title}" saved successfully to Firebase!`);
 
     } catch (error) {
       console.error('Failed to save property:', error);
 
-      // New: Specific error handling for document size limit
+      // Enhanced error handling with better user feedback
       if (error instanceof Error && error.message.includes('document is too large')) {
         alert(
           '🚫 Save Failed: Document Too Large\n\n' +
@@ -607,8 +714,40 @@ export default function PropertyManager() {
           'Please remove one or more images and try saving again.\n\n' +
           'Your form data has not been cleared.'
         );
+      } else if (error instanceof Error && error.message.includes('INTERNAL ASSERTION FAILED')) {
+        // Firebase internal error - property is saved to localStorage
+        if (editingPropertyId) {
+          setProperties(properties.map(p => p.id === editingPropertyId ? propertyData : p));
+        } else {
+          setProperties([propertyData, ...properties]);
+        }
+        resetForm();
+        setPropertyToSave(null);
+        
+        alert(
+          '⚠️ Firebase Connection Issue\n\n' +
+          `Property "${propertyData.title}" has been saved to your local browser storage and will sync to Firebase when the connection is restored.\n\n` +
+          'To fix Firebase connection issues, please:\n' +
+          '1. Update your Firebase rules (see console for instructions)\n' +
+          '2. Restart your development server\n\n' +
+          'Your property is safe and will appear in the list.'
+        );
       } else {
-        alert(`There was an issue saving the property. Please check the console for details. The property has been saved to your local browser storage as a backup.`);
+        // Other Firebase errors - still save locally
+        if (editingPropertyId) {
+          setProperties(properties.map(p => p.id === editingPropertyId ? propertyData : p));
+        } else {
+          setProperties([propertyData, ...properties]);
+        }
+        resetForm();
+        setPropertyToSave(null);
+        
+        alert(
+          '⚠️ Save Completed with Fallback\n\n' +
+          `Property "${propertyData.title}" has been saved to your local browser storage as a backup.\n\n` +
+          'There was a temporary issue with Firebase, but your property is safe and visible in the list.\n\n' +
+          'The property will automatically sync to Firebase when the connection is restored.'
+        );
       }
     } finally {
       setSavingProperty(false);
@@ -896,7 +1035,7 @@ export default function PropertyManager() {
                     className="bg-gray-700 border-gray-600 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     required
                   />
-                  <p className="text-xs text-gray-400 mt-1">Enter monthly rent amount (numbers only)</p>
+                                        <p className="text-xs text-gray-400 mt-1">Enter monthly rent amount (numbers only)</p>
                 </div>
               </div>
 
@@ -1001,6 +1140,34 @@ export default function PropertyManager() {
                 />
               </div>
 
+              {/* Property Certificates */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    EPC Rating
+                  </label>
+                  <Input
+                    value={formData.epcRating}
+                    onChange={(e) => handleInputChange('epcRating', e.target.value)}
+                    placeholder="e.g., A, B, C, D, E, F, G"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Energy Performance Certificate rating</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Council Tax Band
+                  </label>
+                  <Input
+                    value={formData.councilTaxBand}
+                    onChange={(e) => handleInputChange('councilTaxBand', e.target.value)}
+                    placeholder="e.g., A, B, C, D, E, F, G, H"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Council tax band classification</p>
+                </div>
+              </div>
+
               {/* Photos */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -1009,6 +1176,7 @@ export default function PropertyManager() {
                 <ImageUploadComponent
                   images={formData.photos}
                   onImagesChange={(newImages) => handleInputChange('photos', newImages)}
+                  propertyId={editingPropertyId || `temp_${Date.now()}`}
                 />
               </div>
 
@@ -1057,10 +1225,13 @@ export default function PropertyManager() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-300">
-                The total size of this property's data is approximately <strong>{(estimateDocumentSize(propertyToSave) / (1024 * 1024)).toFixed(2)}MB</strong>, which is close to Firebase's 1MB limit.
+                The total size of this property's data is approximately <strong>{(estimateDocumentSize(propertyToSave) / (1024 * 1024)).toFixed(2)}MB</strong>, which exceeds Firebase's 1MB document limit.
               </p>
               <p className="text-gray-400">
-                Saving a document this large may fail or cause performance issues. It is highly recommended to reduce the number of uploaded images.
+                This property contains base64-encoded images. For better performance and to avoid size limits, images should be uploaded to Firebase Storage instead.
+              </p>
+              <p className="text-blue-300 text-sm mt-2">
+                💡 Tip: Delete this property and re-add it with fresh image uploads to automatically use Firebase Storage.
               </p>
               <div className="flex space-x-4 pt-4">
                 <Button

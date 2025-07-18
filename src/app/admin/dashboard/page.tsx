@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, LogOut, Home, Users, Mail, Settings, BarChart3, Database, RefreshCw, Loader2, Briefcase, FileText, MessageSquare } from 'lucide-react';
+import { Shield, LogOut, Home, Users, Mail, Settings, BarChart3, Database, RefreshCw, Loader2, Briefcase, FileText, MessageSquare, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ import DocumentManager from '@/components/admin/DocumentManager';
 import TenantManager from '@/components/admin/TenantManager';
 import ApplicationManager from '@/components/admin/ApplicationManager';
 import MessageManager from '@/components/admin/MessageManager';
+import StorageSpaceManager from '@/components/admin/StorageSpaceManager';
 import { getFirebaseStatus, retryFirestoreConnection, testFirebasePermissions, db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { getAllProperties } from '@/lib/properties';
@@ -20,7 +21,7 @@ import { getUnreadApplicationsCount } from '@/lib/applications';
 
 // Fixed import issues for Vercel deployment
 
-type AdminView = 'properties' | 'tenants' | 'documents' | 'applications' | 'messages';
+type AdminView = 'properties' | 'storage' | 'tenants' | 'documents' | 'applications' | 'messages';
 
 export default function AdminDashboardPage() {
   const [activeView, setActiveView] = useState<AdminView>('properties');
@@ -83,6 +84,8 @@ export default function AdminDashboardPage() {
     switch (activeView) {
       case 'properties':
         return <PropertyManager />;
+      case 'storage':
+        return <StorageSpaceManager />;
       case 'tenants':
         return <TenantManager />;
       case 'documents':
@@ -121,6 +124,14 @@ export default function AdminDashboardPage() {
               className="w-full justify-start"
             >
               <Home className="mr-2 h-4 w-4" /> Properties
+            </Button>
+            
+            <Button
+              onClick={() => handleViewChange('storage')}
+              variant={activeView === 'storage' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+            >
+              <Package className="mr-2 h-4 w-4" /> Storage Spaces
             </Button>
             
             <Button

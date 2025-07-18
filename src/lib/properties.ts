@@ -14,14 +14,38 @@ const RETRY_DELAY = 1000; // 1 second
 // Utility function to wait
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Enhanced error handling utility with reduced console noise
-const handleFirebaseError = (error: any, operation: string) => {
+// Enhanced error handling utility with automatic recovery
+const handleFirebaseError = async (error: any, operation: string) => {
   // Handle Firestore internal assertion failures specifically
   if (error?.message?.includes('INTERNAL ASSERTION FAILED')) {
     console.warn(`🚨 Firestore internal error detected during ${operation}`);
-    console.warn('💡 This is a known Firebase SDK issue - using localStorage fallback');
+    console.warn('💡 This is a known Firebase SDK issue - triggering auto-recovery');
+    
+    // Trigger automatic recovery
+    try {
+      const { attemptFirestoreRecovery } = await import('./firebase');
+      console.log('🔄 Triggering automatic Firestore recovery...');
+      await attemptFirestoreRecovery();
+    } catch (recoveryError) {
+      console.error('❌ Auto-recovery failed:', recoveryError);
+    }
+    
     console.log(`📱 Using localStorage fallback for ${operation}`);
     return;
+  }
+  
+  // Handle other specific Firebase errors that might need recovery
+  if (error?.message?.includes('Unexpected state') || 
+      error?.code === 'failed-precondition' ||
+      error?.code === 'internal') {
+    console.warn(`🔧 Firebase state error detected during ${operation}, attempting recovery...`);
+    
+    try {
+      const { attemptFirestoreRecovery } = await import('./firebase');
+      await attemptFirestoreRecovery();
+    } catch (recoveryError) {
+      console.error('❌ Auto-recovery failed:', recoveryError);
+    }
   }
   
   // Use console.warn instead of console.error to prevent Next.js error interception
@@ -162,7 +186,7 @@ export const getAllProperties = async (): Promise<Property[]> => {
     return initialProperties;
     
   } catch (error) {
-    handleFirebaseError(error, 'fetch properties');
+    await handleFirebaseError(error, 'fetch properties');
     
     // Fallback to localStorage when Firebase fails
     if (typeof window !== 'undefined') {
@@ -212,7 +236,7 @@ export const getPropertyById = async (propertyId: string): Promise<Property | nu
     console.log('❌ Property not found in Firebase');
     return null;
   } catch (error) {
-    handleFirebaseError(error, 'fetch property');
+    await handleFirebaseError(error, 'fetch property');
     return getPropertyFromFallback(propertyId);
   }
 };
@@ -278,7 +302,7 @@ export const saveProperty = async (property: Property): Promise<Property> => {
     
     return savedProperty;
   } catch (error) {
-    handleFirebaseError(error, 'save property');
+    await handleFirebaseError(error, 'save property');
     return savePropertyToFallback(property);
   }
 };
@@ -337,7 +361,7 @@ export const updateProperty = async (propertyId: string, updates: Partial<Proper
     console.log(`✅ Property updated successfully`);
     return updatedProperty;
   } catch (error) {
-    handleFirebaseError(error, 'update property');
+    await handleFirebaseError(error, 'update property');
     return updatePropertyFallback(propertyId, updates);
   }
 };
@@ -397,7 +421,7 @@ export const deleteProperty = async (propertyId: string): Promise<void> => {
       }
     }
   } catch (error) {
-    handleFirebaseError(error, 'delete property');
+    await handleFirebaseError(error, 'delete property');
     deletePropertyFallback(propertyId);
   }
 };
@@ -471,7 +495,7 @@ export const initializeDefaultProperties = async (): Promise<void> => {
     
     await withRetry(initializeOperation, 'initialize default properties');
   } catch (error) {
-    handleFirebaseError(error, 'initialize properties');
+    await handleFirebaseError(error, 'initialize properties');
     console.log('📱 Default properties will be available through localStorage fallback');
   }
 };
@@ -527,10 +551,15 @@ export const subscribeToPropertiesCleanup = (callback: (properties: Property[]) 
           }
       }, 
       (error) => {
-          console.error('❌ Real-time subscription error:', error);
-          if (!isSubscriptionActive) return;
-          
-          // Fallback to localStorage on subscription error
+                  console.error('❌ Real-time subscription error:', error);
+        if (!isSubscriptionActive) return;
+        
+        // Enhanced error handling to prevent Firebase internal assertion failures
+        if (error.code === 'permission-denied' || error.code === 'failed-precondition' || error.code === 'internal') {
+          console.log('🔧 Firebase permission/state error detected, using localStorage fallback');
+        }
+        
+        // Fallback to localStorage on subscription error
         handleSubscriptionFallback(callback);
           
           // Attempt to reconnect after a delay
@@ -619,7 +648,7 @@ export const clearAllProperties = async (): Promise<void> => {
     
     console.log('✅ All properties cleared from Firebase');
   } catch (error) {
-    handleFirebaseError(error, 'clear all properties');
+    await handleFirebaseError(error, 'clear all properties');
     
     // Fallback to localStorage
     if (typeof window !== 'undefined') {

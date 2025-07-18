@@ -123,37 +123,58 @@ const refreshFirebaseAuth = async (): Promise<void> => {
   }
 };
 
-// Enhanced recovery mechanism
+// Enhanced recovery mechanism with more aggressive recovery
 export const attemptFirestoreRecovery = async (): Promise<void> => {
-  if (firestoreResetCount >= 3) {
+  if (firestoreResetCount >= 5) {
     console.warn('🚨 Maximum Firestore reset attempts reached, falling back to localStorage');
     return;
   }
   
   try {
     firestoreResetCount++;
-    console.log(`🔄 Attempting Firestore recovery (attempt ${firestoreResetCount}/3)...`);
+    console.log(`🔄 Attempting Firestore recovery (attempt ${firestoreResetCount}/5)...`);
     
-    // Disable network
+    // More aggressive recovery sequence
+    console.log('📴 Disabling Firestore network...');
     await disableNetwork(db);
-    console.log('📴 Firestore network disabled');
     
-    // Wait for cleanup
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Longer wait for cleanup - Firebase internal state needs more time
+    console.log('⏳ Waiting for Firebase internal state cleanup...');
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Re-enable network
+    console.log('📶 Re-enabling Firestore network...');
     await enableNetwork(db);
-    console.log('📶 Firestore network re-enabled');
     
-    // Reset counter on successful recovery
+    // Additional wait for connection stabilization
+    console.log('🔗 Stabilizing connection...');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Test connection with a simple operation
+    try {
+      const testDoc = doc(db, 'system', 'connection-test');
+      await setDoc(testDoc, { lastRecovery: new Date(), attempt: firestoreResetCount });
+      await deleteDoc(testDoc);
+      console.log('✅ Connection test successful');
+    } catch (testError) {
+      console.warn('⚠️ Connection test failed, but continuing:', testError);
+    }
+    
+    // Reset counter on successful recovery (shorter timeout for faster retry)
     setTimeout(() => {
-      firestoreResetCount = 0;
-      console.log('🔄 Recovery counter reset');
-    }, 10000); // Reset after 10 seconds
+      firestoreResetCount = Math.max(0, firestoreResetCount - 1);
+      console.log(`🔄 Recovery counter decremented to ${firestoreResetCount}`);
+    }, 5000); // Reset faster for quicker retries
     
     console.log('✅ Firestore recovery completed');
   } catch (error) {
     console.error('❌ Firestore recovery failed:', error);
+    
+    // If recovery fails, try one more time with a different approach
+    if (firestoreResetCount <= 3) {
+      console.log('🔄 Trying alternative recovery approach...');
+      setTimeout(() => attemptFirestoreRecovery(), 2000);
+    }
   }
 };
 

@@ -29,6 +29,8 @@ export const properties: Property[] = [
       '/properties/1/floorplan.png'
     ],
     availability: 'available',
+    epcRating: 'C',
+    councilTaxBand: 'B',
     createdAt: new Date(),
     updatedAt: new Date(),
   },

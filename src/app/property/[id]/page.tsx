@@ -594,54 +594,54 @@ Please contact the visitor to arrange the property viewing.`;
                               required
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-2">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
                               Preferred Date *
-                            </label>
-                            <input
-                              type="date"
+                      </label>
+                      <input
+                        type="date"
                               value={tourForm.date}
                               onChange={(e) => handleTourFormChange('date', e.target.value)}
                               min={new Date().toISOString().split('T')[0]}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-2">
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
                               Preferred Time *
-                            </label>
+                      </label>
                             <select 
                               value={tourForm.time}
                               onChange={(e) => handleTourFormChange('time', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               required
                             >
-                              <option value="">Select time</option>
-                              <option value="morning">Morning (9AM - 12PM)</option>
-                              <option value="afternoon">Afternoon (12PM - 5PM)</option>
-                              <option value="evening">Evening (5PM - 8PM)</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-2">
-                              Message (Optional)
-                            </label>
-                            <textarea
-                              rows={3}
+                        <option value="">Select time</option>
+                        <option value="morning">Morning (9AM - 12PM)</option>
+                        <option value="afternoon">Afternoon (12PM - 5PM)</option>
+                        <option value="evening">Evening (5PM - 8PM)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Message (Optional)
+                      </label>
+                      <textarea
+                        rows={3}
                               value={tourForm.message}
                               onChange={(e) => handleTourFormChange('message', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Any specific questions or requests?"
-                            />
-                          </div>
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Any specific questions or requests?"
+                      />
+                    </div>
                           <Button 
                             type="submit" 
                             className="w-full" 
                             disabled={isTourSubmitting}
                           >
                             {isTourSubmitting ? 'Sending Request...' : 'Request Tour'}
-                          </Button>
+                    </Button>
                         </div>
                       </form>
                     )}
@@ -684,6 +684,22 @@ Please contact the visitor to arrange the property viewing.`;
                     {property.amenities.includes('Laundry') ? 'In Unit' : 'Shared'}
                   </span>
                 </div>
+                {property.epcRating && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">EPC Rating:</span>
+                    <span className="font-medium bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
+                      {property.epcRating}
+                    </span>
+                  </div>
+                )}
+                {property.councilTaxBand && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Council Tax Band:</span>
+                    <span className="font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                      {property.councilTaxBand}
+                    </span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

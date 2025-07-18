@@ -2,15 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, MapPin, Bed, Bath, Square, Heart, User, Menu, X } from 'lucide-react';
+import { Search, Filter, MapPin, Bed, Bath, Square, Heart, User, Menu, X, Package, Truck, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { Property, SearchFilters } from '@/types';
+import { Property, SearchFilters, StorageSpace } from '@/types';
 import { properties as initialProperties } from '@/data/properties';
+import { storageSpaces as initialStorageSpaces } from '@/data/storageSpaces';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency, formatBedrooms, formatBathrooms } from '@/lib/utils';
 import { getAllProperties, subscribeToProperties } from '@/lib/properties';
+import { getAllStorageSpaces, subscribeToStorageSpaces } from '@/lib/storageSpaces';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -27,6 +29,8 @@ export default function HomePage() {
   const { user, signOut } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [storageSpaces, setStorageSpaces] = useState<StorageSpace[]>([]);
+  const [filteredStorageSpaces, setFilteredStorageSpaces] = useState<StorageSpace[]>([]);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     priceRange: [0, 4000],
     bedrooms: null,
@@ -36,9 +40,11 @@ export default function HomePage() {
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [savedProperties, setSavedProperties] = useState<string[]>([]);
+  const [savedStorageSpaces, setSavedStorageSpaces] = useState<string[]>([]);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [propertiesLoaded, setPropertiesLoaded] = useState(false);
+  const [storageSpacesLoaded, setStorageSpacesLoaded] = useState(false);
 
   // Load properties from Firebase with localStorage fallback
   useEffect(() => {
@@ -59,6 +65,26 @@ export default function HomePage() {
       unsubscribe();
     };
   }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Load storage spaces from Firebase with localStorage fallback
+  useEffect(() => {
+    setStorageSpacesLoaded(false);
+    console.log('🔄 Setting up real-time storage spaces subscription for homepage...');
+
+    const unsubscribe = subscribeToStorageSpaces((updatedStorageSpaces) => {
+      console.log(`📦 HomePage storage spaces real-time update: ${updatedStorageSpaces.length} storage spaces`);
+      setStorageSpaces(updatedStorageSpaces);
+      
+      if (!storageSpacesLoaded) {
+        setStorageSpacesLoaded(true);
+      }
+    });
+
+    return () => {
+      console.log('🧹 Cleaning up homepage storage spaces subscription...');
+      unsubscribe();
+    };
+  }, []);
 
   // Preload hero images
   useEffect(() => {
@@ -127,13 +153,35 @@ export default function HomePage() {
     setFilteredProperties(filtered);
   }, [searchFilters, properties, propertiesLoaded]);
 
+  // Filter storage spaces based on availability and search
+  useEffect(() => {
+    if (!storageSpacesLoaded) return;
 
+    let filtered = storageSpaces.filter(space => {
+      const matchesAvailability = space.availability === 'available';
+      const matchesSearch = searchFilters.searchTerm === '' || 
+                          space.title.toLowerCase().includes(searchFilters.searchTerm.toLowerCase()) ||
+                          space.size.toLowerCase().includes(searchFilters.searchTerm.toLowerCase());
+
+      return matchesAvailability && matchesSearch;
+    });
+
+    setFilteredStorageSpaces(filtered);
+  }, [searchFilters.searchTerm, storageSpaces, storageSpacesLoaded]);
 
   const handleSaveProperty = (propertyId: string) => {
     setSavedProperties(prev => 
       prev.includes(propertyId) 
         ? prev.filter(id => id !== propertyId)
         : [...prev, propertyId]
+    );
+  };
+
+  const handleSaveStorageSpace = (storageSpaceId: string) => {
+    setSavedStorageSpaces(prev => 
+      prev.includes(storageSpaceId) 
+        ? prev.filter(id => id !== storageSpaceId)
+        : [...prev, storageSpaceId]
     );
   };
 
@@ -171,6 +219,9 @@ export default function HomePage() {
               <Link href="/" className="text-gray-700 hover:text-gray-900">
                 Properties
               </Link>
+              <a href="#storage-section" className="text-gray-700 hover:text-gray-900">
+                Storage
+              </a>
               <Link href="/about" className="text-gray-700 hover:text-gray-900">
                 About
               </Link>
@@ -240,6 +291,9 @@ export default function HomePage() {
               <Link href="/" className="block py-2 text-gray-700">
                 Properties
               </Link>
+              <a href="#storage-section" className="block py-2 text-gray-700" onClick={() => setIsMenuOpen(false)}>
+                Storage
+              </a>
               <Link href="/about" className="block py-2 text-gray-700">
                 About
               </Link>
@@ -527,6 +581,124 @@ export default function HomePage() {
                             Apply Now
                           </Button>
                         </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Storage Spaces Section */}
+      <section className="py-12 bg-gray-50" id="storage-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Secure Storage Spaces
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Safe, clean, and affordable storage solutions for all your needs. Climate-controlled units with 24/7 security.
+              </p>
+            </motion.div>
+          </div>
+
+          {!storageSpacesLoaded ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading storage spaces...</p>
+            </div>
+          ) : filteredStorageSpaces.length === 0 ? (
+            <div className="text-center py-12">
+              <Package className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+              <h3 className="text-xl font-medium text-gray-900 mb-2">No storage spaces available</h3>
+              <p className="text-gray-600">Please check back later for available units.</p>
+            </div>
+          ) : (
+            // Storage Spaces Grid
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredStorageSpaces.map((space) => (
+                <motion.div
+                  key={space.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Card className="card-hover overflow-hidden h-full flex flex-col">
+                    <div className="relative h-48 flex-shrink-0">
+                      <Image
+                        src={space.photos[0]}
+                        alt={space.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="object-cover"
+                      />
+                      {/* Units Available Badge */}
+                      <div className="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                        {space.unitCount} units available
+                      </div>
+                      <button
+                        className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md"
+                        onClick={() => handleSaveStorageSpace(space.id)}
+                      >
+                        <Heart 
+                          size={20} 
+                          className={savedStorageSpaces.includes(space.id) ? 'text-red-500 fill-current' : 'text-gray-400'}
+                        />
+                      </button>
+                    </div>
+                    
+                    <CardContent className="p-4 flex-grow flex flex-col">
+                      <div className="flex-grow">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{space.title}</h3>
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{space.description}</p>
+                        
+                        {/* Size and Price */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center text-gray-500 text-sm">
+                            <Square size={16} className="mr-1" />
+                            <span>{space.size}</span>
+                          </div>
+                          <div className="text-lg font-bold text-blue-600">
+                            {formatCurrency(space.monthlyRate)}/week
+                          </div>
+                        </div>
+                        
+                        {/* Key Features */}
+                        <div className="space-y-1">
+                          {space.features.slice(0, 3).map((feature, index) => (
+                            <div key={index} className="flex items-center text-xs text-gray-500">
+                              {feature === '24/7 Security' && <Shield size={12} className="mr-1" />}
+                              {feature === 'Drive-up Access' && <Truck size={12} className="mr-1" />}
+                              {feature === 'Climate Controlled' && <Package size={12} className="mr-1" />}
+                              {!['24/7 Security', 'Drive-up Access', 'Climate Controlled'].includes(feature) && <span className="w-3 h-3 bg-green-500 rounded-full mr-1"></span>}
+                              <span>{feature}</span>
+                            </div>
+                          ))}
+                          {space.features.length > 3 && (
+                            <div className="text-xs text-gray-400">
+                              +{space.features.length - 3} more features
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2 mt-4">
+                        <Link href={`/storage/${space.id}`} className="flex-1">
+                          <Button className="w-full" size="sm">
+                            View Details
+                          </Button>
+                        </Link>
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <Package size={14} className="mr-1" />
+                          Reserve
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

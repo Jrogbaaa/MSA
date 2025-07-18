@@ -10,6 +10,23 @@ export interface Property {
   amenities: string[];
   photos: string[];
   availability: 'available' | 'occupied' | 'maintenance';
+  epcRating?: string;
+  councilTaxBand?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface StorageSpace {
+  id: string;
+  title: string;
+  size: string; // e.g., "5x5 ft", "10x10 ft"
+  squareFootage: number;
+  monthlyRate: number;
+  description: string;
+  features: string[];
+  photos: string[];
+  availability: 'available' | 'occupied' | 'maintenance';
+  unitCount: number; // Number of identical units available
   createdAt: Date;
   updatedAt: Date;
 }
