@@ -221,7 +221,7 @@ Submitted: ${new Date().toLocaleString('en-GB')}
                   <Phone className="h-5 w-5 text-blue-600" />
                   <div>
                     <p className="font-medium">Phone</p>
-                    <p className="text-gray-600">Available upon request</p>
+                    <p className="text-gray-600">+44 7756 779811</p>
                   </div>
                 </div>
                 

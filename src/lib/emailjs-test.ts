@@ -186,7 +186,7 @@ export const testApplicationEmail = async (): Promise<{
     
     const applicationData = {
       propertyTitle: 'Test Property - 2 Bedroom Apartment',
-      propertyAddress: '123 Test Street, London, SW1A 1AA',
+      propertyAddress: '123 Test Street, Northampton, NN1 1AA',
       propertyRent: 2500,
       applicantName: 'Application Test User',
       applicantEmail: 'applicant.test@example.com',

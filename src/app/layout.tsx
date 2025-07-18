@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'MSA Real Estate - Modern Property Listings UK',
   description: 'Find your perfect property with MSA Real Estate. Modern, mobile-first platform for property hunting in England with seamless application process.',
-  keywords: ['real estate', 'property', 'rentals', 'UK', 'England', 'London', 'Manchester', 'Birmingham', 'flats', 'apartments'],
+  keywords: ['real estate', 'property', 'rentals', 'UK', 'England', 'Northampton', 'Manchester', 'Birmingham', 'flats', 'apartments'],
   authors: [{ name: 'MSA Real Estate' }],
   creator: 'MSA Real Estate',
   publisher: 'MSA Real Estate',

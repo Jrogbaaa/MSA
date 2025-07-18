@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-07-16T11:51:29.824Z",
+  "liveSiteUrl": "https://msaproperties.co.uk",
+  "duration": "170 seconds",
+  "results": {
+    "jest": {
+      "passed": 0,
+      "failed": 1,
+      "total": 0
+    },
+    "playwright": {
+      "passed": 0,
+      "failed": 1,
+      "total": 0
+    },
+    "startTime": 1752666520250,
+    "endTime": 1752666689824
+  },
+  "summary": {
+    "totalTests": 0,
+    "totalPassed": 0,
+    "totalFailed": 2,
+    "overallSuccess": false
+  }
+}

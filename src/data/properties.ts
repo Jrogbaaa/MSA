@@ -71,7 +71,7 @@ export const properties: Property[] = [
   {
     id: '4',
     title: 'Luxury Penthouse Apartment',
-    address: '42 Canary Wharf, London, E14 5AB',
+    address: '42 Canary Wharf, Northampton, NN1 5AB',
     rent: 3500,
     bedrooms: 3,
     bathrooms: 2,

@@ -1,5 +1,4 @@
 import { sendContactEmail, sendApplicationEmail, initEmailJS } from '../emailjs';
-import { checkEnvironmentVariables } from '../emailjs-test';
 
 // Mock EmailJS for testing
 jest.mock('@emailjs/browser', () => ({
@@ -20,7 +19,11 @@ describe('🌍 Global Messaging System Tests', () => {
 
   describe('📧 Email Configuration Tests', () => {
     test('should have correct environment variables for global email delivery', () => {
-      const result = checkEnvironmentVariables();
+      const result = Boolean(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID &&
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID &&
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      );
       expect(result).toBe(true);
     });
 
@@ -182,7 +185,11 @@ describe('🌍 Global Messaging System Tests', () => {
       delete process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
       delete process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
-      const result = checkEnvironmentVariables();
+      const result = Boolean(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID &&
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID &&
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      );
       expect(result).toBe(false);
     });
 
@@ -233,14 +240,14 @@ describe('🌍 Global Messaging System Tests', () => {
       emailjs.send.mockResolvedValue({ status: 200, text: 'OK' });
 
       const applicationData = {
-        propertyTitle: 'Luxury Apartment in Central London',
-        propertyAddress: '456 International House, London, SW1A 1AA',
+            propertyTitle: 'Luxury Apartment in Central Northampton',
+    propertyAddress: '456 International House, Northampton, NN1 1AA',
         propertyRent: 2500,
         applicantName: 'Maria García',
         applicantEmail: 'maria.garcia@example.es',
         applicantPhone: '+34 123 456 789',
         userId: 'international-user-789',
-        propertyId: 'london-luxury-apartment-123'
+        propertyId: 'northampton-luxury-apartment-123'
       };
 
       await sendApplicationEmail(applicationData);

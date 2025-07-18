@@ -81,7 +81,7 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 {
   id: "property_1234567890",
   title: "Beautiful 2-Bedroom Apartment",
-  address: "123 Main Street, London",
+  address: "123 Main Street, Northampton",
   rent: 2500,
   bedrooms: 2,
   bathrooms: 1,

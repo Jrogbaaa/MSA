@@ -23,6 +23,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency, formatBedrooms, formatBathrooms } from '@/lib/utils';
 import { getAllProperties, subscribeToProperties } from '@/lib/properties';
+import { sendContactEmail } from '@/lib/emailjs';
+import { saveMessage } from '@/lib/messages';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -37,6 +39,18 @@ export default function PropertyDetailPage() {
   const [isSaved, setIsSaved] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Tour form state
+  const [tourForm, setTourForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    date: '',
+    time: '',
+    message: ''
+  });
+  const [isTourSubmitting, setIsTourSubmitting] = useState(false);
+  const [tourSubmitted, setTourSubmitted] = useState(false);
 
   // Load properties from Firebase with localStorage fallback
   useEffect(() => {
@@ -87,6 +101,103 @@ export default function PropertyDetailPage() {
     } catch (error) {
       // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const handleTourFormChange = (field: keyof typeof tourForm, value: string) => {
+    setTourForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleTourSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!tourForm.name || !tourForm.email || !tourForm.phone || !tourForm.date || !tourForm.time) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setIsTourSubmitting(true);
+
+    try {
+      // Save message to Firestore
+      await saveMessage({
+        name: tourForm.name,
+        email: tourForm.email,
+        phone: tourForm.phone,
+        subject: `Property Tour Request - ${property?.title}`,
+        message: `Property Tour Request for: ${property?.title}
+Address: ${property?.address}
+Rent: ${formatCurrency(property?.rent || 0)}
+
+Preferred Date: ${tourForm.date}
+Preferred Time: ${tourForm.time}
+
+Additional Message: ${tourForm.message || 'None'}`,
+      });
+
+      // Try to send email directly via EmailJS
+      const emailResult = await sendContactEmail({
+        name: tourForm.name,
+        email: tourForm.email,
+        phone: tourForm.phone,
+        subject: `🏠 Property Tour Request - ${property?.title}`,
+        message: `Property Tour Request for: ${property?.title}
+Address: ${property?.address}
+Rent: ${formatCurrency(property?.rent || 0)}
+
+Preferred Date: ${tourForm.date}
+Preferred Time: ${tourForm.time}
+
+Additional Message: ${tourForm.message || 'None'}
+
+Contact Details:
+- Name: ${tourForm.name}
+- Email: ${tourForm.email}
+- Phone: ${tourForm.phone}`,
+        source: 'Property Tour Request'
+      });
+
+      if (emailResult.success) {
+        console.log('✅ Tour request email sent successfully via EmailJS');
+        setTourSubmitted(true);
+      } else {
+        console.log('⚠️ EmailJS failed, using mailto fallback:', emailResult.error);
+        
+        // Fallback to mailto with comprehensive details
+        const emailSubject = `🏠 Property Tour Request - ${property?.title}`;
+        const emailBody = `Property Tour Request
+
+Property Details:
+- Title: ${property?.title}
+- Address: ${property?.address}
+- Rent: ${formatCurrency(property?.rent || 0)}
+
+Tour Request Details:
+- Preferred Date: ${tourForm.date}
+- Preferred Time: ${tourForm.time}
+- Additional Message: ${tourForm.message || 'None'}
+
+Contact Information:
+- Name: ${tourForm.name}
+- Email: ${tourForm.email}
+- Phone: ${tourForm.phone}
+
+Please contact the visitor to arrange the property viewing.`;
+        
+        const mailtoLink = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoLink, '_blank');
+        
+        setTourSubmitted(true);
+      }
+      
+    } catch (error) {
+      console.error('Error submitting tour request:', error);
+      alert('There was an error submitting your tour request. Please try again.');
+    } finally {
+      setIsTourSubmitting(false);
     }
   };
 
@@ -419,39 +530,121 @@ export default function PropertyDetailPage() {
                     <CardTitle className="text-lg">Schedule a Tour</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Preferred Date
-                      </label>
-                      <input
-                        type="date"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Preferred Time
-                      </label>
-                      <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select time</option>
-                        <option value="morning">Morning (9AM - 12PM)</option>
-                        <option value="afternoon">Afternoon (12PM - 5PM)</option>
-                        <option value="evening">Evening (5PM - 8PM)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Message (Optional)
-                      </label>
-                      <textarea
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Any specific questions or requests?"
-                      />
-                    </div>
-                    <Button className="w-full">
-                      Request Tour
-                    </Button>
+                    {tourSubmitted ? (
+                      <div className="text-center py-6">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Tour Request Sent!</h3>
+                        <p className="text-gray-600 mb-4">
+                          Thank you for your interest in {property?.title}. We'll contact you shortly to confirm your tour appointment.
+                        </p>
+                        <Button 
+                          onClick={() => {
+                            setTourSubmitted(false);
+                            setShowContactForm(false);
+                            setTourForm({ name: '', email: '', phone: '', date: '', time: '', message: '' });
+                          }}
+                          variant="outline"
+                        >
+                          Schedule Another Tour
+                        </Button>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleTourSubmit}>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium mb-2">
+                              Your Name *
+                            </label>
+                            <input
+                              type="text"
+                              value={tourForm.name}
+                              onChange={(e) => handleTourFormChange('name', e.target.value)}
+                              placeholder="Enter your full name"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-2">
+                              Email Address *
+                            </label>
+                            <input
+                              type="email"
+                              value={tourForm.email}
+                              onChange={(e) => handleTourFormChange('email', e.target.value)}
+                              placeholder="Enter your email address"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-2">
+                              Phone Number *
+                            </label>
+                            <input
+                              type="tel"
+                              value={tourForm.phone}
+                              onChange={(e) => handleTourFormChange('phone', e.target.value)}
+                              placeholder="Enter your phone number"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-2">
+                              Preferred Date *
+                            </label>
+                            <input
+                              type="date"
+                              value={tourForm.date}
+                              onChange={(e) => handleTourFormChange('date', e.target.value)}
+                              min={new Date().toISOString().split('T')[0]}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-2">
+                              Preferred Time *
+                            </label>
+                            <select 
+                              value={tourForm.time}
+                              onChange={(e) => handleTourFormChange('time', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            >
+                              <option value="">Select time</option>
+                              <option value="morning">Morning (9AM - 12PM)</option>
+                              <option value="afternoon">Afternoon (12PM - 5PM)</option>
+                              <option value="evening">Evening (5PM - 8PM)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-2">
+                              Message (Optional)
+                            </label>
+                            <textarea
+                              rows={3}
+                              value={tourForm.message}
+                              onChange={(e) => handleTourFormChange('message', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Any specific questions or requests?"
+                            />
+                          </div>
+                          <Button 
+                            type="submit" 
+                            className="w-full" 
+                            disabled={isTourSubmitting}
+                          >
+                            {isTourSubmitting ? 'Sending Request...' : 'Request Tour'}
+                          </Button>
+                        </div>
+                      </form>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>

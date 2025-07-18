@@ -1,0 +1,48 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "MSA Real Estate":
+    - /url: /
+    - img "MSA Real Estate"
+  - navigation:
+    - link "Properties":
+      - /url: /
+    - link "About":
+      - /url: /about
+    - link "Contact":
+      - /url: /contact
+- heading "Contact MSA Real Estate" [level=1]
+- paragraph: Get in touch with us for property inquiries, viewings, or any questions. We're here to help you find your perfect home.
+- heading "Get In Touch" [level=3]:
+  - img
+  - text: Get In Touch
+- img
+- paragraph: Email
+- paragraph: arnoldestates1@gmail.com
+- img
+- paragraph: Phone
+- paragraph: Available upon request
+- img
+- paragraph: Service Area
+- paragraph: Northampton & Surrounding Areas
+- img
+- paragraph: Response Time
+- paragraph: Within 24 hours
+- heading "Send us a Message" [level=3]
+- paragraph: Fill out the form below and we'll get back to you promptly. Your message will be sent directly to arnoldestates1@gmail.com
+- text: Full Name *
+- textbox "Full Name *"
+- text: Email Address *
+- textbox "Email Address *"
+- text: Phone Number
+- textbox "Phone Number"
+- text: Subject *
+- textbox "Subject *"
+- text: Message *
+- textbox "Message *"
+- button "Send Message":
+  - img
+  - text: Send Message
+- alert
+```

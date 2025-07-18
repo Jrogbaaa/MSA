@@ -565,8 +565,8 @@ export default function HomePage() {
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">Contact</h4>
                   <ul className="text-sm text-gray-600 space-y-2">
                     <li>Email: arnoldestates1@gmail.com</li>
-                    <li>Phone: +44 20 7123 4567</li>
-                    <li>Address: London, UK</li>
+                    <li>Phone: +44 7756 779811</li>
+                    <li>Address: Northampton, UK</li>
                   </ul>
                 </div>
               </div>
