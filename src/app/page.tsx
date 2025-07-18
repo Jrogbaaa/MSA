@@ -665,7 +665,7 @@ export default function HomePage() {
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center text-gray-500 text-sm">
                             <Square size={16} className="mr-1" />
-                            <span>{space.size}</span>
+                            <span>{space.size} ({space.squareFootage} sq ft)</span>
                           </div>
                           <div className="text-lg font-bold text-blue-600">
                             {formatCurrency(space.monthlyRate)}/week
