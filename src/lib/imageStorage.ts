@@ -2,7 +2,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject, listAll, getMetadata } 
 import { storage } from './firebase';
 
 // Image compression utility (reused from PropertyManager)
-const compressImage = (file: File, targetSizeKB: number = 80, maxDimension: number = 1000): Promise<Blob> => {
+const compressImage = (file: File, targetSizeKB: number = 200, maxDimension: number = 1920): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -38,7 +38,7 @@ const compressImage = (file: File, targetSizeKB: number = 80, maxDimension: numb
         ctx.drawImage(img, 0, 0, width, height);
 
         // Progressive quality reduction for smaller file sizes
-        let quality = 0.85;
+        let quality = 0.92;
         
         const tryCompress = () => {
           canvas.toBlob((blob) => {
@@ -46,11 +46,11 @@ const compressImage = (file: File, targetSizeKB: number = 80, maxDimension: numb
             
             const sizeKB = blob.size / 1024;
             
-            if (sizeKB <= targetSizeKB || quality <= 0.3) {
+            if (sizeKB <= targetSizeKB || quality <= 0.6) {
               console.log(`Image compressed: ${sizeKB.toFixed(1)}KB at ${(quality * 100).toFixed(0)}% quality`);
               resolve(blob);
             } else {
-              quality -= 0.1;
+              quality -= 0.05;
               tryCompress();
             }
           }, 'image/jpeg', quality);
@@ -74,7 +74,7 @@ export const uploadPropertyImage = async (
     console.log(`📸 Uploading image ${imageIndex + 1} for property ${propertyId}...`);
     
     // Compress image before upload
-    const compressedBlob = await compressImage(file, 80, 1000);
+    const compressedBlob = await compressImage(file, 200, 1920);
     const compressedSize = (compressedBlob.size / 1024).toFixed(1);
     console.log(`🗜️ Image compressed to ${compressedSize}KB`);
     

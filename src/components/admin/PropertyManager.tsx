@@ -650,8 +650,8 @@ export default function PropertyManager() {
       ...formData,
       amenities: amenitiesInput.split(',').map(s => s.trim()).filter(Boolean),
       photos: formData.photos.map(p => p.src), // Convert back to string[] for Firebase
-      epcRating: formData.epcRating || undefined,
-      councilTaxBand: formData.councilTaxBand || undefined,
+      epcRating: formData.epcRating || "",
+      councilTaxBand: formData.councilTaxBand || "",
       createdAt: editingPropertyId ? (properties.find(p => p.id === editingPropertyId)?.createdAt || new Date()) : new Date(),
       updatedAt: new Date(),
     };

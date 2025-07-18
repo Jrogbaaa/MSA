@@ -496,7 +496,7 @@ export default function HomePage() {
           ) : (
             // Properties Grid
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProperties.map((property) => (
+              {filteredProperties.map((property, index) => (
                 <motion.div
                   key={property.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -504,13 +504,14 @@ export default function HomePage() {
                   transition={{ duration: 0.5 }}
                 >
                   <Card className="card-hover overflow-hidden h-full flex flex-col">
-                    <div className="relative h-48 flex-shrink-0">
+                    <div className="relative h-48 flex-shrink-0 bg-gray-100">
                       <Image
                         src={property.photos[0]}
                         alt={property.title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover"
+                        className="object-contain"
+                        priority={index < 4}
                       />
                       {/* Urgency Badge */}
                       {property.id === '1' && (
@@ -623,7 +624,7 @@ export default function HomePage() {
           ) : (
             // Storage Spaces Grid
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredStorageSpaces.map((space) => (
+              {filteredStorageSpaces.map((space, index) => (
                 <motion.div
                   key={space.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -631,13 +632,14 @@ export default function HomePage() {
                   transition={{ duration: 0.5 }}
                 >
                   <Card className="card-hover overflow-hidden h-full flex flex-col">
-                    <div className="relative h-48 flex-shrink-0">
+                    <div className="relative h-48 flex-shrink-0 bg-gray-100">
                       <Image
                         src={space.photos[0]}
                         alt={space.title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                        className="object-cover"
+                        className="object-contain"
+                        priority={index < 4}
                       />
                       {/* Units Available Badge */}
                       <div className="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">

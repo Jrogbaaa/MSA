@@ -352,13 +352,14 @@ Please contact the visitor to arrange the property viewing.`;
           <div className="lg:col-span-2 space-y-6">
             {/* Photo Gallery */}
             <div className="relative">
-              <div className="relative h-64 md:h-96 rounded-lg overflow-hidden">
+              <div className="relative h-64 md:h-96 rounded-lg overflow-hidden bg-gray-100">
                 <Image
                   src={property.photos[currentImageIndex]}
                   alt={`${property.title} - Photo ${currentImageIndex + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw"
-                  className="object-cover"
+                  className="object-contain"
+                  priority={currentImageIndex === 0}
                 />
                 
                 {/* Navigation Arrows */}
@@ -403,7 +404,7 @@ Please contact the visitor to arrange the property viewing.`;
                         alt={`Thumbnail ${index + 1}`}
                         fill
                         sizes="80px"
-                        className="object-cover"
+                        className="object-contain bg-gray-100"
                       />
                     </button>
                   ))}

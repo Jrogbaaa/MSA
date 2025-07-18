@@ -1,0 +1,21 @@
+[
+  {
+    "origin": [
+      "http://localhost:3000",
+      "http://localhost:3001", 
+      "https://msaproperties.co.uk",
+      "https://www.msaproperties.co.uk",
+      "https://msa-48bd8.web.app",
+      "https://msa-48bd8.firebaseapp.com"
+    ],
+    "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
+    "responseHeader": [
+      "Content-Type",
+      "Authorization", 
+      "x-goog-resumable",
+      "x-goog-meta-*",
+      "x-goog-content-length-range"
+    ],
+    "maxAgeSeconds": 3600
+  }
+] 

@@ -1,0 +1,38 @@
+1:"$Sreact.fragment"
+2:I["(app-pages-browser)/./node_modules/next/dist/client/components/layout-router.js",["app-pages-internals","static/chunks/app-pages-internals.js"],""]
+3:I["(app-pages-browser)/./node_modules/next/dist/client/components/render-from-template-context.js",["app-pages-internals","static/chunks/app-pages-internals.js"],""]
+4:I["(app-pages-browser)/./node_modules/next/dist/client/components/client-page.js",["app-pages-internals","static/chunks/app-pages-internals.js"],"ClientPageRoot"]
+5:I["(app-pages-browser)/./src/app/admin/dashboard/page.tsx",["app/admin/dashboard/page","static/chunks/app/admin/dashboard/page.js"],"default"]
+6:I["(app-pages-browser)/./node_modules/next/dist/client/components/metadata/metadata-boundary.js",["app-pages-internals","static/chunks/app-pages-internals.js"],"OutletBoundary"]
+d:I["(app-pages-browser)/./node_modules/next/dist/client/components/metadata/async-metadata.js",["app-pages-internals","static/chunks/app-pages-internals.js"],"AsyncMetadataOutlet"]
+13:I["(app-pages-browser)/./node_modules/next/dist/client/components/metadata/metadata-boundary.js",["app-pages-internals","static/chunks/app-pages-internals.js"],"ViewportBoundary"]
+18:I["(app-pages-browser)/./node_modules/next/dist/client/components/metadata/metadata-boundary.js",["app-pages-internals","static/chunks/app-pages-internals.js"],"MetadataBoundary"]
+1b:"$Sreact.suspense"
+1c:I["(app-pages-browser)/./node_modules/next/dist/client/components/metadata/async-metadata.js",["app-pages-internals","static/chunks/app-pages-internals.js"],"AsyncMetadata"]
+8:{"name":"__next_outlet_boundary__","env":"Server","key":null,"owner":null,"stack":[],"props":{"ready":"$E(async function getViewportReady() {\n        await viewport();\n        return undefined;\n    })"}}
+7:D"$8"
+a:{"name":"__next_outlet_boundary__","env":"Server","key":null,"owner":null,"stack":[],"props":{"ready":"$E(async function getMetadataReady() {\n        // Only warm up metadata() call when it's blocking metadata,\n        // otherwise it will be fully managed by AsyncMetadata component.\n        if (!serveStreamingMetadata) {\n            await metadata();\n        }\n        return undefined;\n    })"}}
+9:D"$a"
+c:{"name":"StreamingMetadataOutlet","env":"Server","key":null,"owner":null,"stack":[],"props":{}}
+b:D"$c"
+b:["$","$Ld",null,{"promise":"$@e"},"$c",[],1]
+10:{"name":"NonIndex","env":"Server","key":null,"owner":null,"stack":[],"props":{"pagePath":"/admin/dashboard","statusCode":200,"isPossibleServerAction":false}}
+f:D"$10"
+f:null
+12:{"name":"ViewportTree","env":"Server","key":"D21uAGEeOi-k5ACULSpa5v","owner":null,"stack":[],"props":{}}
+11:D"$12"
+15:{"name":"__next_viewport_boundary__","env":"Server","key":null,"owner":"$12","stack":[],"props":{}}
+14:D"$15"
+11:["$","$1","D21uAGEeOi-k5ACULSpa5v",{"children":[["$","$L13",null,{"children":"$L14"},"$12",[],1],["$","meta",null,{"name":"next-size-adjust","content":""},"$12",[],1]]},null,null,0]
+17:{"name":"MetadataTree","env":"Server","key":"D21uAGEeOi-k5ACULSpa5m","owner":null,"stack":[],"props":{}}
+16:D"$17"
+1a:{"name":"__next_metadata_boundary__","env":"Server","key":null,"owner":"$17","stack":[],"props":{}}
+19:D"$1a"
+16:["$","$L18","D21uAGEeOi-k5ACULSpa5m",{"children":"$L19"},"$17",[],1]
+0:{"b":"development","f":[["children","admin","children","dashboard",["dashboard",{"children":["__PAGE__",{}]}],["dashboard",["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{},null,[],1],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"},null,[],1]]},null,[],0],{"children":["__PAGE__",["$","$1","c",{"children":[["$","$L4",null,{"Component":"$5","searchParams":{},"params":{}},null,[],1],null,["$","$L6",null,{"children":["$L7","$L9","$b"]},null,[],1]]},null,[],0],{},null,false]},null,false],["$","$1","h",{"children":["$f","$11","$16"]},null,[],0],false]],"S":false}
+19:["$","div",null,{"hidden":true,"children":["$","$1b",null,{"fallback":null,"children":["$","$L1c",null,{"promise":"$@1d"},"$1a",[],1]},"$1a",[],1]},"$1a",[],1]
+9:null
+14:[["$","meta","0",{"charSet":"utf-8"},"$8",[],0],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, maximum-scale=1"},"$8",[],0]]
+7:null
+e:{"metadata":[["$","title","0",{"children":"MSA Real Estate - Modern Property Listings UK"},"$c",[],0],["$","meta","1",{"name":"description","content":"Find your perfect property with MSA Real Estate. Modern, mobile-first platform for property hunting in England with seamless application process."},"$c",[],0],["$","meta","2",{"name":"author","content":"MSA Real Estate"},"$c",[],0],["$","link","3",{"rel":"manifest","href":"/site.webmanifest","crossOrigin":"$undefined"},"$c",[],0],["$","meta","4",{"name":"keywords","content":"real estate,property,rentals,UK,England,Northampton,Manchester,Birmingham,flats,apartments"},"$c",[],0],["$","meta","5",{"name":"creator","content":"MSA Real Estate"},"$c",[],0],["$","meta","6",{"name":"publisher","content":"MSA Real Estate"},"$c",[],0],["$","meta","7",{"name":"format-detection","content":"telephone=no, address=no, email=no"},"$c",[],0],["$","link","8",{"rel":"shortcut icon","href":"/favicon-16x16.png"},"$c",[],0],["$","link","9",{"rel":"icon","href":"/favicon.ico"},"$c",[],0],["$","link","10",{"rel":"apple-touch-icon","href":"/apple-touch-icon.png"},"$c",[],0]],"error":null,"digest":"$undefined"}
+1d:{"metadata":"$e:metadata","error":null,"digest":"$undefined"}
