@@ -227,6 +227,13 @@ ADMIN_PASSWORD=
 
 ### Recent Critical Fixes
 
+#### Next.js Image Configuration Fix (July 18, 2025)
+- **Issue**: Firebase Storage images blocked by Next.js unconfigured hostname error
+- **Solution**: Added `firebasestorage.googleapis.com` to Next.js image configuration
+- **Result**: Firebase Storage images now load properly in production and development
+- **File**: `next.config.js:29-34` - Added Firebase Storage domain to remotePatterns
+- **Testing**: All tests passing except expected mobile navigation failures and some EmailJS mocking issues
+
 #### Firebase Storage Integration (July 18, 2025)
 - **Issue**: 1.42MB documents exceeded Firebase 1MB limit causing internal assertion errors
 - **Solution**: Implemented Firebase Storage for property images with automatic fallback
