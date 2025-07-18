@@ -70,6 +70,13 @@ The application uses a resilient Firebase architecture with multiple fallback la
 - **Error Handling**: Comprehensive retry logic and fallback mechanisms
 - **Image Processing**: HEIC support with automatic compression
 
+#### Storage Unit Management System
+- **Real-time Sync**: Firebase onSnapshot for live storage unit updates
+- **Reservation System**: Complete reservation workflow with EmailJS integration
+- **Direct Booking**: Homepage Reserve button connects to detailed reservation form
+- **Automatic Form Opening**: Query parameter-based reservation flow (?reserve=true)
+- **Multi-field Forms**: Contact info, move-in date, duration, and message collection
+
 #### State Management
 - **Authentication**: Custom AuthProvider with Firebase Auth
 - **Data Sync**: Real-time subscriptions with cleanup management
@@ -87,6 +94,7 @@ The application uses a resilient Firebase architecture with multiple fallback la
 #### Data Layer (`src/lib/`)
 - **firebase.ts**: Firebase configuration and connection management
 - **properties.ts**: Property CRUD with fallback logic
+- **storageSpaces.ts**: Storage unit management with real-time sync
 - **imageStorage.ts**: Firebase Storage integration for property images (NEW)
 - **applications.ts**: Application processing
 - **messages.ts**: Message handling
@@ -94,6 +102,7 @@ The application uses a resilient Firebase architecture with multiple fallback la
 
 #### Type Definitions (`src/types/index.ts`)
 - **Property**: Core property data structure
+- **StorageSpace**: Storage unit data structure with size, features, and availability
 - **User**: User authentication and profile
 - **Application**: Tenant application workflow
 - **Document**: File upload handling
@@ -226,6 +235,18 @@ ADMIN_PASSWORD=
 - **Performance**: Monitored page load times and interactions
 
 ### Recent Critical Fixes
+
+#### Storage Unit Reserve Button Fix (July 18, 2025)
+- **Issue**: Reserve button on storage unit cards was non-functional, preventing users from reserving units
+- **Solution**: Connected homepage Reserve button to existing reservation system with direct navigation
+- **Implementation**:
+  - Updated Reserve button in `src/app/page.tsx` to use Link component with query parameter
+  - Added automatic reservation form opening in `src/app/storage/[id]/page.tsx` using `useSearchParams`
+  - Implemented `?reserve=true` query parameter handling for direct reservation workflow
+- **User Experience**: Click Reserve → Navigate to storage detail → Auto-open reservation form
+- **Integration**: Seamlessly connected to existing EmailJS + Firestore reservation system
+- **Files**: `src/app/page.tsx:700-705`, `src/app/storage/[id]/page.tsx:79-84`
+- **Testing**: Build successful, no TypeScript errors, full reservation workflow verified
 
 #### Photo Display & Quality Enhancement (July 18, 2025)
 - **Issue**: Vertical photos/documents cropped, images blurry, slow loading speeds
