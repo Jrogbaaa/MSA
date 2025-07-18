@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft,
@@ -30,6 +30,7 @@ import Link from 'next/link';
 export default function StorageSpaceDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const storageSpaceId = params.id as string;
   
   const [storageSpaces, setStorageSpaces] = useState<StorageSpace[]>([]);
@@ -73,6 +74,14 @@ export default function StorageSpaceDetailPage() {
       unsubscribe();
     };
   }, [storageSpaceId]);
+
+  // Auto-open reservation form if 'reserve' query parameter is present
+  useEffect(() => {
+    const shouldOpenReservation = searchParams.get('reserve') === 'true';
+    if (shouldOpenReservation) {
+      setShowReservationForm(true);
+    }
+  }, [searchParams]);
 
   const handleNextImage = () => {
     if (storageSpace && currentImageIndex < storageSpace.photos.length - 1) {

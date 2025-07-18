@@ -697,10 +697,12 @@ export default function HomePage() {
                             View Details
                           </Button>
                         </Link>
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Package size={14} className="mr-1" />
-                          Reserve
-                        </Button>
+                        <Link href={`/storage/${space.id}?reserve=true`} className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full">
+                            <Package size={14} className="mr-1" />
+                            Reserve
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>
