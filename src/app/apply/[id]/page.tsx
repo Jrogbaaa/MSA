@@ -289,7 +289,6 @@ MSA Real Estate Application System
                 <div className="space-y-2 text-sm text-gray-600">
                   <div>🛏️ {property.bedrooms} {property.bedrooms === 1 ? 'bedroom' : 'bedrooms'}</div>
                   <div>🚿 {property.bathrooms} {property.bathrooms === 1 ? 'bathroom' : 'bathrooms'}</div>
-                  <div>📐 {property.squareFootage} sqft</div>
                 </div>
               </CardContent>
             </Card>

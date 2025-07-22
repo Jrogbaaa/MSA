@@ -18,9 +18,9 @@
     - button "Applications":
       - img
       - text: Applications
-    - button "Messages 2":
+    - button "Messages 8":
       - img
-      - text: Messages 2
+      - text: Messages 8
     - button "Tenants":
       - img
       - text: Tenants
@@ -28,7 +28,7 @@
       - img
       - text: Documents
   - heading "Notifications" [level=3]
-  - text: New Messages 2
+  - text: New Messages 8
   - button "Logout":
     - img
     - text: Logout

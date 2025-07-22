@@ -352,7 +352,13 @@ Please contact the visitor to arrange the property viewing.`;
           <div className="lg:col-span-2 space-y-6">
             {/* Photo Gallery */}
             <div className="relative">
-              <div className="relative h-64 md:h-96 rounded-lg overflow-hidden bg-gray-100">
+              <div 
+                className="relative h-64 md:h-96 rounded-lg overflow-hidden bg-gray-100 cursor-pointer group"
+                onClick={() => {
+                  // Open image in new tab for full view
+                  window.open(property.photos[currentImageIndex], '_blank');
+                }}
+              >
                 <Image
                   src={property.photos[currentImageIndex]}
                   alt={`${property.title} - Photo ${currentImageIndex + 1}`}
@@ -361,19 +367,33 @@ Please contact the visitor to arrange the property viewing.`;
                   className="object-contain"
                   priority={currentImageIndex === 0}
                 />
+                {/* Click indicator overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white bg-opacity-90 rounded-full p-2">
+                    <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                    </svg>
+                  </div>
+                </div>
                 
                 {/* Navigation Arrows */}
                 {property.photos.length > 1 && (
                   <>
                     <button
-                      onClick={handlePrevImage}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePrevImage();
+                      }}
                       disabled={currentImageIndex === 0}
                       className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 disabled:opacity-50"
                     >
                       <ChevronLeft size={24} />
                     </button>
                     <button
-                      onClick={handleNextImage}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNextImage();
+                      }}
                       disabled={currentImageIndex === property.photos.length - 1}
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 disabled:opacity-50"
                     >
@@ -404,7 +424,7 @@ Please contact the visitor to arrange the property viewing.`;
                         alt={`Thumbnail ${index + 1}`}
                         fill
                         sizes="80px"
-                        className="object-contain bg-gray-100"
+                        className="object-cover bg-gray-100"
                       />
                     </button>
                   ))}
@@ -430,7 +450,7 @@ Please contact the visitor to arrange the property viewing.`;
                 )}
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">
                       {formatCurrency(property.rent)}
@@ -455,13 +475,7 @@ Please contact the visitor to arrange the property viewing.`;
                       {property.bathrooms === 1 ? 'Bathroom' : 'Bathrooms'}
                     </div>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Square size={20} className="mr-1" />
-                      <span className="font-semibold">{property.squareFootage}</span>
-                    </div>
-                    <div className="text-sm text-gray-500">sq ft</div>
-                  </div>
+
                 </div>
 
                 <div className="mb-6">
@@ -695,7 +709,15 @@ Please contact the visitor to arrange the property viewing.`;
                 )}
                 {property.councilTaxBand && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Council Tax Band:</span>
+                    <a 
+                      href="https://www.westnorthants.gov.uk/council-tax-bands-and-charges/council-tax-charges"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 hover:underline transition-colors cursor-pointer"
+                      title="Click to view West Northants Council Tax charges and band information"
+                    >
+                      Council Tax Band: ↗
+                    </a>
                     <span className="font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
                       {property.councilTaxBand}
                     </span>

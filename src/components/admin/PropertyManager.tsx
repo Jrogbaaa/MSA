@@ -955,10 +955,6 @@ export default function PropertyManager() {
                   <Bath className="h-4 w-4 mr-1" />
                   <span>{property.bathrooms} bath</span>
                 </div>
-                <div className="flex items-center">
-                  <Square className="h-4 w-4 mr-1" />
-                  <span>{property.squareFootage} sqft</span>
-                </div>
               </div>
 
               <p className="text-gray-400 text-sm line-clamp-2">

@@ -289,3 +289,21 @@ ADMIN_PASSWORD=
 - **Result**: Reliable test execution
 
 This codebase represents a production-ready real estate platform with comprehensive testing, robust error handling, and resilient Firebase integration with fallback mechanisms.
+
+# MSA Properties Development Log
+
+## Recent Changes
+
+### Property Display & Navigation Improvements (January 19, 2025)
+- **Issue**: Multiple UI/UX issues affecting property display and navigation
+- **Changes**:
+  - **Council Tax Band Enhancement**: Made entire "Council Tax Band:" text clickable with link to West Northants council tax charges (https://www.westnorthants.gov.uk/council-tax-bands-and-charges/council-tax-charges)
+  - **Square Footage Cleanup**: Removed square footage display from all property listings while maintaining it for storage units (properties are being measured)
+  - **Image Display Optimization**: Fixed property images to properly fill their containers using `object-cover` while maintaining click-to-expand functionality
+  - **Hero Section Enhancement**: Added "Browse Storage" button alongside "Browse Properties" in hero section with smooth scroll to storage section
+  - **Navigation Flow Fixes**: 
+    - Homepage property images now navigate to property listings instead of image previews
+    - Property detail page arrows now properly navigate between images without opening previews
+    - Added `stopPropagation()` to prevent click conflicts
+- **Result**: Improved user experience with clearer navigation paths and better visual presentation
+- **Files**: `src/app/property/[id]/page.tsx`, `src/app/page.tsx`, `src/app/apply/[id]/page.tsx`, `src/components/admin/PropertyManager.tsx`
