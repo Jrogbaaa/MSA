@@ -10,7 +10,23 @@ Built with Next.js, TypeScript, and Firebase, the platform offers real-time data
 
 ## Recent Critical Fixes & Updates (January 2025)
 
-The application recently underwent significant updates to resolve critical stability and data integrity issues. These improvements have made the platform substantially more reliable.
+The application recently underwent significant updates to resolve critical stability and data integrity issues, plus major UI/UX improvements and marketing integration. These improvements have made the platform substantially more reliable and user-friendly.
+
+### 🎯 Google Ads Tracking Integration (January 19, 2025)
+-   **Marketing Analytics**: Integrated Google Ads conversion tracking with campaign ID `AW-17394102119` for ROI measurement and campaign optimization.
+    -   ✅ **Performance Optimized**: Uses Next.js Script component with `afterInteractive` strategy
+    -   ✅ **Site-wide Coverage**: Tracks conversions across all pages automatically
+    -   ✅ **Campaign Ready**: Ready for Google Ads campaign launch and measurement
+    -   📊 **Conversion Tracking**: Enables ROI tracking and ad performance optimization
+
+### 🎨 UI/UX Enhancement Package (January 19, 2025)
+-   **Council Tax Integration**: Made council tax band information clickable with direct links to West Northants council tax charges for user convenience.
+-   **Content Optimization**: Removed square footage from property listings (keeping for storage units) as properties are being measured for accuracy.
+-   **Image Display Fixes**: Enhanced property images to properly fill their containers while maintaining click-to-expand functionality.
+-   **Navigation Improvements**: Added "Browse Storage" button to hero section and fixed navigation flow issues.
+    -   ✅ **Homepage Images**: Now navigate to property listings instead of image previews
+    -   ✅ **Arrow Navigation**: Property detail arrows properly navigate between images
+    -   ✅ **Click Handling**: Improved event handling with `stopPropagation()` to prevent conflicts
 
 -   **🌍 Live Site Global Functionality Verification**: Comprehensive testing suite created and executed to verify global user functionality on the live production site (`msaproperties.co.uk`). All critical messaging and application systems have been verified to work correctly for users worldwide.
     -   ✅ **Global Contact Forms**: Verified working for international users
@@ -284,15 +300,24 @@ testFirebasePermissions().then(result => {
 
 ## 📞 Support & Contact
 
+### Documentation
+- **Main README**: This file - comprehensive platform overview
+- **CHANGELOG**: [CHANGELOG.md](./CHANGELOG.md) - Complete version history and release notes
+- **Development Log**: [CLAUDE.md](./CLAUDE.md) - Detailed technical development history
+- **Live Site Testing**: [LIVE_SITE_TESTING.md](./LIVE_SITE_TESTING.md) - Global functionality verification
+- **Email System**: [EMAIL_SYSTEM.md](./EMAIL_SYSTEM.md) - Email integration documentation
+- **Testing Guide**: [TESTING.md](./TESTING.md) - Comprehensive testing documentation
+- **Firebase Setup**: [FIREBASE_SETUP.md](./FIREBASE_SETUP.md) - Database configuration guide
+
 ### Admin Access
 - **Username**: Contact administrator
 - **Password**: Secure environment-based authentication
-- **Email**: arnoldestates1@gmail.com
+- **Email**: arnoldestates1@gmail.com, 11jellis@gmail.com
 
 ### Technical Support
 - **Repository**: [GitHub Repository](https://github.com/Jrogbaaa/MSA.git)
 - **Issues**: Report bugs via GitHub Issues
-- **Documentation**: Comprehensive inline documentation
+- **Releases**: See [CHANGELOG.md](./CHANGELOG.md) for version history
 
 ## 📋 Development Status
 
