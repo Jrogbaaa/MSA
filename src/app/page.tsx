@@ -735,6 +735,77 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Cloud Storage Section */}
+      <section className="py-12 bg-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="flex justify-center mb-6">
+                <div className="p-4 bg-blue-100 rounded-full">
+                  <svg className="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                </div>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Cloud Storage Solutions
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+                Running out of phone storage because of too many photos? Get as much cloud storage as you need with our competitive pricing. Store thousands of photos safely in the cloud and access them anywhere.
+              </p>
+              
+              <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="text-center">
+                    <div className="flex justify-center mb-3">
+                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-semibold text-gray-900">Unlimited Photos</h3>
+                    <p className="text-sm text-gray-600">Store as many photos as you need</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="flex justify-center mb-3">
+                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-semibold text-gray-900">Secure & Safe</h3>
+                    <p className="text-sm text-gray-600">Your photos are encrypted and protected</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="flex justify-center mb-3">
+                      <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-semibold text-gray-900">Fast Access</h3>
+                    <p className="text-sm text-gray-600">Access your photos from any device</p>
+                  </div>
+                </div>
+                
+                <Link href="/contact">
+                  <Button size="lg" className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-3">
+                    Get Cloud/Photos Storage
+                  </Button>
+                </Link>
+                
+                <p className="text-sm text-gray-500 mt-4">
+                  Competitive pricing • Custom storage plans • Free consultation
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -763,7 +834,7 @@ export default function HomePage() {
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">Contact</h4>
                   <ul className="text-sm text-gray-600 space-y-2">
                     <li>Email: arnoldestates1@gmail.com</li>
-                    <li>Phone: +44 7756 779811</li>
+                    <li>Phone: 12345678</li>
                     <li>Address: Northampton, UK</li>
                   </ul>
                 </div>
