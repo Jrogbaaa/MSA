@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Attractive blue gradient design with cloud and security icons for visual appeal
 
 ### Fixed
-- **Phone Number Consistency**: Updated remaining phone number references to "12345678" in footer and contact page
+- **Phone Number Format**: Updated phone number display to proper UK format "+44 7756 779811" across homepage footer and contact page
+- **Phone Number Consistency**: Ensured consistent formatting with proper international dialing code display
 
 ## [2.1.0] - 2025-01-19
 
