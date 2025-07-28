@@ -10,7 +10,16 @@ Built with Next.js, TypeScript, and Firebase, the platform offers real-time data
 
 ## Recent Critical Fixes & Updates (January 2025)
 
-The application recently underwent significant updates to resolve critical stability and data integrity issues, plus major UI/UX improvements and marketing integration. These improvements have made the platform substantially more reliable and user-friendly.
+The application recently underwent significant updates to resolve critical stability and data integrity issues, plus major UI/UX improvements, marketing integration, and new service offerings. These improvements have made the platform substantially more reliable and user-friendly.
+
+### 📱 Cloud Storage Service Addition (January 19, 2025)
+-   **New Service Offering**: Added cloud storage section targeting users with photo storage issues on their phones.
+    -   ✅ **Strategic Positioning**: Placed after physical storage section to cross-sell cloud solutions
+    -   ✅ **Compelling Messaging**: "As much cloud storage as you need" with competitive pricing emphasis
+    -   ✅ **Target Audience**: Users running low on phone storage due to too many photos
+    -   ✅ **Lead Generation**: "Get Cloud/Photos Storage" button directs to contact form for inquiries
+    -   ✅ **Professional Design**: Blue gradient theme with cloud and security icons
+    -   ✅ **Key Benefits**: Unlimited Photos, Secure & Safe, Fast Access highlighted
 
 ### 🎯 Google Ads Tracking Integration (January 19, 2025)
 -   **Marketing Analytics**: Integrated Google Ads conversion tracking with campaign ID `AW-17394102119` for ROI measurement and campaign optimization.

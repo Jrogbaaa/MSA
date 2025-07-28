@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2025-01-19
+
+### Added
+- **Cloud Storage Section**: New dedicated section targeting users with photo storage issues
+  - Added after physical storage section with compelling messaging about unlimited photo storage
+  - Features competitive pricing and "as much cloud storage as you need" value proposition
+  - Includes three key benefits: Unlimited Photos, Secure & Safe, Fast Access
+  - "Get Cloud/Photos Storage" button directs users to contact form for inquiries
+  - Attractive blue gradient design with cloud and security icons for visual appeal
+
+### Fixed
+- **Phone Number Consistency**: Updated remaining phone number references to "12345678" in footer and contact page
+
 ## [2.1.0] - 2025-01-19
 
 ### Added
