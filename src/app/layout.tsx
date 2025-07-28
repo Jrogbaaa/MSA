@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { AuthProvider } from '@/hooks/useAuth';
 
@@ -38,6 +39,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Ads Tracking Tag */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17394102119"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-config" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17394102119');
+          `}
+        </Script>
+      </head>
       <body className={inter.className}>
         <AuthProvider>
           {children}
