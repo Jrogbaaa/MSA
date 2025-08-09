@@ -30,6 +30,21 @@ The application recently underwent significant updates to resolve critical stabi
     -   📊 **Conversion Tracking**: Enables ROI tracking and ad performance optimization
     -   🔍 **Browser Tested**: Verified functionality across Chrome, Firefox, Safari
 
+### 🔧 Tenant Dashboard Maintenance Integration (January 19, 2025)
+-   **Maintenance Management**: Added dedicated Maintenance tab to tenant dashboard for comprehensive property management.
+    -   ✅ **Dashboard Tab**: New "Maintenance" tab with wrench icon in tenant navigation
+    -   ✅ **Schedule Display**: Color-coded maintenance cards showing heating, garden, and emergency services
+    -   ✅ **Contact Integration**: Direct Arnold Estates contact button with email routing
+    -   ✅ **Operating Hours**: Clear maintenance hours display (M-F 8AM-6PM, Emergency 24/7)
+    -   📱 **Responsive Design**: Professional layout with status indicators and proper spacing
+
+### 🗄️ Firebase Index & Configuration Updates (January 19, 2025)
+-   **Database Optimization**: Resolved Firebase composite index requirements and updated API configuration.
+    -   ✅ **Index Documentation**: Created `FIREBASE_INDEX_FIX.md` with direct console link for index creation
+    -   ✅ **API Key Correction**: Updated Firebase API key from truncated 33-char to full 39-char format
+    -   ✅ **Configuration Sync**: All Firebase settings now match console configuration exactly
+    -   ✅ **Error Resolution**: Fixed Google sign-in authentication errors and query performance
+
 ### 🎨 UI/UX Enhancement Package (January 19, 2025)
 -   **Council Tax Integration**: Made council tax band information clickable with direct links to West Northants council tax charges for user convenience.
 -   **Content Optimization**: Removed square footage from property listings (keeping for storage units) as properties are being measured for accuracy.

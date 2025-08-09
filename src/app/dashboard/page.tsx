@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Heart, FileText, Settings, CheckCircle, User, Download, File } from 'lucide-react';
+import { Heart, FileText, Settings, CheckCircle, User, Download, File, Wrench } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Property, Application } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -137,6 +137,19 @@ export default function DashboardPage() {
                     <div className="flex items-center space-x-2">
                       <Heart size={16} />
                       <span>Saved Properties</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('maintenance')}
+                    className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium ${
+                      activeTab === 'maintenance'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Wrench size={16} />
+                      <span>Maintenance</span>
                     </div>
                   </button>
                   <button
@@ -331,6 +344,101 @@ export default function DashboardPage() {
                     </div>
                   </CardContent>
                 </Card>
+              )}
+
+              {activeTab === 'maintenance' && (
+                <div className="space-y-6">
+                  {/* Maintenance Schedule */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Wrench className="mr-2 h-5 w-5 text-blue-600" />
+                        Maintenance Schedule
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-medium text-gray-900">Heating System Check</h4>
+                                <p className="text-sm text-gray-600">Monthly boiler and radiator inspection</p>
+                              </div>
+                              <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
+                                Next: Jan 25
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-medium text-gray-900">Garden Maintenance</h4>
+                                <p className="text-sm text-gray-600">Lawn care and hedge trimming</p>
+                              </div>
+                              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                Weekly: Fridays
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-medium text-gray-900">Emergency Repairs</h4>
+                                <p className="text-sm text-gray-600">24/7 on-call maintenance</p>
+                              </div>
+                              <span className="text-sm bg-red-100 text-red-800 px-2 py-1 rounded">
+                                Available 24/7
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <h4 className="font-medium text-yellow-900 mb-2">Maintenance Hours</h4>
+                          <p className="text-sm text-yellow-800">
+                            <strong>Regular Hours:</strong> Monday-Friday 8:00 AM - 6:00 PM
+                          </p>
+                          <p className="text-sm text-yellow-800">
+                            <strong>Emergency:</strong> 24/7 availability for urgent repairs
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Maintenance Requests */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Submit Maintenance Request</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <div className="mb-4">
+                          <svg className="w-12 h-12 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Need Maintenance?</h3>
+                        <p className="text-gray-600 mb-6">
+                          For maintenance requests, repairs, or property issues, contact Arnold Estates directly.
+                        </p>
+                        <Link href="/contact?to=arnold">
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Contact Arnold Estates
+                          </Button>
+                        </Link>
+                        <div className="mt-4 text-sm text-gray-500">
+                          <p>Email: arnoldestates1@gmail.com</p>
+                          <p>Phone: +44 7756 779811</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </div>
           </div>

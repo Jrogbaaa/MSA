@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, Clock, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,10 @@ import { saveMessage } from '@/lib/messages';
 import { testEmailJSConfiguration } from '@/lib/emailjs-test';
 
 
-export default function ContactPage() {
+function ContactContent() {
+  const searchParams = useSearchParams();
+  const isArnoldContact = searchParams.get('to') === 'arnold';
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -81,7 +85,8 @@ ${formData.message}
 Submitted: ${new Date().toLocaleString('en-GB')}
         `;
         
-        const mailtoUrl = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        const emailTo = isArnoldContact ? 'arnoldestates1@gmail.com' : 'arnoldestates1@gmail.com,11jellis@gmail.com';
+        const mailtoUrl = `mailto:${emailTo}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
         window.open(mailtoUrl, '_blank');
         
         setIsSubmitted(true);
@@ -118,7 +123,8 @@ ${formData.message}
 Submitted: ${new Date().toLocaleString('en-GB')}
       `;
       
-      const mailtoUrl = `mailto:arnoldestates1@gmail.com,11jellis@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      const emailTo = isArnoldContact ? 'arnoldestates1@gmail.com' : 'arnoldestates1@gmail.com,11jellis@gmail.com';
+      const mailtoUrl = `mailto:${emailTo}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       window.open(mailtoUrl, '_blank');
       
       setIsSubmitted(true);
@@ -183,7 +189,7 @@ Submitted: ${new Date().toLocaleString('en-GB')}
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Contact MSA Real Estate
+              {isArnoldContact ? 'Contact Arnold Estates' : 'Contact MSA Real Estate'}
             </h1>
           </motion.div>
           <motion.div
@@ -192,8 +198,10 @@ Submitted: ${new Date().toLocaleString('en-GB')}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Get in touch with us for property inquiries, viewings, or any questions. 
-              We're here to help you find your perfect home.
+              {isArnoldContact 
+                ? 'Contact Arnold Estates for property management, maintenance requests, and tenant support services.' 
+                : 'Get in touch with us for property inquiries, viewings, or any questions. We\'re here to help you find your perfect home.'
+              }
             </p>
           </motion.div>
         </div>
@@ -250,8 +258,10 @@ Submitted: ${new Date().toLocaleString('en-GB')}
               <CardHeader>
                 <CardTitle className="text-2xl">Send us a Message</CardTitle>
                 <p className="text-gray-600">
-                  Fill out the form below and we'll get back to you promptly. 
-                  Your message will be sent directly to arnoldestates1@gmail.com
+                  {isArnoldContact 
+                    ? 'Fill out the form below for property management assistance. Your message will be sent directly to Arnold Estates (arnoldestates1@gmail.com).'
+                    : 'Fill out the form below and we\'ll get back to you promptly. Your message will be sent to our team.'
+                  }
                 </p>
               </CardHeader>
               <CardContent>
@@ -375,5 +385,17 @@ Submitted: ${new Date().toLocaleString('en-GB')}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <ContactContent />
+    </Suspense>
   );
 } 

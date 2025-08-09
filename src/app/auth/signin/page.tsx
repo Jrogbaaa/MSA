@@ -232,6 +232,94 @@ function SignInContent() {
           </CardContent>
         </Card>
 
+        {/* Maintenance Notice */}
+        <Card className="bg-blue-50 border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-center text-blue-800 flex items-center justify-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Maintenance Schedule
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center text-sm text-blue-700 mb-4">
+              <p className="font-medium">Scheduled Property Maintenance</p>
+              <p>We keep our properties in top condition with regular maintenance</p>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-100">
+                <div>
+                  <p className="font-medium text-gray-800">Heating System Check</p>
+                  <p className="text-sm text-gray-600">Monthly boiler and radiator inspection</p>
+                </div>
+                <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
+                  Next: Jan 25
+                </span>
+              </div>
+              
+              <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-100">
+                <div>
+                  <p className="font-medium text-gray-800">Garden Maintenance</p>
+                  <p className="text-sm text-gray-600">Lawn care and hedge trimming</p>
+                </div>
+                <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                  Weekly: Fridays
+                </span>
+              </div>
+              
+              <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-100">
+                <div>
+                  <p className="font-medium text-gray-800">Emergency Repairs</p>
+                  <p className="text-sm text-gray-600">24/7 on-call maintenance</p>
+                </div>
+                <span className="text-sm bg-red-100 text-red-800 px-2 py-1 rounded">
+                  Available 24/7
+                </span>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                <strong>Maintenance Hours:</strong> Monday-Friday 8:00 AM - 6:00 PM | Emergency: 24/7
+              </p>
+              <p className="text-sm text-yellow-700 mt-1">
+                For non-emergency requests, please use the contact form below
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Arnold Estates Contact Form */}
+        <Card className="bg-green-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="text-center text-green-800 flex items-center justify-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Contact Arnold Estates
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center text-sm text-green-700 mb-4">
+              Need help with property management or maintenance requests?
+            </p>
+            <Link href="/contact?to=arnold" className="block">
+              <Button 
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                size="lg"
+              >
+                Contact Arnold Estates
+              </Button>
+            </Link>
+            <p className="text-center text-xs text-green-600 mt-2">
+              Direct line to property management team
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Admin Login Link */}
         <div className="text-center">
           <Link 

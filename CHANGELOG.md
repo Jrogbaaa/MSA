@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2025-01-19
+
+### Added
+- **Maintenance Dashboard Tab**: Added dedicated "Maintenance" tab to tenant dashboard with comprehensive property management features
+- **Maintenance Schedule Display**: Color-coded maintenance cards showing heating checks, garden maintenance, and emergency repair schedules
+- **Direct Contact Integration**: Arnold Estates contact button with email routing from maintenance section
+- **Firebase Index Documentation**: Created `FIREBASE_INDEX_FIX.md` with automatic index creation for tenantDocuments collection
+
+### Fixed
+- **Firebase API Key**: Updated from truncated 33-character to full 39-character API key resolving Google sign-in authentication errors
+- **Firebase Configuration**: Synchronized all Firebase settings with console configuration (API key, messaging sender ID, app ID, measurement ID)
+- **Firebase Index Requirement**: Documented composite index creation for tenantDocuments collection queries
+
+### Technical
+- **Dashboard Navigation**: Added maintenance tab with wrench icon and professional responsive design
+- **Firebase Environment**: Updated `.env.local` with correct Firebase configuration matching console settings
+- **Query Optimization**: Prepared index configuration for efficient tenant document retrieval
+
 ## [2.1.1] - 2025-01-19
 
 ### Added
