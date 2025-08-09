@@ -24,7 +24,7 @@ export const initEmailJS = () => {
   }
 };
 
-// Send contact form email
+// Send contact form email to both addresses separately for guaranteed delivery
 export const sendContactEmail = async (formData: {
   name: string;
   email: string;
@@ -44,10 +44,9 @@ export const sendContactEmail = async (formData: {
   }
 
   try {
-    const templateParams = {
+    const baseTemplateParams = {
       from_name: formData.name,
       from_email: formData.email,
-      to_email: 'arnoldestates1@gmail.com, 11jellis@gmail.com',
       subject: formData.subject,
       message: formData.message,
       phone: formData.phone || 'Not provided',
@@ -55,15 +54,31 @@ export const sendContactEmail = async (formData: {
       submission_date: new Date().toLocaleString('en-GB'),
     };
 
-    const result = await emailjs.send(
+    // Send to both email addresses separately to ensure delivery
+    const email1Params = { ...baseTemplateParams, to_email: 'arnoldestates1@gmail.com' };
+    const email2Params = { ...baseTemplateParams, to_email: '11jellis@gmail.com' };
+
+    console.log('🚀 Sending contact email to both addresses...');
+    
+    // Send first email
+    const result1 = await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      templateParams,
+      email1Params,
       EMAILJS_PUBLIC_KEY
     );
+    console.log('✅ Email sent to arnoldestates1@gmail.com:', result1);
 
-    console.log('EmailJS send result:', result);
-    return { success: true, result };
+    // Send second email
+    const result2 = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      email2Params,
+      EMAILJS_PUBLIC_KEY
+    );
+    console.log('✅ Email sent to 11jellis@gmail.com:', result2);
+
+    return { success: true, result: { email1: result1, email2: result2 } };
   } catch (error) {
     console.error('EmailJS send error:', error);
     return { 
@@ -74,7 +89,7 @@ export const sendContactEmail = async (formData: {
   }
 };
 
-// Send application notification email
+// Send application notification email to both addresses separately for guaranteed delivery
 export const sendApplicationEmail = async (applicationData: {
   propertyTitle: string;
   propertyAddress: string;
@@ -96,52 +111,122 @@ export const sendApplicationEmail = async (applicationData: {
   }
 
   try {
-    const templateParams = {
+    const baseTemplateParams = {
       from_name: 'MSA Real Estate Website',
       from_email: 'noreply@msa-realestate.com',
-      to_email: 'arnoldestates1@gmail.com, 11jellis@gmail.com',
-      subject: `New Property Application: ${applicationData.propertyTitle}`,
+      subject: `🏠 NEW APPLICATION: ${applicationData.propertyTitle} - ${applicationData.applicantName}`,
       message: `
 NEW PROPERTY APPLICATION RECEIVED
+=====================================
 
-Property Details:
-- Title: ${applicationData.propertyTitle}
-- Address: ${applicationData.propertyAddress}
-- Rent: £${applicationData.propertyRent}/month
+📍 PROPERTY DETAILS:
+• Title: ${applicationData.propertyTitle}
+• Address: ${applicationData.propertyAddress}
+• Monthly Rent: £${applicationData.propertyRent}/month
+• Property ID: ${applicationData.propertyId}
 
-Applicant Information:
-- Name: ${applicationData.applicantName}
-- Email: ${applicationData.applicantEmail}
-- Phone: ${applicationData.applicantPhone}
+👤 APPLICANT INFORMATION:
+• Name: ${applicationData.applicantName}
+• Email: ${applicationData.applicantEmail}
+• Phone: ${applicationData.applicantPhone}
+• User ID: ${applicationData.userId}
 
-Application Details:
-- User ID: ${applicationData.userId}
-- Property ID: ${applicationData.propertyId}
-- Submission Date: ${new Date().toLocaleString('en-GB')}
+📅 SUBMISSION:
+• Date: ${new Date().toLocaleDateString('en-GB')}
+• Time: ${new Date().toLocaleTimeString('en-GB')}
 
-Please review this application and contact the applicant to arrange next steps.
+⚡ NEXT STEPS:
+1. Review applicant information
+2. Contact applicant via email or phone
+3. Arrange property viewing if needed
+4. Make rental decision
+
+✅ This application was submitted through the MSA Real Estate website.
+View admin dashboard: https://msaproperties.co.uk/admin/dashboard
 
 Best regards,
-MSA Real Estate Website
+MSA Real Estate Application System
       `,
       source: 'Property Application',
       submission_date: new Date().toLocaleString('en-GB'),
     };
 
-    const result = await emailjs.send(
+    // Send to both email addresses separately to ensure delivery
+    const email1Params = { ...baseTemplateParams, to_email: 'arnoldestates1@gmail.com' };
+    const email2Params = { ...baseTemplateParams, to_email: '11jellis@gmail.com' };
+
+    console.log('🚀 Sending application email to both addresses...');
+    
+    // Send first email
+    const result1 = await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      templateParams,
+      email1Params,
       EMAILJS_PUBLIC_KEY
     );
+    console.log('✅ Application email sent to arnoldestates1@gmail.com:', result1);
 
-    return { success: true, result };
+    // Send second email
+    const result2 = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      email2Params,
+      EMAILJS_PUBLIC_KEY
+    );
+    console.log('✅ Application email sent to 11jellis@gmail.com:', result2);
+
+    return { success: true, result: { email1: result1, email2: result2 } };
   } catch (error) {
     console.error('EmailJS application send error:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown EmailJS error',
       fallbackReason: 'send_failed'
+    };
+  }
+};
+
+// Test email notifications to verify both addresses receive emails
+export const testEmailNotifications = async () => {
+  console.log('🧪 Testing email notification system...');
+  
+  try {
+    // Test contact form email
+    const contactResult = await sendContactEmail({
+      name: 'Test User',
+      email: 'test@example.com',
+      subject: 'Email Notification Test',
+      message: 'This is a test message to verify email notifications are working correctly for both addresses.',
+      phone: '+44 1234 567890',
+      source: 'Email Test'
+    });
+
+    // Test application email
+    const applicationResult = await sendApplicationEmail({
+      propertyTitle: 'Test Property',
+      propertyAddress: '123 Test Street, Test City',
+      propertyRent: 1000,
+      applicantName: 'Test Applicant',
+      applicantEmail: 'applicant@example.com',
+      applicantPhone: '+44 9876 543210',
+      userId: 'test-user-123',
+      propertyId: 'test-property-456'
+    });
+
+    console.log('📧 Contact email test result:', contactResult);
+    console.log('🏠 Application email test result:', applicationResult);
+
+    return {
+      contactEmail: contactResult,
+      applicationEmail: applicationResult,
+      success: contactResult.success && applicationResult.success
+    };
+  } catch (error) {
+    console.error('❌ Email test failed:', error);
+    return {
+      contactEmail: { success: false, error: error },
+      applicationEmail: { success: false, error: error },
+      success: false
     };
   }
 }; 
