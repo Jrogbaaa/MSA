@@ -7,21 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.3.0] - 2025-01-19
+## [2.2.1] - 2025-01-19
 
-### Added
-- **Bubblegum UI Theme**: Integrated TweakCN's modern Bubblegum theme for professional, cohesive visual identity
-- **shadcn/ui Component System**: Complete component management with `components.json` configuration
-- **Modern Color Palette**: Soft pink/purple primary colors with warm accents using OKLCH color space
-- **Typography Enhancement**: Modern font stack with Poppins (sans-serif), Lora (serif), and Fira Code (monospace)
-- **Dark Mode Support**: Full dark theme implementation with complementary color adjustments
-- **Design System**: Card-based layouts with subtle shadows and rounded corners
+### Fixed
+- **Critical TypeError Fix**: Resolved `TypeError: formatCurrency is not a function` that was crashing the homepage and preventing property display
+- **Missing Utility Functions**: Added essential formatting functions to `src/lib/utils.ts`:
+  - `formatCurrency()`: UK currency formatting with proper £ symbol and no decimal places
+  - `formatBedrooms()`: Handles Studio apartments (0 bedrooms) and proper singular/plural text  
+  - `formatBathrooms()`: Correct singular/plural bathroom formatting
+- **Site-wide Impact**: Fixed currency and text formatting across all property pages, storage units, applications, and admin dashboard
 
 ### Technical
-- **@theme inline**: Added comprehensive Tailwind CSS variable mapping for seamless integration
-- **OKLCH Color Space**: Enhanced accessibility and color perception accuracy
-- **CSS Variable System**: Complete theme configuration with light/dark mode variants
-- **Component Architecture**: shadcn CLI integration for consistent UI component management
+- **Internationalization**: Used `Intl.NumberFormat('en-GB')` for proper UK currency standards
+- **Grammar Handling**: Special case logic for Studio apartments and proper singular/plural text
+- **Import Resolution**: Resolved missing function imports that were breaking component rendering
 
 ## [2.2.0] - 2025-01-19
 

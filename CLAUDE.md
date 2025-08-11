@@ -367,22 +367,25 @@ This codebase represents a production-ready real estate platform with comprehens
 - **Result**: ✅ Both email addresses now receive independent notifications for all contact forms and applications
 - **Files**: `src/lib/emailjs.ts`, `EMAIL_NOTIFICATIONS_DUAL_DELIVERY_FIX.md`
 
-### Bubblegum UI Theme Implementation (January 19, 2025)
-- **Issue**: Request to upgrade the website's visual design with a modern, playful Bubblegum theme
-- **Solution**: Integrated TweakCN's Bubblegum theme using shadcn/ui for consistent, professional UI components
-- **Theme Features**:
-  - **Color Palette**: Soft pink/purple primary colors with warm accents
-  - **Typography**: Poppins (sans-serif), Lora (serif), Fira Code (monospace)
-  - **Design System**: Modern card-based layouts with subtle shadows and rounded corners
-  - **Dark Mode**: Full dark theme support with complementary color adjustments
-  - **Accessibility**: OKLCH color space for better color perception and contrast
-- **Technical Implementation**:
-  - Installed via `npx shadcn@latest add https://tweakcn.com/r/themes/bubblegum.json`
-  - Created `components.json` configuration for shadcn/ui integration
-  - Updated `src/app/globals.css` with complete theme variables and Tailwind integration
-  - Added `@theme inline` section for seamless Tailwind CSS variable mapping
-- **Result**: ✅ Modern, cohesive UI theme applied across the entire MSA Properties website
-- **Files**: `src/app/globals.css`, `components.json`
+### Critical Utility Functions Fix (January 19, 2025)
+- **Issue**: `TypeError: formatCurrency is not a function` causing homepage crashes and preventing property display
+- **Problem**: Essential utility functions were missing from `src/lib/utils.ts` despite being imported across multiple components
+- **Root Cause**: Functions were being imported but never defined, breaking:
+  - Homepage property and storage listings
+  - Property detail pages with rent formatting
+  - Storage unit pricing display
+  - Application forms with property summaries
+  - Admin dashboard property management
+- **Solution**: Added comprehensive utility functions to `src/lib/utils.ts`:
+  - `formatCurrency()`: UK currency formatting with proper £ symbol and no decimal places
+  - `formatBedrooms()`: Handles Studio (0 bed) and proper singular/plural text
+  - `formatBathrooms()`: Correct singular/plural bathroom formatting
+- **Technical Details**:
+  - Used `Intl.NumberFormat('en-GB')` for proper UK currency standards
+  - Special case handling for Studio apartments (0 bedrooms)
+  - Consistent singular/plural grammar across the application
+- **Result**: ✅ Homepage TypeError resolved, all currency and text formatting now works correctly
+- **Files**: `src/lib/utils.ts`
 
 ### Property Display & Navigation Improvements (January 19, 2025)
 - **Issue**: Multiple UI/UX issues affecting property display and navigation
