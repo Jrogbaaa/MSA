@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2025-01-19
+
+### Added
+- **Bubblegum UI Theme**: Integrated TweakCN's modern Bubblegum theme for professional, cohesive visual identity
+- **shadcn/ui Component System**: Complete component management with `components.json` configuration
+- **Modern Color Palette**: Soft pink/purple primary colors with warm accents using OKLCH color space
+- **Typography Enhancement**: Modern font stack with Poppins (sans-serif), Lora (serif), and Fira Code (monospace)
+- **Dark Mode Support**: Full dark theme implementation with complementary color adjustments
+- **Design System**: Card-based layouts with subtle shadows and rounded corners
+
+### Technical
+- **@theme inline**: Added comprehensive Tailwind CSS variable mapping for seamless integration
+- **OKLCH Color Space**: Enhanced accessibility and color perception accuracy
+- **CSS Variable System**: Complete theme configuration with light/dark mode variants
+- **Component Architecture**: shadcn CLI integration for consistent UI component management
+
 ## [2.2.0] - 2025-01-19
 
 ### Added
