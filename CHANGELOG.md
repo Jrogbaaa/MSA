@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.2] - 2025-01-19
+
+### Changed
+- **Phone Number Format**: Temporarily updated homepage footer phone number from `+44 7756 779811` to `12345678`, then reverted back to original UK international format
+- **Consistency Maintenance**: Ensured phone number remains in proper UK international format (`+44 7756 779811`) across the site
+
+### Technical
+- **Git History**: Two commits for phone number changes (update `3511131` and revert `2be8e96`)
+- **Location**: Homepage footer (`src/app/page.tsx` line 837)
+
 ## [2.2.1] - 2025-01-19
 
 ### Fixed
