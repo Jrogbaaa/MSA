@@ -303,43 +303,48 @@ Please contact the visitor to arrange the property viewing.`;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Modern Header */}
+      <header className="bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.back()}
-                className="flex items-center text-gray-600 hover:text-gray-900"
+                className="flex items-center text-gray-600 hover:text-brand-600 hover:bg-brand-50 px-3 py-2 rounded-lg transition-all duration-200"
               >
                 <ArrowLeft size={20} className="mr-2" />
-                Back
+                <span className="font-medium">Back</span>
               </button>
-              <h1 className="text-xl font-semibold text-gray-900">Property Details</h1>
+              <div className="h-6 w-px bg-gray-300" />
+              <h1 className="text-2xl font-display font-bold text-gray-900">Property Details</h1>
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleSaveProperty}
-                className="flex items-center space-x-1"
+                className={`flex items-center space-x-2 transition-all duration-200 ${
+                  isSaved 
+                    ? 'border-red-200 text-red-600 bg-red-50 hover:bg-red-100' 
+                    : 'border-gray-300 text-gray-600 hover:border-brand-300 hover:text-brand-600 hover:bg-brand-50'
+                }`}
               >
                 <Heart 
                   size={16} 
                   className={isSaved ? 'text-red-500 fill-current' : 'text-gray-400'}
                 />
-                <span>Save</span>
+                <span className="font-medium">{isSaved ? 'Saved' : 'Save'}</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleShare}
-                className="flex items-center space-x-1"
+                className="flex items-center space-x-2 border-gray-300 text-gray-600 hover:border-brand-300 hover:text-brand-600 hover:bg-brand-50 transition-all duration-200"
               >
                 <Share2 size={16} />
-                <span>Share</span>
+                <span className="font-medium">Share</span>
               </Button>
             </div>
           </div>
@@ -350,10 +355,10 @@ Please contact the visitor to arrange the property viewing.`;
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Photos and Details */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Photo Gallery */}
+            {/* Modern Photo Gallery */}
             <div className="relative">
               <div 
-                className="relative h-64 md:h-96 rounded-lg overflow-hidden bg-gray-100 cursor-pointer group"
+                className="relative h-80 md:h-[500px] rounded-2xl overflow-hidden bg-gray-100 cursor-pointer group shadow-xl"
                 onClick={() => {
                   // Open image in new tab for full view
                   window.open(property.photos[currentImageIndex], '_blank');
@@ -432,50 +437,57 @@ Please contact the visitor to arrange the property viewing.`;
               )}
             </div>
 
-            {/* Property Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">{property.title}</CardTitle>
-                <div className="flex items-center text-gray-600">
-                  <MapPin size={18} className="mr-2" />
+            {/* Modern Property Information */}
+            <Card className="card-modern shadow-xl">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-3xl md:text-4xl font-display font-bold text-gray-900 leading-tight">
+                  {property.title}
+                </CardTitle>
+                <div className="flex items-center text-gray-600 text-lg">
+                  <div className="p-2 bg-brand-50 rounded-lg mr-3">
+                    <MapPin size={20} className="text-brand-600" />
+                  </div>
                   {property.address}
                 </div>
-                {/* Urgency Message */}
+                {/* Enhanced Urgency Message */}
                 {property.id === '1' && (
-                  <div className="mt-3">
-                    <span className="inline-flex items-center bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                  <div className="mt-4">
+                    <div className="inline-flex items-center bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg shadow-red-500/25">
                       🔥 Only 2 left! Act fast
-                    </span>
+                    </div>
                   </div>
                 )}
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="text-center p-6 bg-gradient-to-br from-brand-50 to-blue-50 rounded-2xl">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent mb-2">
                       {formatCurrency(property.rent)}
                     </div>
-                    <div className="text-sm text-gray-500">per month</div>
+                    <div className="text-gray-600 font-medium">per month</div>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Bed size={20} className="mr-1" />
-                      <span className="font-semibold">{formatBedrooms(property.bedrooms)}</span>
+                  <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl">
+                    <div className="flex items-center justify-center mb-3">
+                      <div className="p-3 bg-green-500 rounded-xl">
+                        <Bed size={24} className="text-white" />
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {property.bedrooms === 0 ? 'Flat' : property.bedrooms === 1 ? 'Bedroom' : 'Bedrooms'}
+                    <div className="text-xl font-bold text-gray-900 mb-1">{formatBedrooms(property.bedrooms)}</div>
+                    <div className="text-gray-600 font-medium">
+                      {property.bedrooms === 0 ? 'Studio Flat' : property.bedrooms === 1 ? 'Bedroom' : 'Bedrooms'}
                     </div>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Bath size={20} className="mr-1" />
-                      <span className="font-semibold">{formatBathrooms(property.bathrooms)}</span>
+                  <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl">
+                    <div className="flex items-center justify-center mb-3">
+                      <div className="p-3 bg-purple-500 rounded-xl">
+                        <Bath size={24} className="text-white" />
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-xl font-bold text-gray-900 mb-1">{formatBathrooms(property.bathrooms)}</div>
+                    <div className="text-gray-600 font-medium">
                       {property.bathrooms === 1 ? 'Bathroom' : 'Bathrooms'}
                     </div>
                   </div>
-
                 </div>
 
                 <div className="mb-6">
@@ -502,30 +514,32 @@ Please contact the visitor to arrange the property viewing.`;
 
           {/* Right Column - Contact and Apply */}
           <div className="space-y-6">
-            {/* Application CTA */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Interested in this property?</CardTitle>
+            {/* Modern Application CTA */}
+            <Card className="card-modern shadow-xl border-0">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-2xl font-display font-bold text-gray-900 mb-2">Ready to Apply?</CardTitle>
+                <p className="text-gray-600">Take the next step towards your new home</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Link href={`/apply/${property.id}`}>
-                  <Button className="w-full btn-touch">
+                  <Button className="w-full btn-touch bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white font-semibold text-lg py-4 shadow-xl shadow-brand-500/25">
                     Apply Now
                   </Button>
                 </Link>
                 <Button
                   variant="outline"
-                  className="w-full btn-touch"
+                  className="w-full btn-touch border-2 border-brand-200 text-brand-700 hover:bg-brand-50 font-semibold py-4"
                   onClick={() => setShowContactForm(!showContactForm)}
                 >
+                  <Calendar className="mr-2 h-5 w-5" />
                   Schedule Tour
                 </Button>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                <div className="grid grid-cols-2 gap-3">
+                  <Button variant="outline" className="flex items-center justify-center border-green-200 text-green-700 hover:bg-green-50 font-medium">
                     <Phone size={16} className="mr-2" />
                     Call
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" className="flex items-center justify-center border-blue-200 text-blue-700 hover:bg-blue-50 font-medium">
                     <Mail size={16} className="mr-2" />
                     Email
                   </Button>
@@ -665,37 +679,58 @@ Please contact the visitor to arrange the property viewing.`;
               </motion.div>
             )}
 
-            {/* Property Details */}
-            <Card>
+            {/* Modern Property Details */}
+            <Card className="card-modern shadow-xl border-0">
               <CardHeader>
-                <CardTitle className="text-lg">Property Details</CardTitle>
+                <CardTitle className="text-xl font-display font-bold text-gray-900 flex items-center">
+                  <div className="p-2 bg-brand-100 rounded-lg mr-3">
+                    <Square size={20} className="text-brand-600" />
+                  </div>
+                  Property Details
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Property Type:</span>
-                  <span className="font-medium">Apartment</span>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                  <span className="text-gray-600 font-medium">Property Type:</span>
+                  <span className="font-semibold text-gray-900 bg-gray-100 px-3 py-1 rounded-full text-sm">Apartment</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Available:</span>
-                  <span className="font-medium text-green-600">
-                    {property.availability === 'available' ? 'Now' : 'Not Available'}
+                <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                  <span className="text-gray-600 font-medium">Available:</span>
+                  <span className={`font-semibold px-3 py-1 rounded-full text-sm ${
+                    property.availability === 'available' 
+                      ? 'text-green-700 bg-green-100' 
+                      : 'text-red-700 bg-red-100'
+                  }`}>
+                    {property.availability === 'available' ? 'Available Now' : 'Not Available'}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Pet Policy:</span>
-                  <span className="font-medium">
+                <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                  <span className="text-gray-600 font-medium">Pet Policy:</span>
+                  <span className={`font-semibold px-3 py-1 rounded-full text-sm ${
+                    property.amenities.includes('Pet Friendly')
+                      ? 'text-green-700 bg-green-100'
+                      : 'text-gray-700 bg-gray-100'
+                  }`}>
                     {property.amenities.includes('Pet Friendly') ? 'Pet Friendly' : 'No Pets'}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Parking:</span>
-                  <span className="font-medium">
+                <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                  <span className="text-gray-600 font-medium">Parking:</span>
+                  <span className={`font-semibold px-3 py-1 rounded-full text-sm ${
+                    property.amenities.includes('Parking')
+                      ? 'text-blue-700 bg-blue-100'
+                      : 'text-gray-700 bg-gray-100'
+                  }`}>
                     {property.amenities.includes('Parking') ? 'Included' : 'Not Included'}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Laundry:</span>
-                  <span className="font-medium">
+                <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                  <span className="text-gray-600 font-medium">Laundry:</span>
+                  <span className={`font-semibold px-3 py-1 rounded-full text-sm ${
+                    property.amenities.includes('Laundry')
+                      ? 'text-purple-700 bg-purple-100'
+                      : 'text-gray-700 bg-gray-100'
+                  }`}>
                     {property.amenities.includes('Laundry') ? 'In Unit' : 'Shared'}
                   </span>
                 </div>

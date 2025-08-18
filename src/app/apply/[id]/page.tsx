@@ -243,20 +243,24 @@ MSA Real Estate Application System
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-20 left-20 w-40 h-40 bg-brand-200/20 rounded-full animate-float" />
+      <div className="absolute bottom-20 right-20 w-32 h-32 bg-green-200/20 rounded-full animate-float" style={{ animationDelay: '2s' }} />
+      
+      {/* Modern Header */}
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition-all duration-200 font-medium"
             >
               <ArrowLeft size={20} />
               <span>Back</span>
             </Button>
-            <h1 className="text-xl font-semibold text-gray-900">
+            <h1 className="text-2xl font-display font-bold text-gray-900">
               Apply for Property
             </h1>
             <div className="w-20" /> {/* Spacer for centering */}
@@ -266,91 +270,112 @@ MSA Real Estate Application System
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Property Summary */}
+          {/* Modern Property Summary */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-8">
-              <div className="aspect-video relative overflow-hidden rounded-t-lg">
+            <Card className="sticky top-28 card-modern shadow-xl border-0">
+              <div className="aspect-video relative overflow-hidden rounded-t-2xl">
                 <img
                   src={property.photos[0]}
                   alt={property.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               </div>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {property.title}
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  {property.address}
-                </p>
-                <div className="text-2xl font-bold text-blue-600 mb-4">
-                  {formatCurrency(property.rent)}/mo
+              <CardContent className="p-6 space-y-4">
+                <div>
+                  <h3 className="text-xl font-display font-bold text-gray-900 mb-2">
+                    {property.title}
+                  </h3>
+                  <p className="text-gray-600 font-medium">
+                    {property.address}
+                  </p>
                 </div>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div>🛏️ {property.bedrooms} {property.bedrooms === 1 ? 'bedroom' : 'bedrooms'}</div>
-                  <div>🚿 {property.bathrooms} {property.bathrooms === 1 ? 'bathroom' : 'bathrooms'}</div>
+                <div className="p-4 bg-gradient-to-br from-brand-50 to-blue-50 rounded-2xl">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
+                    {formatCurrency(property.rent)}/mo
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-3 bg-green-50 rounded-xl">
+                    <div className="text-lg font-bold text-green-700">{property.bedrooms}</div>
+                    <div className="text-sm text-green-600">Bedrooms</div>
+                  </div>
+                  <div className="text-center p-3 bg-purple-50 rounded-xl">
+                    <div className="text-lg font-bold text-purple-700">{property.bathrooms}</div>
+                    <div className="text-sm text-purple-600">Bathrooms</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Application Form */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Send className="h-5 w-5" />
+          {/* Modern Application Form */}
+          <div className="lg:col-span-2 relative z-10">
+            <Card className="card-modern shadow-xl border-0">
+              <CardHeader className="text-center pb-6">
+                <CardTitle className="text-3xl font-display font-bold text-gray-900 mb-4 flex items-center justify-center space-x-3">
+                  <div className="p-3 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl shadow-lg shadow-brand-500/25">
+                    <Send className="h-6 w-6 text-white" />
+                  </div>
                   <span>Application Form</span>
                 </CardTitle>
-                <p className="text-gray-600">
-                  Please provide your contact information so we can get in touch with you about this property.
+                <p className="text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
+                  Complete your application below. Our team will review your submission and respond within 24 hours.
                 </p>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmitApplication} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <User className="inline h-4 w-4 mr-1" />
-                      Full Name *
-                    </label>
-                    <Input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Enter your full name"
-                      required
-                      className="w-full"
-                    />
-                  </div>
+                <form onSubmit={handleSubmitApplication} className="space-y-8">
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                        <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                          <User className="h-4 w-4 text-blue-600" />
+                        </div>
+                        Full Name *
+                      </label>
+                      <Input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        placeholder="Enter your full name"
+                        required
+                        className="input-modern h-14 text-lg w-full"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Mail className="inline h-4 w-4 mr-1" />
-                      Email Address *
-                    </label>
-                    <Input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="Enter your email address"
-                      required
-                      className="w-full"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                        <div className="p-2 bg-green-100 rounded-lg mr-3">
+                          <Mail className="h-4 w-4 text-green-600" />
+                        </div>
+                        Email Address *
+                      </label>
+                      <Input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        placeholder="Enter your email address"
+                        required
+                        className="input-modern h-14 text-lg w-full"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Phone className="inline h-4 w-4 mr-1" />
-                      Phone Number *
-                    </label>
-                    <Input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="Enter your phone number"
-                      required
-                      className="w-full"
-                    />
+                    <div>
+                      <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                        <div className="p-2 bg-purple-100 rounded-lg mr-3">
+                          <Phone className="h-4 w-4 text-purple-600" />
+                        </div>
+                        Phone Number *
+                      </label>
+                      <Input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        placeholder="Enter your phone number"
+                        required
+                        className="input-modern h-14 text-lg w-full"
+                      />
+                    </div>
                   </div>
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -363,23 +388,25 @@ MSA Real Estate Application System
                     </ul>
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full h-12 text-lg"
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center space-x-2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        <span>Submitting Application...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <Send className="h-5 w-5" />
-                        <span>Submit Application</span>
-                      </div>
-                    )}
-                  </Button>
+                  <div className="pt-6">
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full h-16 text-lg font-semibold bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 shadow-xl shadow-brand-500/25 transition-all duration-300"
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center space-x-3">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <span>Submitting Application...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-3">
+                          <Send className="h-5 w-5" />
+                          <span>Submit Application</span>
+                        </div>
+                      )}
+                    </Button>
+                  </div>
 
                   <p className="text-xs text-gray-500 text-center">
                     By submitting this application, you consent to being contacted about this property.

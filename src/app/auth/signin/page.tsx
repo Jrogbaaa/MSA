@@ -90,33 +90,48 @@ function SignInContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-10 left-10 w-32 h-32 bg-brand-200/30 rounded-full animate-float" />
+      <div className="absolute bottom-10 right-10 w-24 h-24 bg-blue-200/30 rounded-full animate-float" style={{ animationDelay: '2s' }} />
+      
+      <div className="max-w-lg w-full space-y-8 relative">
+        {/* Modern Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
           <Link href="/" className="flex justify-center mb-8">
             <Image 
               src="/logo.png" 
               alt="MSA Real Estate" 
-              width={300}
-              height={90}
-              className="h-20 w-auto"
+              width={400}
+              height={120}
+              className="h-24 w-auto"
               priority
             />
           </Link>
-          <h2 className="text-3xl font-bold text-gray-900">
-            Sign in to your account
+          <h2 className="text-4xl font-display font-bold text-gray-900 mb-4">
+            Welcome Back
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Access your applications, saved properties, and more
+          <p className="text-lg text-gray-600">
+            Sign in to access your dashboard and manage your properties
           </p>
-        </div>
+        </motion.div>
 
-        {/* Sign In Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">Welcome Back</CardTitle>
-          </CardHeader>
+        {/* Modern Sign In Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Card className="card-modern shadow-2xl border-0 backdrop-blur-sm">
+            <CardHeader className="text-center pb-6">
+              <CardTitle className="text-2xl font-display font-bold text-gray-900">Sign In</CardTitle>
+              <p className="text-gray-600">Enter your credentials to continue</p>
+            </CardHeader>
           <CardContent className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-md p-4">

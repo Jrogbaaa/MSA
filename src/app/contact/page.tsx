@@ -149,9 +149,13 @@ Submitted: ${new Date().toLocaleString('en-GB')}
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-20 left-20 w-40 h-40 bg-brand-200/20 rounded-full animate-float" />
+      <div className="absolute bottom-20 right-20 w-32 h-32 bg-blue-200/20 rounded-full animate-float" style={{ animationDelay: '3s' }} />
+      
+      {/* Modern Header */}
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-28">
             <Link href="/" className="flex items-center">
@@ -165,14 +169,14 @@ Submitted: ${new Date().toLocaleString('en-GB')}
               />
             </Link>
             
-            <nav className="hidden md:flex space-x-8">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
+            <nav className="hidden md:flex items-center space-x-1">
+              <Link href="/" className="px-4 py-2 text-gray-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-all duration-200 font-medium">
                 Properties
               </Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900">
+              <Link href="/about" className="px-4 py-2 text-gray-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-all duration-200 font-medium">
                 About
               </Link>
-              <Link href="/contact" className="text-blue-600 font-medium">
+              <Link href="/contact" className="px-4 py-2 text-white bg-gradient-to-r from-brand-500 to-brand-600 rounded-lg font-medium shadow-lg shadow-brand-500/25">
                 Contact
               </Link>
             </nav>
@@ -181,26 +185,36 @@ Submitted: ${new Date().toLocaleString('en-GB')}
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
+        {/* Modern Hero Section */}
+        <div className="text-center mb-16 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              {isArnoldContact ? 'Contact Arnold Estates' : 'Contact MSA Real Estate'}
+            <h1 className="text-5xl md:text-6xl font-display font-bold text-gray-900 mb-6">
+              {isArnoldContact ? (
+                <>
+                  <span className="block">Connect with</span>
+                  <span className="block bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">Arnold Estates</span>
+                </>
+              ) : (
+                <>
+                  <span className="block">Get in Touch with</span>
+                  <span className="block bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">MSA Real Estate</span>
+                </>
+              )}
             </h1>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
               {isArnoldContact 
-                ? 'Contact Arnold Estates for property management, maintenance requests, and tenant support services.' 
-                : 'Get in touch with us for property inquiries, viewings, or any questions. We\'re here to help you find your perfect home.'
+                ? 'Professional property management services, maintenance support, and tenant assistance - we\'re here to help.' 
+                : 'Ready to find your dream property? We\'re here to guide you through every step of your property journey.'
               }
             </p>
           </motion.div>
