@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, MapPin, Bed, Bath, Square, Heart, User, Menu, X, Package, Truck, Shield, Star, Clock, ArrowRight, Eye, ChevronDown, Mail, Phone } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Heart, User, Menu, X, Package, Truck, Shield, Star, Clock, ArrowRight, Eye, ChevronDown, Mail, Phone } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Property, SearchFilters, StorageSpace } from '@/types';
 import { properties as initialProperties } from '@/data/properties';
@@ -200,7 +200,7 @@ export default function HomePage() {
       {/* Modern Header */}
       <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 md:h-28">
+          <div className="flex justify-between items-center h-24 md:h-28">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
                 <Image 
@@ -208,7 +208,7 @@ export default function HomePage() {
                   alt="MSA Real Estate" 
                   width={600}
                   height={180}
-                  className="h-12 md:h-40 w-auto"
+                  className="h-20 md:h-40 w-auto"
                   priority
                 />
               </Link>
@@ -376,10 +376,10 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col gap-4 justify-center max-w-md mx-auto">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm sm:text-lg px-6 sm:px-8 py-3 sm:py-4 font-semibold shadow-xl shadow-brand-500/25 btn-modern group"
+                  className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-lg font-bold px-8 py-4 shadow-xl shadow-brand-500/25 btn-modern group w-full"
                   onClick={scrollToProperties}
                 >
                 Browse Properties
@@ -388,7 +388,7 @@ export default function HomePage() {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="glass border-white/30 text-white hover:bg-white/10 hover:border-white/50 text-sm sm:text-lg px-6 sm:px-8 py-3 sm:py-4 font-semibold backdrop-blur-md btn-modern group"
+                  className="glass border-white/30 text-white hover:bg-white/10 hover:border-white/50 text-lg font-bold px-8 py-4 backdrop-blur-md btn-modern group w-full"
                   onClick={() => {
                     const storageSection = document.getElementById('storage-section');
                     if (storageSection) {
@@ -448,106 +448,7 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* Modern Filters */}
-      <section className="bg-white/90 backdrop-blur-sm py-4 md:py-8 border-b border-gray-200/50 sticky top-16 md:top-28 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:gap-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-brand-100 rounded-lg">
-                <Filter size={20} className="text-brand-600" />
-              </div>
-              <span className="font-semibold text-gray-800 text-base md:text-lg">Find Your Perfect Home</span>
-            </div>
-            
-            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-3">
-              <div className="relative">
-              <select
-                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-3 md:px-4 py-2 md:py-3 pr-8 md:pr-10 text-xs md:text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 w-full"
-                value={searchFilters.bedrooms || ''}
-                onChange={(e) => setSearchFilters(prev => ({ 
-                  ...prev, 
-                  bedrooms: e.target.value ? Number(e.target.value) : null 
-                }))}
-              >
-                <option value="">Any Bedrooms</option>
-                <option value="0">Studio</option>
-                <option value="1">1 Bedroom</option>
-                <option value="2">2 Bedrooms</option>
-                <option value="3">3 Bedrooms</option>
-                <option value="4">4+ Bedrooms</option>
-              </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              </div>
 
-              <div className="relative">
-              <select
-                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-3 md:px-4 py-2 md:py-3 pr-8 md:pr-10 text-xs md:text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 w-full"
-                value={searchFilters.bathrooms || ''}
-                onChange={(e) => setSearchFilters(prev => ({ 
-                  ...prev, 
-                  bathrooms: e.target.value ? Number(e.target.value) : null 
-                }))}
-              >
-                <option value="">Any Bathrooms</option>
-                <option value="1">1 Bathroom</option>
-                <option value="2">2 Bathrooms</option>
-                <option value="3">3+ Bathrooms</option>
-              </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              </div>
-
-              <div className="relative">
-              <select
-                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-3 md:px-4 py-2 md:py-3 pr-8 md:pr-10 text-xs md:text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 w-full"
-                value={searchFilters.priceRange[1]}
-                onChange={(e) => setSearchFilters(prev => ({ 
-                  ...prev, 
-                  priceRange: [prev.priceRange[0], Number(e.target.value)] 
-                }))}
-              >
-                <option value="5000">Any Price</option>
-                <option value="1500">Under £1,500</option>
-                <option value="2500">Under £2,500</option>
-                <option value="3500">Under £3,500</option>
-                <option value="5000">Under £5,000</option>
-              </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
-
-              <div className="relative col-span-2 md:col-span-1 md:flex-1 md:min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by location..."
-                  className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl text-xs md:text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
-                  value={searchFilters.searchTerm}
-                  onChange={(e) => setSearchFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            {/* Clear Filters Button */}
-            {(searchFilters.bedrooms || searchFilters.bathrooms || searchFilters.priceRange[1] < 5000 || searchFilters.searchTerm) && (
-              <div className="col-span-2 md:col-span-1 flex justify-center md:justify-start">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSearchFilters({
-                    priceRange: [0, 5000],
-                    bedrooms: null,
-                    bathrooms: null,
-                    availability: 'available',
-                    searchTerm: '',
-                  })}
-                  className="text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400 w-full md:w-auto"
-                >
-                  Clear All
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
 
       {/* Property Listings */}
       <section className="py-12" id="properties-section">
