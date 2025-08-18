@@ -12,8 +12,8 @@
       - /url: /about
     - link "Contact":
       - /url: /contact
-- heading "Contact MSA Real Estate" [level=1]
-- paragraph: Get in touch with us for property inquiries, viewings, or any questions. We're here to help you find your perfect home.
+- heading "Get in Touch with MSA Real Estate" [level=1]
+- paragraph: Ready to find your dream property? We're here to guide you through every step of your property journey.
 - heading "Get In Touch" [level=3]:
   - img
   - text: Get In Touch
@@ -30,7 +30,7 @@
 - paragraph: Response Time
 - paragraph: Within 24 hours
 - heading "Send us a Message" [level=3]
-- paragraph: Fill out the form below and we'll get back to you promptly. Your message will be sent directly to arnoldestates1@gmail.com
+- paragraph: Fill out the form below and we'll get back to you promptly. Your message will be sent to our team.
 - text: Full Name *
 - textbox "Full Name *"
 - text: Email Address *

@@ -22,55 +22,209 @@
 - img "Hero background 3"
 - img "Hero background 4"
 - img "Hero background 5"
-- heading "Find Your Perfect Property" [level=1]
-- paragraph: Discover premium properties across England with our modern platform
-- button "Browse Properties"
+- heading "Find Your Perfect" [level=1]
+- heading "Property" [level=1]
+- paragraph: Discover premium properties across England with our modern platform designed for the contemporary lifestyle
+- button "Browse Properties":
+  - text: Browse Properties
+  - img
+- button "Browse Storage":
+  - text: Browse Storage
+  - img
+- text: 3+ Properties Available 3+ Storage Units 24/7 Support Available 4.9
 - img
-- text: "Filters:"
-- combobox:
-  - option "Any Bedrooms" [selected]
-  - option "Studio"
-  - option "1 Bedroom"
-  - option "2 Bedrooms"
-  - option "3 Bedrooms"
-  - option "4+ Bedrooms"
-- combobox:
-  - option "Any Bathrooms" [selected]
-  - option "1 Bathroom"
-  - option "2 Bathrooms"
-  - option "3+ Bathrooms"
-- combobox:
-  - option "Any Price" [selected]
-  - option "Under £1,500"
-  - option "Under £2,500"
-  - option "Under £3,500"
-  - option "Under £5,000"
-- heading "Available Properties" [level=3]
-- paragraph: Loading properties...
-- heading "Secure Storage Spaces" [level=2]
-- paragraph: Safe, clean, and affordable storage solutions for all your needs. Climate-controlled units with 24/7 security.
-- paragraph: Loading storage spaces...
+- text: Customer Rating Scroll to explore
+- img
+- heading "Premium Properties" [level=2]
+- paragraph: Discover 3 carefully selected properties designed for modern living
+- link "Gold Street Flat Available Now":
+  - /url: /property/prop_1752853950021
+  - img "Gold Street Flat"
+  - img
+  - text: Available Now
+- button:
+  - img
+- img
+- text: "1"
+- img
+- text: 1 £950
+- heading "Gold Street Flat" [level=3]
+- img
+- text: Gold Street, Northampton, NN1 NRS £950 per month
+- img
+- text: 1 Bedroom
+- img
+- text: 1 Bathroom
+- link "View Details":
+  - /url: /property/prop_1752853950021
+  - button "View Details"
+- link "Apply Now":
+  - /url: /apply/prop_1752853950021
+  - button "Apply Now"
+- link "Talbot Road Studio Apartment Available Now":
+  - /url: /property/prop_1752657081951
+  - img "Talbot Road Studio Apartment"
+  - img
+  - text: Available Now
+- button:
+  - img
+- img
+- text: "1"
+- img
+- text: 1 £725
+- heading "Talbot Road Studio Apartment" [level=3]
+- img
+- text: Talbot Road, Northampton, NN1 4JB £725 per month
+- img
+- text: 1 Bedroom
+- img
+- text: 1 Bathroom Unfurnished
+- link "View Details":
+  - /url: /property/prop_1752657081951
+  - button "View Details"
+- link "Apply Now":
+  - /url: /apply/prop_1752657081951
+  - button "Apply Now"
+- link "Gold Street Flat Available Now":
+  - /url: /property/prop_1752139012973
+  - img "Gold Street Flat"
+  - img
+  - text: Available Now
+- button:
+  - img
+- img
+- text: "0"
+- img
+- text: 1 £825
+- heading "Gold Street Flat" [level=3]
+- img
+- text: Gold Street, Northampton, NN1 1RS £825 per month
+- img
+- text: Studio
+- img
+- text: 1 Bathroom Unfurnished
+- link "View Details":
+  - /url: /property/prop_1752139012973
+  - button "View Details"
+- link "Apply Now":
+  - /url: /apply/prop_1752139012973
+  - button "Apply Now"
+- heading "Secure Storage Solutions" [level=2]
+- paragraph: Premium storage spaces designed with your security and convenience in mind. Climate-controlled units with 24/7 monitoring and easy access.
+- img "Small Storage Unit"
+- text: 1 units available
+- button:
+  - img
+- heading "Small Storage Unit" [level=3]
+- paragraph
+- img
+- text: (23 sq ft) £5/week
+- link "View Details":
+  - /url: /storage/rabRaSbSNQr3z9PtZW1R
+  - button "View Details"
+- link "Reserve":
+  - /url: /storage/rabRaSbSNQr3z9PtZW1R?reserve=true
+  - button "Reserve":
+    - img
+    - text: Reserve
+- img "Medium Storage Unit"
+- text: 2 units available
+- button:
+  - img
+- heading "Medium Storage Unit" [level=3]
+- paragraph
+- img
+- text: (35 sq ft) £10/week
+- link "View Details":
+  - /url: /storage/CKyfh5hxgLbbV1Lxgeeu
+  - button "View Details"
+- link "Reserve":
+  - /url: /storage/CKyfh5hxgLbbV1Lxgeeu?reserve=true
+  - button "Reserve":
+    - img
+    - text: Reserve
+- img "Small Storage Unit"
+- text: 6 units available
+- button:
+  - img
+- heading "Small Storage Unit" [level=3]
+- paragraph
+- img
+- text: (25 sq ft) £9/week
+- link "View Details":
+  - /url: /storage/5WpyGNJXVeteCusiVIN7
+  - button "View Details"
+- link "Reserve":
+  - /url: /storage/5WpyGNJXVeteCusiVIN7?reserve=true
+  - button "Reserve":
+    - img
+    - text: Reserve
+- img
+- heading "Cloud Storage Solutions" [level=2]
+- paragraph: Running out of phone storage because of too many photos? Get as much cloud storage as you need with our competitive pricing. Store thousands of photos safely in the cloud and access them anywhere.
+- img
+- heading "Unlimited Photos" [level=3]
+- paragraph: Store as many photos as you need without worrying about space limits
+- img
+- heading "Secure & Safe" [level=3]
+- paragraph: Military-grade encryption keeps your precious memories protected
+- img
+- heading "Lightning Fast" [level=3]
+- paragraph: Access your photos from any device in seconds
+- link "Get Cloud/Photos Storage":
+  - /url: /contact
+  - button "Get Cloud/Photos Storage":
+    - text: Get Cloud/Photos Storage
+    - img
+- paragraph:
+  - img
+  - text: Competitive pricing
+  - img
+  - text: Custom storage plans
+  - img
+  - text: Free consultation
 - contentinfo:
   - img "MSA Real Estate"
+  - paragraph: Your trusted partner in finding premium properties and secure storage solutions across England.
+  - img
+  - img
+  - img
   - heading "Quick Links" [level=4]
   - list:
     - listitem:
       - link "Properties":
         - /url: /
+        - img
+        - text: Properties
     - listitem:
-      - link "About":
+      - link "About Us":
         - /url: /about
+        - img
+        - text: About Us
     - listitem:
       - link "Contact":
         - /url: /contact
+        - img
+        - text: Contact
     - listitem:
       - link "Dashboard":
         - /url: /dashboard
-  - heading "Contact" [level=4]
+        - img
+        - text: Dashboard
+  - heading "Get In Touch" [level=4]
   - list:
-    - listitem: "Email: arnoldestates1@gmail.com"
-    - listitem: "Phone: +44 7756 779811"
-    - listitem: "Address: Northampton, UK"
-  - paragraph: © 2025 MSA Real Estate. All rights reserved.
+    - listitem:
+      - img
+      - paragraph: Email
+      - paragraph: arnoldestates1@gmail.com
+    - listitem:
+      - img
+      - paragraph: Phone
+      - paragraph: +44 7756 779811
+    - listitem:
+      - img
+      - paragraph: Location
+      - paragraph: Northampton, UK
+  - paragraph: © 2025 MSA Real Estate. All rights reserved. | Designed with ❤️ for modern living.
 - alert
 ```

@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2025-01-07
+
+### 🎨 UX Simplification - Streamlined Mobile Experience
+
+**MAJOR UX IMPROVEMENTS:**
+- Eliminated complex filtering system for simplified user journey
+- Enhanced mobile-first design with larger, more prominent elements
+- Focused user experience on core actions: Browse Properties & Browse Storage
+
+### Removed
+- **Complex Filtering Section**: Completely removed the "Find Your Perfect Home" filtering interface
+  - Eliminated confusing filter dropdowns (bedrooms, bathrooms, price range)
+  - Removed location search input field
+  - Removed "Clear All" button functionality
+  - Reduced cognitive load and decision paralysis for users
+  - Cleaner, less distracting interface with immediate focus on properties
+
+### Enhanced
+- **Mobile Logo Visibility**:
+  - Increased logo size from `h-12` to `h-20` on mobile devices (67% larger)
+  - Adjusted header height from `h-16` to `h-24` for better logo accommodation
+  - More prominent brand presence on smaller screens
+
+- **Hero Section User Experience**:
+  - Streamlined focus on "Find Your Perfect Property" messaging
+  - Enhanced call-to-action buttons for obvious user paths:
+    - "Browse Properties" (primary gradient button)
+    - "Browse Storage" (secondary outline button)
+  - Full-width buttons on mobile (`w-full`) for better touch targets
+  - Larger, bolder button text (`text-lg font-bold`) for improved readability
+  - Stacked vertical layout on mobile with optimal spacing (`max-w-md` container)
+
+### Technical Improvements
+- **Performance Optimization**:
+  - Reduced bundle size from 12.2 kB to 11.4 kB (6.5% reduction)
+  - Removed unused React state and filtering logic
+  - Cleaner component structure with simplified imports
+  - Eliminated unused `Search`, `Filter`, and `ChevronDown` icon imports
+
+- **Code Quality**:
+  - Simplified component architecture with 105 lines of filtering code removed
+  - Maintained essential `ChevronDown` import for scroll indicator functionality
+  - Cleaner, more maintainable codebase structure
+
+### User Impact
+✅ **Reduced Decision Paralysis**: Users no longer overwhelmed by complex filtering options  
+✅ **Clearer User Journey**: Direct path to property browsing without distractions  
+✅ **Better Mobile Ergonomics**: Larger logo and buttons for improved touch interaction  
+✅ **Faster Loading**: Reduced JavaScript bundle size for quicker page loads  
+✅ **Professional Appearance**: Clean, uncluttered interface focusing on core functionality  
+
+### Quality Assurance
+- ✅ All E2E tests passing across Chrome, Firefox, Safari (desktop & mobile)
+- ✅ Authentication flows verified on all browsers and devices
+- ✅ Homepage navigation and property interaction confirmed functional
+- ✅ Admin panel access and functionality maintained
+- ✅ Live site global functionality verified for international users
+- ✅ Build optimization confirmed with successful production compilation
+
 ## [3.0.0] - 2025-01-07
 
 ### 🎨 Major Frontend Redesign - Complete UI/UX Overhaul

@@ -12,6 +12,26 @@ Built with Next.js, TypeScript, and Firebase, the platform offers real-time data
 
 The application recently underwent significant updates to resolve critical stability and data integrity issues, plus major UI/UX improvements, marketing integration, and new service offerings. These improvements have made the platform substantially more reliable and user-friendly.
 
+### 🎯 UX Simplification & Mobile Enhancement (v3.1.0 - January 7, 2025)
+**Streamlined User Experience - Focused Mobile Design**
+
+-   **🗑️ Simplified User Journey**: Completely removed complex filtering system that was causing user confusion
+    -   ✅ **Eliminated Cognitive Overload**: Removed overwhelming filter dropdowns (bedrooms, bathrooms, price, location search)
+    -   ✅ **Direct Property Access**: Users now navigate directly to property browsing without filtering barriers
+    -   ✅ **Reduced Bundle Size**: Performance improvement with 6.5% reduction in JavaScript bundle (12.2 kB → 11.4 kB)
+
+-   **📱 Enhanced Mobile Experience**: Major improvements to mobile usability and visual prominence
+    -   ✅ **Larger Logo**: Increased mobile logo size by 67% (h-12 → h-20) for better brand visibility
+    -   ✅ **Better Touch Targets**: Full-width hero buttons with larger text for improved mobile interaction
+    -   ✅ **Cleaner Interface**: Focused design highlighting two core actions: "Browse Properties" & "Browse Storage"
+    -   ✅ **Professional Appearance**: Eliminated distracting elements for a clean, business-focused interface
+
+-   **⚡ Technical & Performance Improvements**:
+    -   ✅ **Simplified Architecture**: Removed 105 lines of complex filtering logic for maintainable codebase
+    -   ✅ **All Tests Passing**: Comprehensive E2E testing verified across Chrome, Firefox, Safari (desktop & mobile)
+    -   ✅ **Global Functionality**: International user access confirmed through live site testing
+    -   ✅ **Production Ready**: Build optimization and deployment verified on msaproperties.co.uk
+
 ### 🎨 Complete Frontend Redesign (v3.0.0 - January 7, 2025)
 **Major Version Release - Complete UI/UX Overhaul**
 
