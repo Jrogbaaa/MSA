@@ -245,7 +245,8 @@ function SignInContent() {
               </p>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
 
         {/* Maintenance Notice */}
         <Card className="bg-blue-50 border-blue-200">
