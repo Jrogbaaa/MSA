@@ -286,12 +286,12 @@ export default function HomePage() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <motion.div 
+                    <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/50"
           >
+            <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/50">
             <div className="px-4 py-3 space-y-1">
               <Link href="/" className="block px-3 py-2 text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors font-medium">
                 Properties
@@ -306,6 +306,7 @@ export default function HomePage() {
                 Contact
               </Link>
             </div>
+          </div>
           </motion.div>
         )}
       </header>
@@ -349,14 +350,15 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="mb-6"
             >
+              <div className="mb-6">
               <h1 className="text-5xl md:text-7xl font-display font-bold mb-4 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
                 Find Your Perfect
               </h1>
               <h1 className="text-5xl md:text-7xl font-display font-bold gradient-text-brand">
                 Property
               </h1>
+              </div>
             </motion.div>
             
             <motion.div
@@ -380,9 +382,9 @@ export default function HomePage() {
                   className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-lg px-8 py-4 font-semibold shadow-xl shadow-brand-500/25 btn-modern group"
                   onClick={scrollToProperties}
                 >
-                  Browse Properties
+                Browse Properties
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
+              </Button>
                 <Button 
                   size="lg" 
                   variant="outline" 
@@ -405,16 +407,16 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="mt-16 flex flex-wrap justify-center gap-8 text-center"
             >
+              <div className="mt-16 flex flex-wrap justify-center gap-8 text-center">
               <div className="flex flex-col items-center">
                 <div className="text-3xl font-bold text-white">{properties.length || '50'}+</div>
                 <div className="text-sm text-gray-300 font-medium">Properties Available</div>
-              </div>
+          </div>
               <div className="flex flex-col items-center">
                 <div className="text-3xl font-bold text-white">{storageSpaces.length || '20'}+</div>
                 <div className="text-sm text-gray-300 font-medium">Storage Units</div>
-              </div>
+        </div>
               <div className="flex flex-col items-center">
                 <div className="text-3xl font-bold text-white">24/7</div>
                 <div className="text-sm text-gray-300 font-medium">Support Available</div>
@@ -426,6 +428,7 @@ export default function HomePage() {
                 </div>
                 <div className="text-sm text-gray-300 font-medium">Customer Rating</div>
               </div>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -435,11 +438,12 @@ export default function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
         >
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
           <div className="flex flex-col items-center text-white/70">
             <span className="text-sm font-medium mb-2">Scroll to explore</span>
             <ChevronDown className="h-6 w-6 animate-bounce" />
+          </div>
           </div>
         </motion.div>
       </section>
@@ -457,58 +461,58 @@ export default function HomePage() {
             
             <div className="flex flex-wrap gap-3 flex-1">
               <div className="relative">
-                <select
+              <select
                   className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-4 py-3 pr-10 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
-                  value={searchFilters.bedrooms || ''}
-                  onChange={(e) => setSearchFilters(prev => ({ 
-                    ...prev, 
-                    bedrooms: e.target.value ? Number(e.target.value) : null 
-                  }))}
-                >
-                  <option value="">Any Bedrooms</option>
-                  <option value="0">Studio</option>
-                  <option value="1">1 Bedroom</option>
-                  <option value="2">2 Bedrooms</option>
-                  <option value="3">3 Bedrooms</option>
-                  <option value="4">4+ Bedrooms</option>
-                </select>
+                value={searchFilters.bedrooms || ''}
+                onChange={(e) => setSearchFilters(prev => ({ 
+                  ...prev, 
+                  bedrooms: e.target.value ? Number(e.target.value) : null 
+                }))}
+              >
+                <option value="">Any Bedrooms</option>
+                <option value="0">Studio</option>
+                <option value="1">1 Bedroom</option>
+                <option value="2">2 Bedrooms</option>
+                <option value="3">3 Bedrooms</option>
+                <option value="4">4+ Bedrooms</option>
+              </select>
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
 
               <div className="relative">
-                <select
+              <select
                   className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-4 py-3 pr-10 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
-                  value={searchFilters.bathrooms || ''}
-                  onChange={(e) => setSearchFilters(prev => ({ 
-                    ...prev, 
-                    bathrooms: e.target.value ? Number(e.target.value) : null 
-                  }))}
-                >
-                  <option value="">Any Bathrooms</option>
-                  <option value="1">1 Bathroom</option>
-                  <option value="2">2 Bathrooms</option>
-                  <option value="3">3+ Bathrooms</option>
-                </select>
+                value={searchFilters.bathrooms || ''}
+                onChange={(e) => setSearchFilters(prev => ({ 
+                  ...prev, 
+                  bathrooms: e.target.value ? Number(e.target.value) : null 
+                }))}
+              >
+                <option value="">Any Bathrooms</option>
+                <option value="1">1 Bathroom</option>
+                <option value="2">2 Bathrooms</option>
+                <option value="3">3+ Bathrooms</option>
+              </select>
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
 
               <div className="relative">
-                <select
+              <select
                   className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-4 py-3 pr-10 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
-                  value={searchFilters.priceRange[1]}
-                  onChange={(e) => setSearchFilters(prev => ({ 
-                    ...prev, 
-                    priceRange: [prev.priceRange[0], Number(e.target.value)] 
-                  }))}
-                >
-                  <option value="5000">Any Price</option>
-                  <option value="1500">Under £1,500</option>
-                  <option value="2500">Under £2,500</option>
-                  <option value="3500">Under £3,500</option>
-                  <option value="5000">Under £5,000</option>
-                </select>
+                value={searchFilters.priceRange[1]}
+                onChange={(e) => setSearchFilters(prev => ({ 
+                  ...prev, 
+                  priceRange: [prev.priceRange[0], Number(e.target.value)] 
+                }))}
+              >
+                <option value="5000">Any Price</option>
+                <option value="1500">Under £1,500</option>
+                <option value="2500">Under £2,500</option>
+                <option value="3500">Under £3,500</option>
+                <option value="5000">Under £5,000</option>
+              </select>
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              </div>
+            </div>
 
               <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -552,18 +556,19 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="text-center"
             >
+              <div className="text-center">
               <h2 className="text-4xl font-display font-bold text-gray-900 mb-4">
                 Premium Properties
               </h2>
-              {propertiesLoaded ? (
+            {propertiesLoaded ? (
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                   Discover {filteredProperties.length} carefully selected properties designed for modern living
-                </p>
-              ) : (
+              </p>
+            ) : (
                 <p className="text-xl text-gray-600">Finding the perfect properties for you...</p>
-              )}
+            )}
+              </div>
             </motion.div>
           </div>
 
@@ -630,14 +635,14 @@ export default function HomePage() {
                   <Card className="card-modern overflow-hidden h-full flex flex-col group">
                     <div className="relative h-64 flex-shrink-0 overflow-hidden">
                       <Link href={`/property/${property.id}`} className="absolute inset-0 cursor-pointer group/image block">
-                        <Image
-                          src={property.photos[0]}
-                          alt={property.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      <Image
+                        src={property.photos[0]}
+                        alt={property.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
-                          priority={index < 4}
-                        />
+                        priority={index < 4}
+                      />
                         {/* Modern overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-300" />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity duration-300">
@@ -647,11 +652,11 @@ export default function HomePage() {
                         </div>
                         {/* Status badges */}
                         <div className="absolute top-4 left-4 flex flex-col gap-2">
-                          {property.id === '1' && (
+                      {property.id === '1' && (
                             <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm">
                               🔥 Only 2 left!
-                            </div>
-                          )}
+                        </div>
+                      )}
                           <div className="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-medium shadow-lg">
                             Available Now
                           </div>
@@ -709,7 +714,7 @@ export default function HomePage() {
                         <div className="flex items-center">
                           <div className="p-2 bg-brand-50 rounded-lg mr-2">
                             <Bed size={16} className="text-brand-600" />
-                          </div>
+                        </div>
                           <span className="font-medium">{formatBedrooms(property.bedrooms)}</span>
                         </div>
                         <div className="flex items-center">
@@ -984,14 +989,14 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
               <div className="mb-6">
-                <Image 
-                  src="/logo.png" 
-                  alt="MSA Real Estate" 
-                  width={500}
-                  height={150}
-                  className="h-24 w-auto"
-                />
-              </div>
+              <Image 
+                src="/logo.png" 
+                alt="MSA Real Estate" 
+                width={500}
+                height={150}
+                className="h-24 w-auto"
+              />
+            </div>
               <p className="text-gray-300 text-lg leading-relaxed mb-6">
                 Your trusted partner in finding premium properties and secure storage solutions across England.
               </p>
@@ -1014,36 +1019,36 @@ export default function HomePage() {
               </div>
             </div>
             
-            <div>
+                <div>
               <h4 className="text-xl font-semibold text-white mb-6">Quick Links</h4>
               <ul className="space-y-3">
                 <li><Link href="/" className="text-gray-300 hover:text-white transition-colors flex items-center group"><ArrowRight className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />Properties</Link></li>
                 <li><Link href="/about" className="text-gray-300 hover:text-white transition-colors flex items-center group"><ArrowRight className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />About Us</Link></li>
                 <li><Link href="/contact" className="text-gray-300 hover:text-white transition-colors flex items-center group"><ArrowRight className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />Contact</Link></li>
                 <li><Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors flex items-center group"><ArrowRight className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />Dashboard</Link></li>
-              </ul>
-            </div>
+                  </ul>
+                </div>
             
-            <div>
+                <div>
               <h4 className="text-xl font-semibold text-white mb-6">Get In Touch</h4>
               <ul className="space-y-4">
                 <li className="flex items-center">
                   <div className="p-2 bg-brand-500/20 rounded-lg mr-3">
                     <Mail className="w-4 h-4 text-brand-400" />
-                  </div>
+                </div>
                   <div>
                     <p className="text-sm text-gray-400">Email</p>
                     <p className="text-white">arnoldestates1@gmail.com</p>
-                  </div>
+              </div>
                 </li>
                 <li className="flex items-center">
                   <div className="p-2 bg-brand-500/20 rounded-lg mr-3">
                     <Phone className="w-4 h-4 text-brand-400" />
-                  </div>
+            </div>
                   <div>
                     <p className="text-sm text-gray-400">Phone</p>
                     <p className="text-white">+44 7756 779811</p>
-                  </div>
+          </div>
                 </li>
                 <li className="flex items-center">
                   <div className="p-2 bg-brand-500/20 rounded-lg mr-3">

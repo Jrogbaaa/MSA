@@ -101,8 +101,8 @@ function SignInContent() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center"
         >
+          <div className="text-center">
           <Link href="/" className="flex justify-center mb-8">
             <Image 
               src="/logo.png" 
@@ -119,6 +119,7 @@ function SignInContent() {
           <p className="text-lg text-gray-600">
             Sign in to access your dashboard and manage your properties
           </p>
+          </div>
         </motion.div>
 
         {/* Modern Sign In Form */}
