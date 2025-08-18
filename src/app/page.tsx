@@ -200,7 +200,7 @@ export default function HomePage() {
       {/* Modern Header */}
       <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-28">
+          <div className="flex justify-between items-center h-16 md:h-28">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
                 <Image 
@@ -208,7 +208,7 @@ export default function HomePage() {
                   alt="MSA Real Estate" 
                   width={600}
                   height={180}
-                  className="h-40 w-auto"
+                  className="h-12 md:h-40 w-auto"
                   priority
                 />
               </Link>
@@ -352,10 +352,10 @@ export default function HomePage() {
               transition={{ duration: 0.8 }}
             >
               <div className="mb-6">
-              <h1 className="text-5xl md:text-7xl font-display font-bold mb-4 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-display font-bold mb-4 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
                 Find Your Perfect
               </h1>
-              <h1 className="text-5xl md:text-7xl font-display font-bold gradient-text-brand">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-display font-bold gradient-text-brand">
                 Property
               </h1>
               </div>
@@ -366,7 +366,7 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <p className="text-xl md:text-2xl mb-8 text-gray-200 font-light leading-relaxed max-w-3xl mx-auto">
+              <p className="text-base sm:text-xl md:text-2xl mb-8 text-gray-200 font-light leading-relaxed max-w-3xl mx-auto">
                 Discover premium properties across England with our modern platform designed for the contemporary lifestyle
               </p>
             </motion.div>
@@ -379,7 +379,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-lg px-8 py-4 font-semibold shadow-xl shadow-brand-500/25 btn-modern group"
+                  className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm sm:text-lg px-6 sm:px-8 py-3 sm:py-4 font-semibold shadow-xl shadow-brand-500/25 btn-modern group"
                   onClick={scrollToProperties}
                 >
                 Browse Properties
@@ -388,7 +388,7 @@ export default function HomePage() {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="glass border-white/30 text-white hover:bg-white/10 hover:border-white/50 text-lg px-8 py-4 font-semibold backdrop-blur-md btn-modern group"
+                  className="glass border-white/30 text-white hover:bg-white/10 hover:border-white/50 text-sm sm:text-lg px-6 sm:px-8 py-3 sm:py-4 font-semibold backdrop-blur-md btn-modern group"
                   onClick={() => {
                     const storageSection = document.getElementById('storage-section');
                     if (storageSection) {
@@ -449,20 +449,20 @@ export default function HomePage() {
       </section>
 
       {/* Modern Filters */}
-      <section className="bg-white/90 backdrop-blur-sm py-8 border-b border-gray-200/50 sticky top-28 z-40">
+      <section className="bg-white/90 backdrop-blur-sm py-4 md:py-8 border-b border-gray-200/50 sticky top-16 md:top-28 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+          <div className="flex flex-col gap-4 md:gap-6">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-brand-100 rounded-lg">
                 <Filter size={20} className="text-brand-600" />
               </div>
-              <span className="font-semibold text-gray-800 text-lg">Find Your Perfect Home</span>
+              <span className="font-semibold text-gray-800 text-base md:text-lg">Find Your Perfect Home</span>
             </div>
             
-            <div className="flex flex-wrap gap-3 flex-1">
+            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-3">
               <div className="relative">
               <select
-                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-4 py-3 pr-10 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
+                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-3 md:px-4 py-2 md:py-3 pr-8 md:pr-10 text-xs md:text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 w-full"
                 value={searchFilters.bedrooms || ''}
                 onChange={(e) => setSearchFilters(prev => ({ 
                   ...prev, 
@@ -481,7 +481,7 @@ export default function HomePage() {
 
               <div className="relative">
               <select
-                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-4 py-3 pr-10 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
+                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-3 md:px-4 py-2 md:py-3 pr-8 md:pr-10 text-xs md:text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 w-full"
                 value={searchFilters.bathrooms || ''}
                 onChange={(e) => setSearchFilters(prev => ({ 
                   ...prev, 
@@ -498,7 +498,7 @@ export default function HomePage() {
 
               <div className="relative">
               <select
-                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-4 py-3 pr-10 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
+                  className="appearance-none bg-white border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl px-3 md:px-4 py-2 md:py-3 pr-8 md:pr-10 text-xs md:text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 w-full"
                 value={searchFilters.priceRange[1]}
                 onChange={(e) => setSearchFilters(prev => ({ 
                   ...prev, 
@@ -514,12 +514,12 @@ export default function HomePage() {
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             </div>
 
-              <div className="relative flex-1 min-w-[200px]">
+              <div className="relative col-span-2 md:col-span-1 md:flex-1 md:min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by location or property name..."
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
+                  placeholder="Search by location..."
+                  className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 hover:border-brand-300 focus:border-brand-500 rounded-xl text-xs md:text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20"
                   value={searchFilters.searchTerm}
                   onChange={(e) => setSearchFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
                 />
@@ -528,20 +528,22 @@ export default function HomePage() {
 
             {/* Clear Filters Button */}
             {(searchFilters.bedrooms || searchFilters.bathrooms || searchFilters.priceRange[1] < 5000 || searchFilters.searchTerm) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSearchFilters({
-                  priceRange: [0, 5000],
-                  bedrooms: null,
-                  bathrooms: null,
-                  availability: 'available',
-                  searchTerm: '',
-                })}
-                className="text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400"
-              >
-                Clear All
-              </Button>
+              <div className="col-span-2 md:col-span-1 flex justify-center md:justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSearchFilters({
+                    priceRange: [0, 5000],
+                    bedrooms: null,
+                    bathrooms: null,
+                    availability: 'available',
+                    searchTerm: '',
+                  })}
+                  className="text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400 w-full md:w-auto"
+                >
+                  Clear All
+                </Button>
+              </div>
             )}
           </div>
         </div>
