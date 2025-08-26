@@ -9,7 +9,7 @@ export interface Property {
   description: string;
   amenities: string[];
   photos: string[];
-  availability: 'available' | 'occupied' | 'maintenance';
+  availability: 'available' | 'occupied' | 'maintenance' | 'sold';
   epcRating?: string;
   councilTaxBand?: string;
   createdAt: Date;

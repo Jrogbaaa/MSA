@@ -517,23 +517,50 @@ Please contact the visitor to arrange the property viewing.`;
             {/* Modern Application CTA */}
             <Card className="card-modern shadow-xl border-0">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-2xl font-display font-bold text-gray-900 mb-2">Ready to Apply?</CardTitle>
-                <p className="text-gray-600">Take the next step towards your new home</p>
+                {property.availability === 'sold' ? (
+                  <>
+                    <CardTitle className="text-2xl font-display font-bold text-red-600 mb-2">Property Sold</CardTitle>
+                    <p className="text-gray-600">This property has been sold</p>
+                  </>
+                ) : (
+                  <>
+                    <CardTitle className="text-2xl font-display font-bold text-gray-900 mb-2">Ready to Apply?</CardTitle>
+                    <p className="text-gray-600">Take the next step towards your new home</p>
+                  </>
+                )}
               </CardHeader>
               <CardContent className="space-y-4">
-                <Link href={`/apply/${property.id}`}>
-                  <Button className="w-full btn-touch bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white font-semibold text-lg py-4 shadow-xl shadow-brand-500/25">
-                    Apply Now
-                  </Button>
-                </Link>
-                <Button
-                  variant="outline"
-                  className="w-full btn-touch border-2 border-brand-200 text-brand-700 hover:bg-brand-50 font-semibold py-4"
-                  onClick={() => setShowContactForm(!showContactForm)}
-                >
-                  <Calendar className="mr-2 h-5 w-5" />
-                  Schedule Tour
-                </Button>
+                {property.availability === 'sold' ? (
+                  <>
+                    <Button disabled className="w-full btn-touch bg-gray-400 text-white font-semibold text-lg py-4 cursor-not-allowed">
+                      Property Sold
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full btn-touch border-2 border-brand-200 text-brand-700 hover:bg-brand-50 font-semibold py-4"
+                      onClick={() => setShowContactForm(!showContactForm)}
+                    >
+                      <Mail className="mr-2 h-5 w-5" />
+                      View Similar Properties
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link href={`/apply/${property.id}`}>
+                      <Button className="w-full btn-touch bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white font-semibold text-lg py-4 shadow-xl shadow-brand-500/25">
+                        Apply Now
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      className="w-full btn-touch border-2 border-brand-200 text-brand-700 hover:bg-brand-50 font-semibold py-4"
+                      onClick={() => setShowContactForm(!showContactForm)}
+                    >
+                      <Calendar className="mr-2 h-5 w-5" />
+                      Schedule Tour
+                    </Button>
+                  </>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <Button variant="outline" className="flex items-center justify-center border-green-200 text-green-700 hover:bg-green-50 font-medium">
                     <Phone size={16} className="mr-2" />
@@ -699,9 +726,12 @@ Please contact the visitor to arrange the property viewing.`;
                   <span className={`font-semibold px-3 py-1 rounded-full text-sm ${
                     property.availability === 'available' 
                       ? 'text-green-700 bg-green-100' 
+                      : property.availability === 'sold'
+                      ? 'text-red-700 bg-red-100'
                       : 'text-red-700 bg-red-100'
                   }`}>
-                    {property.availability === 'available' ? 'Available Now' : 'Not Available'}
+                    {property.availability === 'available' ? 'Available Now' : 
+                     property.availability === 'sold' ? 'SOLD' : 'Not Available'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">

@@ -142,7 +142,10 @@ export default function HomePage() {
                             property.bedrooms === searchFilters.bedrooms;
       const matchesBathrooms = searchFilters.bathrooms === null || 
                              property.bathrooms === searchFilters.bathrooms;
-      const matchesAvailability = property.availability === searchFilters.availability;
+      // Show all properties including sold ones, but prioritize availability filter when set
+      const matchesAvailability = searchFilters.availability === 'available' ? 
+                                  (property.availability === 'available' || property.availability === 'sold') :
+                                  property.availability === searchFilters.availability;
       const matchesSearch = searchFilters.searchTerm === '' || 
                           property.title.toLowerCase().includes(searchFilters.searchTerm.toLowerCase()) ||
                           property.address.toLowerCase().includes(searchFilters.searchTerm.toLowerCase());
@@ -537,6 +540,30 @@ export default function HomePage() {
                 >
                   <Card className="card-modern overflow-hidden h-full flex flex-col group">
                     <div className="relative h-64 flex-shrink-0 overflow-hidden">
+                      {/* Sold Overlay */}
+                      {property.availability === 'sold' && (
+                        <>
+                          {/* Diagonal corner banner */}
+                          <div className="absolute top-0 right-0 z-30">
+                            <div className="bg-red-600 text-white px-8 py-2 transform rotate-45 translate-x-6 -translate-y-2 font-bold text-sm shadow-lg">
+                              SOLD
+                            </div>
+                          </div>
+                          {/* Central overlay */}
+                          <div className="absolute inset-0 bg-black/60 z-30 flex items-center justify-center">
+                            <div className="relative">
+                              {/* Main SOLD banner */}
+                              <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-12 py-4 rounded-xl text-3xl font-bold shadow-2xl transform -rotate-12 border-4 border-white">
+                                SOLD
+                              </div>
+                              {/* Additional emphasis */}
+                              <div className="absolute -top-2 -right-2 bg-yellow-400 text-red-800 px-3 py-1 rounded-full text-sm font-bold transform rotate-12">
+                                ✓
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                       <Link href={`/property/${property.id}`} className="absolute inset-0 cursor-pointer group/image block">
                       <Image
                         src={property.photos[0]}
@@ -560,9 +587,15 @@ export default function HomePage() {
                               🔥 Only 2 left!
                         </div>
                       )}
-                          <div className="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-medium shadow-lg">
-                            Available Now
-                          </div>
+                          {property.availability === 'sold' ? (
+                            <div className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm">
+                              SOLD
+                            </div>
+                          ) : (
+                            <div className="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-medium shadow-lg">
+                              Available Now
+                            </div>
+                          )}
                         </div>
                       </Link>
                       <button
@@ -650,11 +683,17 @@ export default function HomePage() {
                             View Details
                           </Button>
                         </Link>
-                        <Link href={`/apply/${property.id}`}>
-                          <Button variant="outline" size="sm" className="border-brand-200 text-brand-700 hover:bg-brand-50 font-medium">
-                            Apply Now
+                        {property.availability === 'sold' ? (
+                          <Button disabled size="sm" className="border-gray-300 text-gray-400 bg-gray-100 font-medium cursor-not-allowed">
+                            Sold
                           </Button>
-                        </Link>
+                        ) : (
+                          <Link href={`/apply/${property.id}`}>
+                            <Button variant="outline" size="sm" className="border-brand-200 text-brand-700 hover:bg-brand-50 font-medium">
+                              Apply Now
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

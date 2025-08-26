@@ -940,6 +940,7 @@ export default function PropertyManager() {
                 <span className={`px-2 py-1 text-xs rounded-full ${
                   property.availability === 'available' ? 'bg-green-900/50 text-green-400' :
                   property.availability === 'occupied' ? 'bg-red-900/50 text-red-400' :
+                  property.availability === 'sold' ? 'bg-gray-900/50 text-gray-400' :
                   'bg-yellow-900/50 text-yellow-400'
                 }`}>
                   {property.availability.charAt(0).toUpperCase() + property.availability.slice(1)}
@@ -1105,6 +1106,7 @@ export default function PropertyManager() {
                                          <option value="available">Available</option>
                      <option value="occupied">Occupied</option>
                      <option value="maintenance">Maintenance</option>
+                     <option value="sold">Sold</option>
                   </select>
                 </div>
               </div>
@@ -1275,6 +1277,12 @@ export default function PropertyManager() {
                  {properties.filter(p => p.availability === 'occupied').length}
                </div>
                <div className="text-gray-400 text-sm">Occupied</div>
+             </div>
+             <div>
+               <div className="text-2xl font-bold text-gray-400">
+                 {properties.filter(p => p.availability === 'sold').length}
+               </div>
+               <div className="text-gray-400 text-sm">Sold</div>
              </div>
             <div>
               <div className="text-2xl font-bold text-white">
