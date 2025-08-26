@@ -18,7 +18,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon, CheckCircle, Cloud, CloudOff, GripVertical } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Home, MapPin, Bed, Bath, Square, Star, Upload, Image as ImageIcon, CheckCircle, Cloud, CloudOff, GripVertical, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +28,7 @@ import { formatCurrency } from '@/lib/utils';
 import { 
   getAllProperties, 
   saveProperty, 
+  updateProperty,
   deleteProperty as deletePropertyFromFirebase, 
   initializeDefaultProperties,
   subscribeToProperties,
@@ -52,7 +53,7 @@ interface PropertyFormData {
   description: string;
   amenities: string[];
   photos: { id: string; src: string }[];
-  availability: 'available' | 'occupied' | 'maintenance';
+  availability: 'available' | 'occupied' | 'maintenance' | 'sold';
   epcRating: string;
   councilTaxBand: string;
 }
@@ -637,6 +638,38 @@ export default function PropertyManager() {
     }
   };
 
+  const handleToggleSold = async (propertyId: string) => {
+    const property = properties.find(p => p.id === propertyId);
+    if (!property) return;
+
+    const newStatus = property.availability === 'sold' ? 'available' : 'sold';
+    const actionText = newStatus === 'sold' ? 'mark as sold' : 'mark as available';
+    
+    const confirmMessage = `Are you sure you want to ${actionText} "${property.title}"?\n\nThis will update the property status on the live website immediately.`;
+    
+    if (window.confirm(confirmMessage)) {
+      try {
+        console.log(`🏷️ Toggling property "${property.title}" to ${newStatus}...`);
+        
+        // Update the property in Firebase
+        const updatedProperty = await updateProperty(propertyId, { availability: newStatus });
+        
+        // Update local state immediately for quick feedback
+        setProperties(properties.map(p => p.id === propertyId ? updatedProperty : p));
+        
+        console.log(`✅ Property "${property.title}" marked as ${newStatus}`);
+        
+        // Success feedback
+        const statusText = newStatus === 'sold' ? 'SOLD' : 'Available';
+        alert(`✅ Status Updated!\n\n"${property.title}" has been marked as ${statusText} and the change is now live on the website.`);
+        
+      } catch (error) {
+        console.error('❌ Error updating property status:', error);
+        alert(`❌ Error updating property status: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try again.`);
+      }
+    }
+  };
+
   const handleSave = async () => {
     // Basic validation
     if (!formData.title || !formData.address || formData.rent <= 0) {
@@ -912,8 +945,23 @@ export default function PropertyManager() {
                     onClick={() => handleEdit(property)}
                     className="border-gray-600 text-gray-300 hover:bg-gray-700"
                     disabled={isAddingProperty || editingPropertyId !== null}
+                    title="Edit Property"
                   >
                     <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleToggleSold(property.id)}
+                    className={`${
+                      property.availability === 'sold' 
+                        ? 'border-green-600 text-green-400 hover:bg-green-900/50' 
+                        : 'border-orange-600 text-orange-400 hover:bg-orange-900/50'
+                    }`}
+                    disabled={isAddingProperty || editingPropertyId !== null}
+                    title={property.availability === 'sold' ? 'Mark as Available' : 'Mark as Sold'}
+                  >
+                    <Tag className="h-4 w-4" />
                   </Button>
                   <Button
                     size="sm"
@@ -921,6 +969,7 @@ export default function PropertyManager() {
                     onClick={() => handleDelete(property.id)}
                     className="border-red-600 text-red-400 hover:bg-red-900/50"
                     disabled={isAddingProperty || editingPropertyId !== null}
+                    title="Delete Property"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -1261,7 +1310,7 @@ export default function PropertyManager() {
           <CardTitle className="text-white">Property Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-white">{properties.length}</div>
               <div className="text-gray-400 text-sm">Total Properties</div>

@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2025-01-07
+
+### 🏷️ Enhanced Admin Property Management - Quick Sold Status Toggle
+
+**NEW ADMIN FEATURES:**
+- Added dedicated "Mark as Sold" button with Tag icon next to Edit/Delete buttons
+- Implemented smart color coding: Orange for available properties, Green for sold properties
+- Enabled instant status updates without opening edit modal
+- Added confirmation dialogs for status changes
+
+### Added
+- **Quick Action Button**: One-click toggle between Available and Sold status
+- **Visual Feedback**: Dynamic button colors indicate current status and next action
+- **Instant Updates**: Changes immediately reflected on admin dashboard and live website
+- **Enhanced Statistics**: Updated property statistics grid to 5-column layout including sold count
+- **User Experience**: Tooltips on buttons for clear action indication
+
+### Enhanced
+- **Admin Dashboard UX**: Streamlined property management workflow
+- **Property Status Management**: Two methods available (Quick button or Edit modal)
+- **Real-time Updates**: Firebase integration maintains status consistency across sessions
+
+### Updated Properties
+- **Gold Street Studio Flat**: Updated rent from £825 to £950 and marked as SOLD
+- **Talbot Road Studio Apartment**: Added new property at £725 and marked as SOLD
+
+### Documentation
+- Updated `SOLD_PROPERTY_FUNCTIONALITY.md` with new quick action button instructions
+- Added visual examples of admin dashboard button layout
+- Enhanced testing procedures to include new functionality
+
 ## [3.1.0] - 2025-01-07
 
 ### 🎨 UX Simplification - Streamlined Mobile Experience

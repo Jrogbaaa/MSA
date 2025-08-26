@@ -26,10 +26,12 @@ The MSA Properties website now includes comprehensive "sold" property functional
   - "Schedule Tour" replaced with "View Similar Properties"
 
 #### Admin Dashboard
-- **Status Management**: Dropdown includes "Sold" option
+- **Quick Action Button**: Dedicated "Mark as Sold" button (Tag icon) next to Edit/Delete
+- **Smart Color Coding**: Orange for available properties, green for sold properties
+- **Status Management**: Dropdown includes "Sold" option in edit modal
 - **Visual Indicators**: Gray badge for sold properties in admin listings
-- **Statistics**: Sold properties counter in dashboard stats
-- **Grid Layout**: Sold properties count displayed alongside available/occupied
+- **Statistics**: Sold properties counter in dashboard stats (5-column grid layout)
+- **Instant Updates**: Status changes immediately without opening edit modal
 
 ### 3. Filtering & Display Logic
 - **Inclusive Display**: Sold properties remain visible alongside available properties
@@ -65,7 +67,17 @@ The MSA Properties website now includes comprehensive "sold" property functional
 
 ## How to Mark Properties as Sold
 
-### Via Admin Dashboard
+### Method 1: Quick Action Button (Recommended)
+1. Navigate to `/admin/dashboard`
+2. Sign in with admin credentials  
+3. Find the property to mark as sold
+4. Click the **Tag button** (middle button) next to Edit/Delete
+   - **Orange** Tag button for available properties → marks as sold
+   - **Green** Tag button for sold properties → marks as available
+5. Confirm the action in the dialog
+6. Status updates immediately on admin dashboard and live site
+
+### Method 2: Via Edit Modal
 1. Navigate to `/admin/dashboard`
 2. Sign in with admin credentials  
 3. Find the property to mark as sold
@@ -74,10 +86,12 @@ The MSA Properties website now includes comprehensive "sold" property functional
 6. Click "Update Property" 
 7. Changes appear immediately on the live site
 
-### Specific Properties to Mark
-Based on user request, mark these properties as sold:
-- **Gold Street Flat**: £950/month (ID: prop_1752853950021)
-- **Talbot Road Studio Apartment**: £725/month (ID: prop_1752657081951)
+### Specific Properties Marked as Sold
+The following properties have been marked as sold as per user request:
+- **Gold Street Studio Flat**: £950/month - Updated rent from £825 to £950 and marked as SOLD
+- **Talbot Road Studio Apartment**: £725/month - Added new property and marked as SOLD
+
+Both properties now display with comprehensive sold overlays on the homepage and appropriate status indicators throughout the site.
 
 ## Visual Examples
 
@@ -110,6 +124,21 @@ Property Details
 └─────────────────────────┘
 ```
 
+### Admin Dashboard
+```
+Property Management
+┌─────────────────────────────────────────┐
+│ Property Title              [✏️][🏷️][🗑️] │ ← Edit/Tag/Delete buttons
+│ Address, Rent               [SOLD]      │ ← Status badge
+│ Bedrooms, Bathrooms                    │
+│ Description...                         │
+│ [Amenities] [Tags]                     │
+└─────────────────────────────────────────┘
+
+Button Colors:
+✏️ Edit (Gray)    🏷️ Tag (Orange→Sold, Green→Available)    🗑️ Delete (Red)
+```
+
 ## Database Schema
 
 ### Property Status Values
@@ -139,11 +168,13 @@ availability: 'available' | 'occupied' | 'maintenance' | 'sold'
 ## Testing
 
 ### Manual Testing Steps
-1. **Admin Function**: Mark property as sold via admin dashboard
-2. **Homepage Display**: Verify sold overlays appear correctly
-3. **Detail Page**: Check status and disabled apply functionality  
-4. **Filtering**: Ensure sold properties appear in listings
-5. **Statistics**: Confirm admin stats update correctly
+1. **Quick Action Button**: Test Tag button color changes and instant status updates
+2. **Admin Function**: Mark property as sold via both Tag button and edit modal
+3. **Homepage Display**: Verify sold overlays appear correctly
+4. **Detail Page**: Check status and disabled apply functionality  
+5. **Filtering**: Ensure sold properties appear in listings
+6. **Statistics**: Confirm admin stats update correctly in 5-column grid
+7. **Confirmation Dialogs**: Test that confirmation prompts appear before status changes
 
 ### Browser Compatibility
 - ✅ Chrome/Chromium
