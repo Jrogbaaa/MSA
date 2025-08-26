@@ -481,7 +481,37 @@ export const initializeDefaultProperties = async (): Promise<void> => {
       // Check if properties already exist
       const existingProperties = await getAllProperties();
       if (existingProperties.length > 0) {
-        console.log('📦 Properties already exist in Firebase, skipping initialization');
+        console.log('📦 Properties already exist in Firebase, checking for sold status updates...');
+        
+        // Check if we need to update any properties to sold status
+        const needsUpdate = existingProperties.some(existing => {
+          const initialProperty = initialProperties.find(initial => initial.id === existing.id);
+          return initialProperty && initialProperty.availability !== existing.availability;
+        });
+        
+        if (needsUpdate) {
+          console.log('🔄 Updating existing properties with sold status...');
+          for (const initialProperty of initialProperties) {
+            const existingProperty = existingProperties.find(existing => existing.id === initialProperty.id);
+            if (existingProperty && (existingProperty.availability !== initialProperty.availability || existingProperty.rent !== initialProperty.rent)) {
+              console.log(`📝 Updating ${initialProperty.title} from ${existingProperty.availability} to ${initialProperty.availability}, rent: ${existingProperty.rent} to ${initialProperty.rent}`);
+              await updateProperty(initialProperty.id, { 
+                availability: initialProperty.availability,
+                rent: initialProperty.rent
+              });
+            }
+          }
+          console.log('✅ Updated existing properties with new sold status');
+        }
+        
+        // Check for new properties that don't exist in Firebase yet
+        for (const initialProperty of initialProperties) {
+          const existingProperty = existingProperties.find(existing => existing.id === initialProperty.id);
+          if (!existingProperty) {
+            console.log(`➕ Adding new property: ${initialProperty.title}`);
+            await saveProperty(initialProperty);
+          }
+        }
         return;
       }
       

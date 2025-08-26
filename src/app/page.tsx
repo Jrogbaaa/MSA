@@ -582,7 +582,7 @@ export default function HomePage() {
                         </div>
                         {/* Status badges */}
                         <div className="absolute top-4 left-4 flex flex-col gap-2">
-                      {property.id === '1' && (
+                      {property.id === '1' && property.availability !== 'sold' && (
                             <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm">
                               🔥 Only 2 left!
                         </div>
