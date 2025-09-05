@@ -512,7 +512,7 @@ export const initializeDefaultProperties = async (): Promise<void> => {
           console.log(`🗑️  Removing ${demoProperties.length} demo properties from Firebase...`);
           for (const demoProperty of demoProperties) {
             console.log(`❌ Removing demo property: ${demoProperty.title}`);
-            await deletePropertyFromFirebase(demoProperty.id);
+            await deleteProperty(demoProperty.id);
           }
           console.log('✅ Removed demo properties from Firebase');
         }
