@@ -93,6 +93,16 @@ The following properties have been marked as sold as per user request:
 
 Both properties now display with comprehensive sold overlays on the homepage and appropriate status indicators throughout the site.
 
+### Demo Property Cleanup
+**Issue Resolved**: Demo properties (Modern City Centre Flat, Charming Garden Flat, Luxury Penthouse) were accidentally appearing on the live site due to Firebase synchronization.
+
+**Solution Implemented**:
+- Removed all demo properties from static data (`src/data/properties.ts`)
+- Added automatic cleanup logic in Firebase initialization
+- System now automatically detects and removes demo property IDs: '2', '3', '4'
+- Only real properties remain: Gold Street Studio Flat and Talbot Road Studio Apartment
+- Prevents future accidental deployment of test/demo properties
+
 ## Visual Examples
 
 ### Homepage Display

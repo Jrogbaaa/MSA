@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.1] - 2025-01-07
+
+### 🧹 Demo Property Cleanup - Production Data Integrity Fix
+
+**CRITICAL FIX:**
+- Resolved issue where demo properties unexpectedly appeared on live site
+- Implemented automatic cleanup of test/demo properties from Firebase
+- Ensured only real properties remain visible to users
+
+### Fixed
+- **Demo Property Removal**: Eliminated Modern City Centre Flat, Charming Garden Flat, and Luxury Penthouse demo properties
+- **Firebase Synchronization**: Added automatic detection and cleanup of demo property IDs ('2', '3', '4')
+- **Data Integrity**: Prevented accidental deployment of test properties to production
+- **Static Data Cleanup**: Removed demo properties from `src/data/properties.ts`
+
+### Enhanced
+- **Firebase Initialization**: Enhanced with demo property detection and automatic removal
+- **Production Safety**: Added safeguards against demo data appearing in live environment
+- **Property Management**: Streamlined to focus only on real property listings
+
+### Current Live Properties
+- **Gold Street Studio Flat**: £950/month - SOLD
+- **Talbot Road Studio Apartment**: £725/month - SOLD
+
+### Documentation
+- Updated `SOLD_PROPERTY_FUNCTIONALITY.md` with demo cleanup information
+- Added troubleshooting section for data synchronization issues
+
 ## [3.2.0] - 2025-01-07
 
 ### 🏷️ Enhanced Admin Property Management - Quick Sold Status Toggle

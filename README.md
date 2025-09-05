@@ -12,6 +12,20 @@ Built with Next.js, TypeScript, and Firebase, the platform offers real-time data
 
 The application recently underwent significant updates to resolve critical stability and data integrity issues, plus major UI/UX improvements, marketing integration, and new service offerings. These improvements have made the platform substantially more reliable and user-friendly.
 
+### 🧹 Demo Property Cleanup & Admin Enhancement (v3.2.1 - January 7, 2025)
+**Production Data Integrity & Enhanced Admin Tools**
+
+-   **🚨 Critical Fix**: Resolved demo properties unexpectedly appearing on live site
+    -   ✅ **Automatic Cleanup**: Firebase initialization now detects and removes demo property IDs ('2', '3', '4')
+    -   ✅ **Data Integrity**: Only real properties remain visible (Gold Street Studio Flat £950 SOLD, Talbot Road Studio £725 SOLD)
+    -   ✅ **Production Safety**: Added safeguards against test data appearing in live environment
+
+-   **🏷️ Enhanced Admin Property Management**: Quick "Mark as Sold" functionality for streamlined workflow
+    -   ✅ **One-Click Toggle**: Dedicated Tag button next to Edit/Delete for instant status updates
+    -   ✅ **Smart Color Coding**: Orange for available properties, green for sold properties  
+    -   ✅ **Instant Updates**: Changes immediately reflected on admin dashboard and live website
+    -   ✅ **Confirmation Dialogs**: User-friendly prompts before status changes
+
 ### 🎯 UX Simplification & Mobile Enhancement (v3.1.0 - January 7, 2025)
 **Streamlined User Experience - Focused Mobile Design**
 
