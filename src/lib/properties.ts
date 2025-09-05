@@ -504,6 +504,19 @@ export const initializeDefaultProperties = async (): Promise<void> => {
           console.log('✅ Updated existing properties with new sold status');
         }
         
+        // Remove demo properties that shouldn't be in production
+        const demoPropertyIds = ['2', '3', '4']; // Modern City Centre, Charming Garden, Luxury Penthouse
+        const demoProperties = existingProperties.filter(property => demoPropertyIds.includes(property.id));
+        
+        if (demoProperties.length > 0) {
+          console.log(`🗑️  Removing ${demoProperties.length} demo properties from Firebase...`);
+          for (const demoProperty of demoProperties) {
+            console.log(`❌ Removing demo property: ${demoProperty.title}`);
+            await deletePropertyFromFirebase(demoProperty.id);
+          }
+          console.log('✅ Removed demo properties from Firebase');
+        }
+        
         // Check for new properties that don't exist in Firebase yet
         for (const initialProperty of initialProperties) {
           const existingProperty = existingProperties.find(existing => existing.id === initialProperty.id);
