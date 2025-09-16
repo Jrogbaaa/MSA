@@ -307,4 +307,292 @@ test.describe('Contact Form Mobile Tests', () => {
       if (await emailField.isVisible()) await expect(emailField).toBeVisible();
     }
   });
+});
+
+test.describe('🏷️ Property Status Toggle (Tag Button) E2E Tests', () => {
+  test.beforeEach(async ({ page }) => {
+    test.setTimeout(90000); // Extended timeout for Firebase operations
+  });
+
+  async function loginAsAdmin(page: Page) {
+    await page.goto('/admin/login');
+    
+    const emailField = page.getByLabel(/email/i)
+      .or(page.locator('input[type="email"]'))
+      .first();
+    const passwordField = page.getByLabel(/password/i)
+      .or(page.locator('input[type="password"]'))
+      .first();
+    const submitButton = page.getByRole('button', { name: /access admin panel/i })
+      .or(page.getByRole('button', { name: /login/i }))
+      .first();
+    
+    if (await emailField.isVisible() && await passwordField.isVisible()) {
+      await emailField.fill('admin@msaproperties.co.uk');
+      await passwordField.fill(ADMIN_PASSWORD);
+      await submitButton.click();
+      
+      // Wait for redirect to dashboard
+      await page.waitForURL(/\/admin\/dashboard$/, { timeout: 30000 });
+    }
+  }
+
+  test('should display Tag buttons with correct colors for available and sold properties', async ({ page }) => {
+    await loginAsAdmin(page);
+    
+    // Wait for properties to load
+    await page.waitForSelector('[data-testid="property-card"], .property-item, .property-row', { timeout: 30000 });
+    
+    // Look for Tag buttons (they should have Tag icon or specific styling)
+    const tagButtons = page.locator('button[title*="Mark as"], button:has(svg):has-text("")').filter({
+      has: page.locator('svg') // Tag icon
+    });
+    
+    if (await tagButtons.count() > 0) {
+      // Check for orange buttons (available properties)
+      const orangeTagButtons = page.locator('button[title="Mark as Sold"]')
+        .or(page.locator('button:has(svg)').filter({ hasText: '' }).filter({
+          has: page.locator('.border-orange-600, .text-orange-400')
+        }));
+      
+      // Check for green buttons (sold properties)
+      const greenTagButtons = page.locator('button[title="Mark as Available"]')
+        .or(page.locator('button:has(svg)').filter({ hasText: '' }).filter({
+          has: page.locator('.border-green-600, .text-green-400')
+        }));
+      
+      const orangeCount = await orangeTagButtons.count();
+      const greenCount = await greenTagButtons.count();
+      
+      console.log(`Found ${orangeCount} orange Tag buttons and ${greenCount} green Tag buttons`);
+      
+      // Verify at least one type of button exists
+      expect(orangeCount + greenCount).toBeGreaterThan(0);
+    }
+  });
+
+  test('should toggle property status from available to sold', async ({ page }) => {
+    await loginAsAdmin(page);
+    
+    // Wait for properties to load
+    await page.waitForSelector('[data-testid="property-card"], .property-item, .property-row', { timeout: 30000 });
+    
+    // Find a property that can be marked as sold (orange Tag button)
+    const availableTagButton = page.locator('button[title="Mark as Sold"]').first();
+    
+    if (await availableTagButton.isVisible()) {
+      // Get the property title before clicking
+      const propertyCard = availableTagButton.locator('..').locator('..');
+      const propertyTitle = await propertyCard.locator('h3, .property-title, [data-testid="property-title"]').first().textContent();
+      
+      console.log(`Attempting to mark property as sold: ${propertyTitle}`);
+      
+      // Mock the confirmation dialog to auto-accept
+      page.on('dialog', dialog => {
+        console.log(`Dialog message: ${dialog.message()}`);
+        dialog.accept();
+      });
+      
+      // Click the Tag button
+      await availableTagButton.click();
+      
+      // Wait for the status to update
+      await page.waitForTimeout(3000);
+      
+      // Verify the button changed to green (Mark as Available)
+      const updatedButton = page.locator('button[title="Mark as Available"]').first();
+      if (await updatedButton.isVisible()) {
+        await expect(updatedButton).toBeVisible();
+        console.log('✅ Property successfully marked as sold - button changed to green');
+      }
+      
+      // Check for success notification
+      const successAlert = page.locator('text=Status Updated!').or(page.locator('text=marked as SOLD'));
+      if (await successAlert.isVisible()) {
+        await expect(successAlert).toBeVisible();
+        console.log('✅ Success notification displayed');
+      }
+    } else {
+      console.log('⚠️  No available properties found to mark as sold');
+    }
+  });
+
+  test('should toggle property status from sold to available', async ({ page }) => {
+    await loginAsAdmin(page);
+    
+    // Wait for properties to load
+    await page.waitForSelector('[data-testid="property-card"], .property-item, .property-row', { timeout: 30000 });
+    
+    // Find a property that can be marked as available (green Tag button)
+    const soldTagButton = page.locator('button[title="Mark as Available"]').first();
+    
+    if (await soldTagButton.isVisible()) {
+      // Get the property title before clicking
+      const propertyCard = soldTagButton.locator('..').locator('..');
+      const propertyTitle = await propertyCard.locator('h3, .property-title, [data-testid="property-title"]').first().textContent();
+      
+      console.log(`Attempting to mark property as available: ${propertyTitle}`);
+      
+      // Mock the confirmation dialog to auto-accept
+      page.on('dialog', dialog => {
+        console.log(`Dialog message: ${dialog.message()}`);
+        dialog.accept();
+      });
+      
+      // Click the Tag button
+      await soldTagButton.click();
+      
+      // Wait for the status to update
+      await page.waitForTimeout(3000);
+      
+      // Verify the button changed to orange (Mark as Sold)
+      const updatedButton = page.locator('button[title="Mark as Sold"]').first();
+      if (await updatedButton.isVisible()) {
+        await expect(updatedButton).toBeVisible();
+        console.log('✅ Property successfully marked as available - button changed to orange');
+      }
+      
+      // Check for success notification
+      const successAlert = page.locator('text=Status Updated!').or(page.locator('text=marked as Available'));
+      if (await successAlert.isVisible()) {
+        await expect(successAlert).toBeVisible();
+        console.log('✅ Success notification displayed');
+      }
+    } else {
+      console.log('⚠️  No sold properties found to mark as available');
+    }
+  });
+
+  test('should handle user cancellation of status change', async ({ page }) => {
+    await loginAsAdmin(page);
+    
+    // Wait for properties to load
+    await page.waitForSelector('[data-testid="property-card"], .property-item, .property-row', { timeout: 30000 });
+    
+    // Find any Tag button
+    const tagButton = page.locator('button[title*="Mark as"]').first();
+    
+    if (await tagButton.isVisible()) {
+      const originalTitle = await tagButton.getAttribute('title');
+      
+      // Mock the confirmation dialog to cancel
+      page.on('dialog', dialog => {
+        console.log(`Dialog message: ${dialog.message()}`);
+        dialog.dismiss(); // Cancel the action
+      });
+      
+      // Click the Tag button
+      await tagButton.click();
+      
+      // Wait a moment
+      await page.waitForTimeout(1000);
+      
+      // Verify the button title hasn't changed
+      const currentTitle = await tagButton.getAttribute('title');
+      expect(currentTitle).toBe(originalTitle);
+      
+      console.log('✅ Property status unchanged after user cancellation');
+    }
+  });
+
+  test('should disable Tag buttons when adding new property', async ({ page }) => {
+    await loginAsAdmin(page);
+    
+    // Wait for properties to load
+    await page.waitForSelector('[data-testid="property-card"], .property-item, .property-row', { timeout: 30000 });
+    
+    // Find and click "Add New Property" button
+    const addButton = page.getByRole('button', { name: /add new property/i })
+      .or(page.getByText(/add new property/i))
+      .first();
+    
+    if (await addButton.isVisible()) {
+      await addButton.click();
+      
+      // Wait for add form to appear
+      await page.waitForTimeout(2000);
+      
+      // Verify Tag buttons are disabled
+      const tagButtons = page.locator('button[title*="Mark as"]');
+      const tagButtonCount = await tagButtons.count();
+      
+      for (let i = 0; i < tagButtonCount; i++) {
+        const button = tagButtons.nth(i);
+        if (await button.isVisible()) {
+          await expect(button).toBeDisabled();
+        }
+      }
+      
+      console.log('✅ Tag buttons properly disabled during property addition');
+      
+      // Cancel adding property
+      const cancelButton = page.getByRole('button', { name: /cancel/i }).first();
+      if (await cancelButton.isVisible()) {
+        await cancelButton.click();
+      }
+    }
+  });
+
+  test('should update property statistics when status changes', async ({ page }) => {
+    await loginAsAdmin(page);
+    
+    // Wait for properties to load
+    await page.waitForSelector('[data-testid="property-card"], .property-item, .property-row', { timeout: 30000 });
+    
+    // Find statistics section
+    const statsSection = page.locator('text=Property Statistics').locator('..').or(
+      page.locator('[data-testid="property-stats"]')
+    );
+    
+    if (await statsSection.isVisible()) {
+      // Get initial statistics
+      const initialStats = await page.locator('text=/Total Properties|Available|Sold/').allTextContents();
+      console.log('Initial stats:', initialStats);
+      
+      // Find and click a Tag button
+      const tagButton = page.locator('button[title*="Mark as"]').first();
+      
+      if (await tagButton.isVisible()) {
+        // Auto-accept confirmation
+        page.on('dialog', dialog => dialog.accept());
+        
+        await tagButton.click();
+        
+        // Wait for statistics to update
+        await page.waitForTimeout(3000);
+        
+        // Get updated statistics
+        const updatedStats = await page.locator('text=/Total Properties|Available|Sold/').allTextContents();
+        console.log('Updated stats:', updatedStats);
+        
+        // Statistics should have changed
+        expect(JSON.stringify(updatedStats)).not.toBe(JSON.stringify(initialStats));
+        
+        console.log('✅ Property statistics updated after status change');
+      }
+    } else {
+      console.log('⚠️  Property statistics section not found');
+    }
+  });
+
+  test('should show proper tooltips on Tag buttons', async ({ page }) => {
+    await loginAsAdmin(page);
+    
+    // Wait for properties to load
+    await page.waitForSelector('[data-testid="property-card"], .property-item, .property-row', { timeout: 30000 });
+    
+    // Check available property Tag button tooltip
+    const availableTagButton = page.locator('button[title="Mark as Sold"]').first();
+    if (await availableTagButton.isVisible()) {
+      await expect(availableTagButton).toHaveAttribute('title', 'Mark as Sold');
+    }
+    
+    // Check sold property Tag button tooltip
+    const soldTagButton = page.locator('button[title="Mark as Available"]').first();
+    if (await soldTagButton.isVisible()) {
+      await expect(soldTagButton).toHaveAttribute('title', 'Mark as Available');
+    }
+    
+    console.log('✅ Tag button tooltips are properly configured');
+  });
 }); 

@@ -347,7 +347,7 @@ export default function HomePage() {
         <div className="absolute bottom-20 left-10 w-16 h-16 bg-brand-500/20 rounded-full backdrop-blur-sm animate-float" style={{ animationDelay: '2s' }} />
         
         {/* Content */}
-        <div className="relative z-10 h-full flex items-center justify-center text-center text-white px-4">
+        <div className="relative z-10 h-full flex items-center justify-center text-center text-white px-4 pt-24 md:pt-28">
           <div className="max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 30 }}

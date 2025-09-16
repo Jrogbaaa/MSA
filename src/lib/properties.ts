@@ -2,6 +2,7 @@ import { collection, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, 
 import { db, checkFirestoreConnection, getConnectionStatus } from './firebase';
 import { Property } from '@/types';
 import { properties as initialProperties } from '@/data/properties';
+import { handleFirebaseError, trackFirebaseError } from './errorTracking';
 
 // Properties collection name
 const PROPERTIES_COLLECTION = 'properties';
@@ -15,7 +16,15 @@ const RETRY_DELAY = 1000; // 1 second
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Enhanced error handling utility with automatic recovery
-const handleFirebaseError = async (error: any, operation: string) => {
+const handleFirebaseErrorLegacy = async (error: any, operation: string) => {
+  // Use new enhanced error tracking
+  await handleFirebaseError(error, operation, {
+    collection: PROPERTIES_COLLECTION,
+    fallbackAction: () => {
+      console.log(`📱 Using localStorage fallback for ${operation}`);
+    }
+  });
+
   // Handle Firestore internal assertion failures specifically
   if (error?.message?.includes('INTERNAL ASSERTION FAILED')) {
     console.warn(`🚨 Firestore internal error detected during ${operation}`);
@@ -47,20 +56,6 @@ const handleFirebaseError = async (error: any, operation: string) => {
       console.error('❌ Auto-recovery failed:', recoveryError);
     }
   }
-  
-  // Use console.warn instead of console.error to prevent Next.js error interception
-  console.warn(`🔥 Firebase ${operation} issue:`, error?.code || 'unknown');
-  
-  // Only log detailed errors in development
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`Firebase ${operation} details:`, {
-      code: error?.code,
-      message: error?.message?.substring(0, 100) // Limit message length
-    });
-  }
-  
-  // Always indicate fallback usage
-  console.log(`📱 Using localStorage fallback for ${operation}`);
 };
 
 // Retry mechanism for Firebase operations
@@ -186,7 +181,7 @@ export const getAllProperties = async (): Promise<Property[]> => {
     return initialProperties;
     
   } catch (error) {
-    await handleFirebaseError(error, 'fetch properties');
+    await handleFirebaseErrorLegacy(error, 'fetch properties');
     
     // Fallback to localStorage when Firebase fails
     if (typeof window !== 'undefined') {
@@ -236,7 +231,7 @@ export const getPropertyById = async (propertyId: string): Promise<Property | nu
     console.log('❌ Property not found in Firebase');
     return null;
   } catch (error) {
-    await handleFirebaseError(error, 'fetch property');
+    await handleFirebaseErrorLegacy(error, 'fetch property');
     return getPropertyFromFallback(propertyId);
   }
 };
@@ -302,7 +297,7 @@ export const saveProperty = async (property: Property): Promise<Property> => {
     
     return savedProperty;
   } catch (error) {
-    await handleFirebaseError(error, 'save property');
+    await handleFirebaseErrorLegacy(error, 'save property');
     return savePropertyToFallback(property);
   }
 };
@@ -361,7 +356,7 @@ export const updateProperty = async (propertyId: string, updates: Partial<Proper
     console.log(`✅ Property updated successfully`);
     return updatedProperty;
   } catch (error) {
-    await handleFirebaseError(error, 'update property');
+    await handleFirebaseErrorLegacy(error, 'update property');
     return updatePropertyFallback(propertyId, updates);
   }
 };
@@ -421,7 +416,7 @@ export const deleteProperty = async (propertyId: string): Promise<void> => {
       }
     }
   } catch (error) {
-    await handleFirebaseError(error, 'delete property');
+    await handleFirebaseErrorLegacy(error, 'delete property');
     deletePropertyFallback(propertyId);
   }
 };
@@ -538,7 +533,7 @@ export const initializeDefaultProperties = async (): Promise<void> => {
     
     await withRetry(initializeOperation, 'initialize default properties');
   } catch (error) {
-    await handleFirebaseError(error, 'initialize properties');
+    await handleFirebaseErrorLegacy(error, 'initialize properties');
     console.log('📱 Default properties will be available through localStorage fallback');
   }
 };
@@ -691,7 +686,7 @@ export const clearAllProperties = async (): Promise<void> => {
     
     console.log('✅ All properties cleared from Firebase');
   } catch (error) {
-    await handleFirebaseError(error, 'clear all properties');
+    await handleFirebaseErrorLegacy(error, 'clear all properties');
     
     // Fallback to localStorage
     if (typeof window !== 'undefined') {

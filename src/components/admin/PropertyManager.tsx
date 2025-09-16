@@ -25,6 +25,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Property } from '@/types';
 import { properties as initialProperties } from '@/data/properties';
 import { formatCurrency } from '@/lib/utils';
+import { isFeatureEnabled } from '@/lib/featureFlags';
+import { trackPropertyStatusChange, trackPropertyAction, trackAdminAction } from '@/lib/analytics';
+import { t } from '@/lib/i18n';
 import { 
   getAllProperties, 
   saveProperty, 
@@ -639,17 +642,39 @@ export default function PropertyManager() {
   };
 
   const handleToggleSold = async (propertyId: string) => {
+    // Check if quick toggle feature is enabled
+    if (!isFeatureEnabled('quickToggleSold')) {
+      console.warn('Quick toggle sold feature is disabled');
+      return;
+    }
+
     const property = properties.find(p => p.id === propertyId);
     if (!property) return;
 
     const newStatus = property.availability === 'sold' ? 'available' : 'sold';
     const actionText = newStatus === 'sold' ? 'mark as sold' : 'mark as available';
     
-    const confirmMessage = `Are you sure you want to ${actionText} "${property.title}"?\n\nThis will update the property status on the live website immediately.`;
+    // Track analytics - user initiated action
+    trackAdminAction('Property Toggle Initiated', `${property.availability} → ${newStatus}`, {
+      propertyId,
+      propertyTitle: property.title,
+      fromStatus: property.availability,
+      toStatus: newStatus,
+    });
+    
+    const confirmMessage = newStatus === 'sold' 
+      ? t('actions.confirmMarkSold', { title: property.title })
+      : t('actions.confirmMarkAvailable', { title: property.title });
     
     if (window.confirm(confirmMessage)) {
       try {
         console.log(`🏷️ Toggling property "${property.title}" to ${newStatus}...`);
+        
+        // Track analytics - action confirmed
+        trackAdminAction('Property Toggle Confirmed', `${property.availability} → ${newStatus}`, {
+          propertyId,
+          propertyTitle: property.title,
+        });
         
         // Update the property in Firebase
         const updatedProperty = await updateProperty(propertyId, { availability: newStatus });
@@ -659,14 +684,39 @@ export default function PropertyManager() {
         
         console.log(`✅ Property "${property.title}" marked as ${newStatus}`);
         
+        // Track successful status change
+        trackPropertyStatusChange(
+          propertyId,
+          property.availability,
+          newStatus,
+          property.title,
+          property.rent
+        );
+        
         // Success feedback
-        const statusText = newStatus === 'sold' ? 'SOLD' : 'Available';
-        alert(`✅ Status Updated!\n\n"${property.title}" has been marked as ${statusText} and the change is now live on the website.`);
+        const successMessage = newStatus === 'sold'
+          ? `${t('actions.statusUpdated')}\n\n${t('actions.markedAsSold', { title: property.title })}`
+          : `${t('actions.statusUpdated')}\n\n${t('actions.markedAsAvailable', { title: property.title })}`;
+        alert(`✅ ${successMessage}`);
         
       } catch (error) {
         console.error('❌ Error updating property status:', error);
-        alert(`❌ Error updating property status: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try again.`);
+        
+        // Track error
+        trackAdminAction('Property Toggle Error', 'Failed to update status', {
+          propertyId,
+          propertyTitle: property.title,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+        
+        alert(`❌ ${t('actions.updateError', { error: error instanceof Error ? error.message : 'Unknown error' })}`);
       }
+    } else {
+      // Track analytics - action cancelled
+      trackAdminAction('Property Toggle Cancelled', `${property.availability} → ${newStatus}`, {
+        propertyId,
+        propertyTitle: property.title,
+      });
     }
   };
 
@@ -945,31 +995,33 @@ export default function PropertyManager() {
                     onClick={() => handleEdit(property)}
                     className="border-gray-600 text-gray-300 hover:bg-gray-700"
                     disabled={isAddingProperty || editingPropertyId !== null}
-                    title="Edit Property"
+                    title={t('tooltips.editProperty')}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleToggleSold(property.id)}
-                    className={`${
-                      property.availability === 'sold' 
-                        ? 'border-green-600 text-green-400 hover:bg-green-900/50' 
-                        : 'border-orange-600 text-orange-400 hover:bg-orange-900/50'
-                    }`}
-                    disabled={isAddingProperty || editingPropertyId !== null}
-                    title={property.availability === 'sold' ? 'Mark as Available' : 'Mark as Sold'}
-                  >
-                    <Tag className="h-4 w-4" />
-                  </Button>
+                  {isFeatureEnabled('quickToggleSold') && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleToggleSold(property.id)}
+                      className={`${
+                        property.availability === 'sold' 
+                          ? 'border-green-600 text-green-400 hover:bg-green-900/50'
+                          : 'border-orange-600 text-orange-400 hover:bg-orange-900/50'
+                      }`}
+                      disabled={isAddingProperty || editingPropertyId !== null}
+                      title={property.availability === 'sold' ? t('tooltips.markPropertyAvailable') : t('tooltips.markPropertySold')}
+                    >
+                      <Tag className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleDelete(property.id)}
                     className="border-red-600 text-red-400 hover:bg-red-900/50"
                     disabled={isAddingProperty || editingPropertyId !== null}
-                    title="Delete Property"
+                    title={t('tooltips.deleteProperty')}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
